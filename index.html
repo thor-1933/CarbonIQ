@@ -1982,7 +1982,6 @@
             font-weight: 700
         }
 
-        /* Chart type selector */
         .chart-type-sel {
             display: flex;
             gap: 6px;
@@ -2324,7 +2323,7 @@
         }
 
         /* ═══════════════════════════════════════════════
-        CARBON LIFECYCLE — animated visual (replaces heavy text)
+        CARBON LIFECYCLE — animated visual
         ═══════════════════════════════════════════════ */
         .lifecycle {
             display: flex;
@@ -2415,7 +2414,7 @@
         }
 
         /* ═══════════════════════════════════════════════
-        AI EXPLAINER PAGE — visual/animated, minimal copy
+        AI EXPLAINER PAGE
         ═══════════════════════════════════════════════ */
         #page-ai-explainer .carbon-hero { min-height: 62vh; }
         .ai-hero-visual {
@@ -2506,7 +2505,6 @@
             .pipeline::before { display: none; }
         }
 
-        /* Animated LSTM cell */
         .lstm-visual {
             display: flex;
             align-items: center;
@@ -2543,7 +2541,6 @@
         }
         .lstm-arrow-wrap { color: var(--t4); font-size: 18px; }
 
-        /* Animated forecast sparkline (pure CSS, draws itself) */
         .draw-chart {
             width: 100%;
             height: 130px;
@@ -2581,77 +2578,27 @@
 
         /* ─── RESPONSIVE ─── */
         @media(max-width:900px) {
-            .g4 {
-                grid-template-columns: 1fr 1fr
-            }
-            .g3 {
-                grid-template-columns: 1fr 1fr
-            }
-            .nav-links {
-                display: none
-            }
-            .nav-actions .btn-ghost {
-                display: none
-            }
-            .nav-ham {
-                display: flex
-            }
-            .comparison-grid {
-                grid-template-columns: 1fr
-            }
-            .system-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            }
+            .g4 { grid-template-columns: 1fr 1fr }
+            .g3 { grid-template-columns: 1fr 1fr }
+            .nav-links { display: none }
+            .nav-actions .btn-ghost { display: none }
+            .nav-ham { display: flex }
+            .comparison-grid { grid-template-columns: 1fr }
+            .system-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
         }
         @media(max-width:640px) {
-            .g2,
-            .g3,
-            .g4 {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            .g2 > *,
-            .g3 > *,
-            .g4 > * {
-                min-width: 0;
-            }
-            .tx-grid {
-                grid-template-columns: 1fr
-            }
-            .sidebar {
-                width: 56px
-            }
-            .sb-item span,
-            .sb-brand-name,
-            .sb-brand-tag,
-            .sb-section,
-            .sb-user-name,
-            .sb-user-plan {
-                display: none
-            }
-            .sb-av {
-                margin: 0 auto
-            }
-            .sb-user {
-                justify-content: center;
-                padding: 8px
-            }
-            .stat-row {
-                grid-template-columns: 1fr 1fr
-            }
-            .hm {
-                padding: 0 12px
-            }
-            .hero-metrics {
-                gap: 4px
-            }
-            .pred-table th:nth-child(4),
-            .pred-table td:nth-child(4) {
-                display: none
-            }
-            .auth-card {
-                border-radius: var(--r20)
-            }
+            .g2, .g3, .g4 { grid-template-columns: 1fr; gap: 10px; }
+            .g2 > *, .g3 > *, .g4 > * { min-width: 0; }
+            .tx-grid { grid-template-columns: 1fr }
+            .sidebar { width: 56px }
+            .sb-item span, .sb-brand-name, .sb-brand-tag, .sb-section, .sb-user-name, .sb-user-plan { display: none }
+            .sb-av { margin: 0 auto }
+            .sb-user { justify-content: center; padding: 8px }
+            .stat-row { grid-template-columns: 1fr 1fr }
+            .hm { padding: 0 12px }
+            .hero-metrics { gap: 4px }
+            .pred-table th:nth-child(4), .pred-table td:nth-child(4) { display: none }
+            .auth-card { border-radius: var(--r20) }
             .sidebar {
                 position: fixed;
                 left: 0;
@@ -2662,61 +2609,21 @@
                 width: 220px !important;
                 transition: .3s
             }
-            .sidebar.mob-open {
-                transform: translateX(0)
-            }
-            .sb-item span,
-            .sb-brand-name,
-            .sb-brand-tag,
-            .sb-section,
-            .sb-user-name,
-            .sb-user-plan {
-                display: block !important
-            }
-            .dash-content {
-                padding: 14px
-            }
-            .system-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .carbon-stats .hm {
-                min-width: 80px;
-                padding: 0 8px;
-            }
+            .sidebar.mob-open { transform: translateX(0) }
+            .sb-item span, .sb-brand-name, .sb-brand-tag, .sb-section, .sb-user-name, .sb-user-plan { display: block !important }
+            .dash-content { padding: 14px }
+            .system-grid { grid-template-columns: 1fr 1fr; }
+            .carbon-stats .hm { min-width: 80px; padding: 0 8px; }
         }
-        /* Sub‑640px tightening for very small phones */
         @media(max-width:480px) {
-            .card,
-            .mkt-card,
-            .chart-card,
-            .system-card,
-            .comp-card {
-                padding: 16px 14px;
-            }
-            .mkt-price,
-            .stat-val {
-                font-size: 22px;
-            }
-            .hero-metrics .hm,
-            .carbon-stats .hm {
-                min-width: 70px;
-                padding: 0 6px;
-            }
-            .tx-grid,
-            .comparison-grid,
-            .system-grid {
-                grid-template-columns: 1fr;
-            }
-            .lifecycle-step {
-                flex: 0 0 45%;
-            }
-            #chatPanel {
-                width: calc(100vw - 24px);
-                right: 12px;
-            }
+            .card, .mkt-card, .chart-card, .system-card, .comp-card { padding: 16px 14px; }
+            .mkt-price, .stat-val { font-size: 22px; }
+            .hero-metrics .hm, .carbon-stats .hm { min-width: 70px; padding: 0 6px; }
+            .tx-grid, .comparison-grid, .system-grid { grid-template-columns: 1fr; }
+            .lifecycle-step { flex: 0 0 45%; }
+            #chatPanel { width: calc(100vw - 24px); right: 12px; }
         }
 
-        /* ─── THEMED APEXCHARTS TOOLTIP ─── */
         .ciq-tooltip .apexcharts-tooltip-title {
             background: var(--bg3) !important;
             border-bottom: 1px solid var(--b2) !important;
@@ -2784,7 +2691,6 @@
     LANDING PAGE
     ═══════════════════════════════════════════════ -->
     <div id="page-landing">
-
         <section class="hero">
             <div class="hero-eyebrow">
                 <span class="pulse-dot"></span>
@@ -2989,15 +2895,12 @@
             </div>
             <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
         </footer>
-
     </div><!-- /landing -->
 
     <!-- ═══════════════════════════════════════════════
-    CARBON CREDITS PAGE — Theory & Visuals
+    CARBON CREDITS PAGE
     ═══════════════════════════════════════════════ -->
     <div id="page-carbon">
-
-        <!-- HERO -->
         <section class="carbon-hero">
             <div class="hero-eyebrow">
                 <span class="pulse-dot"></span>
@@ -3006,7 +2909,6 @@
             <div class="hero-rule"><span class="hero-rule-diamond"></span></div>
             <h1>Understanding <span>Carbon Credits</span></h1>
             <p class="carbon-sub">A deep-dive into the world's carbon pricing systems — from compliance markets like EU ETS to voluntary offset markets, with 35+ active systems and 87+ pricing instruments globally.</p>
-
             <div class="carbon-stats">
                 <div class="hm"><div class="hm-val" id="counterSystems">35+</div><div class="hm-lbl">Active ETS Systems</div></div>
                 <div class="hm"><div class="hm-val" id="counterInstruments">87+</div><div class="hm-lbl">Pricing Instruments</div></div>
@@ -3015,7 +2917,6 @@
             </div>
         </section>
 
-        <!-- WHAT ARE CARBON CREDITS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">The Basics</span>
@@ -3026,40 +2927,17 @@
                     <h2 style="font-family:var(--display);font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-.5px;color:var(--gold)">1 Credit = 1 Ton of CO₂e</h2>
                     <p style="font-size:13.5px;color:var(--t3);line-height:1.7;margin-top:8px">Removed, reduced, or avoided — then verified, issued, and traded.</p>
                 </div>
-
-                <!-- Animated lifecycle: from emission to retirement -->
                 <div class="lifecycle">
-                    <div class="lifecycle-step">
-                        <div class="lc-ring">🏭</div>
-                        <div class="lc-label">Emit</div>
-                        <div class="lc-sub">Baseline CO₂e</div>
-                    </div>
+                    <div class="lifecycle-step"><div class="lc-ring">🏭</div><div class="lc-label">Emit</div><div class="lc-sub">Baseline CO₂e</div></div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step">
-                        <div class="lc-ring">🌱</div>
-                        <div class="lc-label">Reduce</div>
-                        <div class="lc-sub">Avoid / remove</div>
-                    </div>
+                    <div class="lifecycle-step"><div class="lc-ring">🌱</div><div class="lc-label">Reduce</div><div class="lc-sub">Avoid / remove</div></div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step">
-                        <div class="lc-ring">✅</div>
-                        <div class="lc-label">Verify</div>
-                        <div class="lc-sub">3rd‑party audit</div>
-                    </div>
+                    <div class="lifecycle-step"><div class="lc-ring">✅</div><div class="lc-label">Verify</div><div class="lc-sub">3rd‑party audit</div></div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step">
-                        <div class="lc-ring">🎫</div>
-                        <div class="lc-label">Issue</div>
-                        <div class="lc-sub">1 credit / tCO₂e</div>
-                    </div>
+                    <div class="lifecycle-step"><div class="lc-ring">🎫</div><div class="lc-label">Issue</div><div class="lc-sub">1 credit / tCO₂e</div></div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step">
-                        <div class="lc-ring">🔁</div>
-                        <div class="lc-label">Trade / Retire</div>
-                        <div class="lc-sub">Market or offset</div>
-                    </div>
+                    <div class="lifecycle-step"><div class="lc-ring">🔁</div><div class="lc-label">Trade / Retire</div><div class="lc-sub">Market or offset</div></div>
                 </div>
-
                 <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px">
                     <span class="ttag" style="background:var(--gold-glow2);color:var(--gold);border-color:rgba(201,168,76,.2)">1 credit = 1 tCO₂e</span>
                     <span class="ttag" style="background:rgba(0,212,170,.06);color:var(--teal);border-color:rgba(0,212,170,.15)">Compliance + Voluntary</span>
@@ -3069,7 +2947,6 @@
             </div>
         </div>
 
-        <!-- COMPLIANCE VS VOLUNTARY -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Market Types</span>
@@ -3101,15 +2978,12 @@
             </div>
         </div>
 
-        <!-- GLOBAL SYSTEMS GRID -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Global Carbon Pricing Systems</span>
                 <span class="section-badge badge-live">● 35+ Active</span>
             </div>
-            <div class="system-grid" id="systemGrid">
-                <!-- Rows injected by JS -->
-            </div>
+            <div class="system-grid" id="systemGrid"></div>
             <div style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
                 <span class="mech-tag mech-fixed">● Fixed Price (40+ systems)</span>
                 <span class="mech-tag mech-increment">● 5-Year Increment</span>
@@ -3120,7 +2994,6 @@
             </div>
         </div>
 
-        <!-- PRICING MECHANISMS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">How Pricing Works</span>
@@ -3144,8 +3017,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Visual bar -->
             <div class="card" style="margin-top:14px">
                 <div class="card-hd"><span class="card-title">Pricing Mechanism Distribution</span></div>
                 <div class="pricing-visual">
@@ -3169,7 +3040,6 @@
             </div>
         </div>
 
-        <!-- DEEP DIVE: MAJOR SYSTEMS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Major Systems Deep Dive</span>
@@ -3223,7 +3093,6 @@
             </div>
         </div>
 
-        <!-- FOOTER (same) -->
         <footer class="footer reveal">
             <div class="footer-diamond"></div>
             <div class="footer-logo">Carbon<span>IQ</span></div>
@@ -3237,16 +3106,12 @@
             </div>
             <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
         </footer>
-
     </div><!-- /carbon -->
 
     <!-- ═══════════════════════════════════════════════
-    AI FORECAST EXPLAINER — public, no login required.
-    Live model output lives inside the authenticated dashboard.
+    AI EXPLAINER PAGE
     ═══════════════════════════════════════════════ -->
     <div id="page-ai-explainer">
-
-        <!-- HERO -->
         <section class="carbon-hero">
             <div class="hero-eyebrow">
                 <span class="pulse-dot"></span>
@@ -3255,13 +3120,11 @@
             <div class="hero-rule"><span class="hero-rule-diamond"></span></div>
             <h1>How CarbonIQ <span>Predicts</span> Prices</h1>
             <p class="carbon-sub">An LSTM neural network trained on a decade of EU ETS data, retrained daily, and continuously backtested — turning noisy carbon markets into probable price paths.</p>
-
             <div class="ai-hero-visual">
                 <canvas class="neuro-canvas" id="neuroCanvas"></canvas>
             </div>
         </section>
 
-        <!-- WHAT IS AI FORECASTING -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">The Idea</span>
@@ -3282,7 +3145,6 @@
             </div>
         </div>
 
-        <!-- HOW WE DO IT — PIPELINE -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">How We Do It</span>
@@ -3290,41 +3152,15 @@
             </div>
             <div class="card" style="padding:10px 16px 26px">
                 <div class="pipeline">
-                    <div class="pipe-step">
-                        <div class="pipe-node glow">📡</div>
-                        <div class="pipe-num">01</div>
-                        <div class="pipe-title">Ingest</div>
-                        <div class="pipe-desc">Prices, auctions, weather, macro &amp; news feeds — live</div>
-                    </div>
-                    <div class="pipe-step">
-                        <div class="pipe-node glow">🧮</div>
-                        <div class="pipe-num">02</div>
-                        <div class="pipe-title">Engineer</div>
-                        <div class="pipe-desc">Volatility, seasonality &amp; policy-shock features</div>
-                    </div>
-                    <div class="pipe-step">
-                        <div class="pipe-node glow">🧠</div>
-                        <div class="pipe-num">03</div>
-                        <div class="pipe-title">Train</div>
-                        <div class="pipe-desc">LSTM learns sequences across 10y of trading data</div>
-                    </div>
-                    <div class="pipe-step">
-                        <div class="pipe-node glow">✅</div>
-                        <div class="pipe-num">04</div>
-                        <div class="pipe-title">Backtest</div>
-                        <div class="pipe-desc">Validated against unseen history before going live</div>
-                    </div>
-                    <div class="pipe-step">
-                        <div class="pipe-node glow">📈</div>
-                        <div class="pipe-num">05</div>
-                        <div class="pipe-title">Forecast</div>
-                        <div class="pipe-desc">Daily-refreshed price path with confidence bands</div>
-                    </div>
+                    <div class="pipe-step"><div class="pipe-node glow">📡</div><div class="pipe-num">01</div><div class="pipe-title">Ingest</div><div class="pipe-desc">Prices, auctions, weather, macro &amp; news feeds — live</div></div>
+                    <div class="pipe-step"><div class="pipe-node glow">🧮</div><div class="pipe-num">02</div><div class="pipe-title">Engineer</div><div class="pipe-desc">Volatility, seasonality &amp; policy-shock features</div></div>
+                    <div class="pipe-step"><div class="pipe-node glow">🧠</div><div class="pipe-num">03</div><div class="pipe-title">Train</div><div class="pipe-desc">LSTM learns sequences across 10y of trading data</div></div>
+                    <div class="pipe-step"><div class="pipe-node glow">✅</div><div class="pipe-num">04</div><div class="pipe-title">Backtest</div><div class="pipe-desc">Validated against unseen history before going live</div></div>
+                    <div class="pipe-step"><div class="pipe-node glow">📈</div><div class="pipe-num">05</div><div class="pipe-title">Forecast</div><div class="pipe-desc">Daily-refreshed price path with confidence bands</div></div>
                 </div>
             </div>
         </div>
 
-        <!-- INSIDE THE MODEL — LSTM GATES -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Inside the Model</span>
@@ -3344,7 +3180,6 @@
             </div>
         </div>
 
-        <!-- PERFORMANCE STATS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Track Record</span>
@@ -3358,7 +3193,6 @@
             </div>
         </div>
 
-        <!-- CTA -->
         <div class="section reveal" style="text-align:center">
             <div class="card" style="padding:36px 24px;max-width:640px;margin:0 auto">
                 <h2 style="font-family:var(--display);font-size:clamp(20px,2.6vw,26px);font-weight:700;margin-bottom:10px">Live forecasts live in your dashboard</h2>
@@ -3370,7 +3204,6 @@
             </div>
         </div>
 
-        <!-- FOOTER (same) -->
         <footer class="footer reveal">
             <div class="footer-diamond"></div>
             <div class="footer-logo">Carbon<span>IQ</span></div>
@@ -3384,7 +3217,6 @@
             </div>
             <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
         </footer>
-
     </div><!-- /ai-explainer -->
 
     <!-- ═══════════════════════════════════════════════
@@ -3536,7 +3368,6 @@
                             <span class="section-badge badge-live" id="dashLiveBadge">● Live</span>
                         </div>
 
-                        <!-- Chart type selector -->
                         <div class="chart-type-sel" id="chartTypeSel">
                             <button class="chart-type-btn active" data-type="area" onclick="setChartType('area',this)">Area</button>
                             <button class="chart-type-btn" data-type="line" onclick="setChartType('line',this)">Line</button>
@@ -3659,7 +3490,7 @@
     </div>
 
     <script>
-    // ═══ STATE ═══
+    // ─── STATE ──────────────────────────────────────────────────────────
     let currentUser = null;
     let chartsInit = false;
     let dashChartsInit = false;
@@ -3668,11 +3499,10 @@
     let currentChartType = 'area';
     let currentRange = '1M';
     let currentDataPoints = [];
-    let usingLiveData = true;
     let currentPrevClose = null;
     let dashRefreshTimer = null;
 
-    // ─── WAIT FOR CONTAINER WIDTH ────────────────────────────────
+    // ─── WAIT FOR CONTAINER WIDTH ────────────────────────────────────
     function whenContainerReady(id, cb, attempts = 0) {
         const el = document.getElementById(id);
         if (el && el.offsetWidth > 0) {
@@ -3687,7 +3517,7 @@
         requestAnimationFrame(function() { whenContainerReady(id, cb, attempts + 1); });
     }
 
-    // ═══ NAVIGATION ═══
+    // ─── NAVIGATION ──────────────────────────────────────────────────
     function navigateTo(page, el) {
         document.querySelectorAll('.nav-link').forEach(function(x) { x.classList.remove('active'); });
         if (el) el.classList.add('active');
@@ -3712,7 +3542,7 @@
         closeMM();
     }
 
-    // ═══ PAGE CONTROL ═══
+    // ─── PAGE CONTROL ──────────────────────────────────────────────────
     function showPage(page, tab) {
         document.getElementById('page-landing').style.display = 'none';
         document.getElementById('page-auth').style.display = 'none';
@@ -3767,7 +3597,7 @@
         }
     }
 
-    // ═══ MOBILE MENU ═══
+    // ─── MOBILE MENU ──────────────────────────────────────────────────
     function toggleMobileMenu() {
         var menu = document.getElementById('mobileMenu');
         var ham = document.getElementById('navHam');
@@ -3782,7 +3612,7 @@
         if (h) h.classList.remove('open');
     }
 
-    // ═══ AUTH ═══
+    // ─── AUTH ──────────────────────────────────────────────────────────
     function switchAuthTab(tab) {
         document.getElementById('form-signin').style.display = tab === 'signin' ? 'block' : 'none';
         document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
@@ -3850,7 +3680,7 @@
         if (avEl) avEl.textContent = currentUser.initials;
     }
 
-    // ═══ PANEL SWITCH ═══
+    // ─── PANEL SWITCH ──────────────────────────────────────────────────
     function switchPanel(name, el) {
         document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
         document.querySelectorAll('.sb-item').forEach(function(s) { s.classList.remove('active'); });
@@ -3870,7 +3700,7 @@
         }
     }
 
-    // ═══ TICKER ═══
+    // ─── TICKER ──────────────────────────────────────────────────────────
     var TICKS = [
         { n: 'EUA CFI=F', v: '—', c: '—', t: 'neu', key: 'eua' },
         { n: 'FCO2 ETC', v: '—', c: '—', t: 'neu', key: 'fco2' },
@@ -3898,7 +3728,7 @@
         });
     })();
 
-    // ─── REAL DATA FETCH WITH MULTI-PROXY FALLBACK ───────────────
+    // ─── REAL DATA FETCH ──────────────────────────────────────────────
     const CORS_PROXIES = [
         (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
         (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
@@ -3906,7 +3736,7 @@
         (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     ];
 
-    let lastKnownGood = null; // { price, open, high, low, previousClose, ts }
+    let lastKnownGood = null;
 
     async function fetchYahooFinanceData(range, interval) {
         const symbol = 'CO2.MI';
@@ -3945,7 +3775,9 @@
                 const closePrices = quotes.close || [];
 
                 const points = [];
-                let latestOpen = null, latestHigh = null, latestLow = null;
+                let latestOpen = null,
+                    latestHigh = null,
+                    latestLow = null;
                 for (let j = 0; j < timestamps.length; j++) {
                     const price = closePrices[j];
                     if (price !== null && price !== undefined && !isNaN(price)) {
@@ -3979,7 +3811,7 @@
                 if (latestLow === null) latestLow = (meta.regularMarketDayLow !== undefined) ? meta.regularMarketDayLow : null;
 
                 if (latestPrice === null || latestPrice === undefined || isNaN(latestPrice)) {
-                    throw new Error('No price data available (no intraday points and no meta price)');
+                    throw new Error('No price data available');
                 }
 
                 if (points.length === 0) {
@@ -4016,11 +3848,10 @@
             }
         }
 
-        console.warn('All CORS proxies failed for this request — using fallback data.');
+        console.warn('All CORS proxies failed — using fallback data.');
         return generateFallbackData(range);
     }
 
-    // ─── FALLBACK DATA GENERATOR ────────────────────────────────
     function generateFallbackData(range) {
         const now = Date.now();
         const map = {
@@ -4067,9 +3898,9 @@
         };
     }
 
-    // ─── MARKET HOURS (Borsa Italiana, where CO2.MI trades) ──────
-    var MARKET_OPEN_MIN = 9 * 60; // 09:00
-    var MARKET_CLOSE_MIN = 17 * 60 + 30; // 17:30
+    // ─── MARKET HOURS ──────────────────────────────────────────────────
+    var MARKET_OPEN_MIN = 9 * 60;
+    var MARKET_CLOSE_MIN = 17 * 60 + 30;
     var MARKET_TZ = 'Europe/Rome';
     var WEEKDAY_ORDER = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -4109,22 +3940,17 @@
         } else {
             var dayIdx = WEEKDAY_ORDER.indexOf(now.weekday);
             var minutesUntilMidnight = (24 * 60) - minutesNow;
-            var daysAhead = 0;
-            var candidateIdx = dayIdx;
             var minsToOpenToday = MARKET_OPEN_MIN - minutesNow;
-
             if (!isWeekend && minsToOpenToday > 0) {
                 var h2 = Math.floor(minsToOpenToday / 60),
                     m2 = minsToOpenToday % 60;
                 nextEvent = 'Opens in ' + (h2 > 0 ? h2 + 'h ' : '') + m2 + 'm';
             } else {
                 var totalMins = minutesUntilMidnight;
-                candidateIdx = (dayIdx + 1) % 7;
-                daysAhead = 1;
+                var candidateIdx = (dayIdx + 1) % 7;
                 while (candidateIdx === 0 || candidateIdx === 6) {
                     totalMins += 24 * 60;
                     candidateIdx = (candidateIdx + 1) % 7;
-                    daysAhead++;
                 }
                 totalMins += MARKET_OPEN_MIN;
                 var hh = Math.floor(totalMins / 60),
@@ -4138,7 +3964,6 @@
 
     function updateMarketStatusUI() {
         var status = getMarketStatus();
-
         var dot = document.getElementById('marketStatusDot');
         var label = document.getElementById('marketStatusLabel');
         var clock = document.getElementById('marketMilanClock');
@@ -4165,7 +3990,7 @@
         }
     }
 
-    // ─── COMPUTE STATS FROM WHATEVER RANGE DATA WE HAVE ──────────
+    // ─── STATS HELPERS ──────────────────────────────────────────────────
     function computeRangeStats(data) {
         const points = data.points || [];
         if (points.length === 0) return null;
@@ -4184,7 +4009,6 @@
         return (v === null || v === undefined || isNaN(v)) ? '—' : '€' + v.toFixed(2);
     }
 
-    // ─── UPDATE STAT CARDS (Current / Prev Close / Open / High / Low) FOR CURRENT RANGE ──
     function updateDashStats(data) {
         const stats = computeRangeStats(data);
         if (!stats) return;
@@ -4203,14 +4027,15 @@
         const highEl = document.getElementById('statHigh');
         const lowEl = document.getElementById('statLow');
 
-        if (curEl) { curEl.textContent = fmtEur(stats.close); curEl.className = 'stat-val ' + tone; }
-        if (chgEl) { chgEl.textContent = arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + changePct.toFixed(2) + '%)'; chgEl.className = 'stat-chg ' + tone; }
+        if (curEl) { curEl.textContent = fmtEur(stats.close);
+            curEl.className = 'stat-val ' + tone; }
+        if (chgEl) { chgEl.textContent = arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + changePct.toFixed(2) + '%)';
+            chgEl.className = 'stat-chg ' + tone; }
         if (prevEl) prevEl.textContent = fmtEur(stats.prevClose);
         if (openEl) openEl.textContent = fmtEur(stats.open);
         if (highEl) highEl.textContent = fmtEur(stats.high);
         if (lowEl) lowEl.textContent = fmtEur(stats.low);
 
-        // Also refresh the ticker's FCO2 entry from the same data (keeps UI consistent)
         const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
         fco2Ticks.forEach(function(el) {
             var valEl = el.querySelector('.tick-val');
@@ -4222,7 +4047,7 @@
         });
     }
 
-    // ─── LIGHTWEIGHT TICKER-ONLY REFRESH (every 60s, independent of selected range) ──
+    // ─── TICKER-ONLY REFRESH ──────────────────────────────────────────
     async function updateTickerOnly() {
         try {
             const data = await fetchYahooFinanceData('5d', '15m');
@@ -4248,8 +4073,6 @@
         }
     }
 
-    // If the user is looking at 1D, refresh the whole chart+stats periodically so it
-    // stays live. For other ranges we just refresh the lightweight ticker.
     async function periodicRefresh() {
         if (currentRange === '1D') {
             try {
@@ -4271,7 +4094,7 @@
         }
     }
 
-    // ═══ CHART UTILS ═══
+    // ─── CHART UTILITIES ──────────────────────────────────────────────
     function mkDates(n, future) {
         if (future === undefined) future = 0;
         var a = [];
@@ -4290,90 +4113,78 @@
         return a;
     }
 
-    // ─── BASE_OPTS ─────────────────────────────────────────────────
-    var BASE_OPTS = {
-        chart: {
-            background: 'transparent',
-            toolbar: { show: false },
-            fontFamily: 'DM Sans,sans-serif',
-            animations: { enabled: false },
-            zoom: { enabled: false },
-            parentHeightOffset: 0,
-        },
-        theme: { mode: 'dark' },
-        dataLabels: { enabled: false },
-        grid: {
-            borderColor: 'rgba(20,30,48,0.8)',
-            strokeDashArray: 4,
-            padding: { left: 8, right: 8, top: 4, bottom: 0 },
-            xaxis: { lines: { show: true } },
-            yaxis: { lines: { show: true } },
-        },
-        stroke: { curve: 'smooth', width: 2 },
-        markers: { size: 0, strokeWidth: 0, hover: { size: 6, sizeOffset: 3 } },
-        states: { hover: { filter: { type: 'none' } }, active: { filter: { type: 'none' } } },
-        tooltip: {
-            enabled: true,
-            theme: 'dark',
-            shared: false,
-            intersect: false,
-            followCursor: true,
-            style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
-            marker: { show: true },
-            cssClass: 'ciq-tooltip',
-        },
-        xaxis: {
-            labels: {
-                style: { colors: '#4e5f7a', fontSize: '10px' },
-                rotate: 0,
-                hideOverlappingLabels: true,
-                trim: false,
-                offsetY: 2,
-            },
-            tickPlacement: 'on',
-            axisBorder: { show: false },
-            axisTicks: { show: false },
-            tooltip: { enabled: false },
-            crosshairs: { show: true, stroke: { color: '#c9a84c', width: 1, dashArray: 4 }, opacity: .7 },
-        },
-        yaxis: {
-            labels: {
-                style: { colors: '#4e5f7a', fontSize: '10px' },
-                offsetX: -4,
-                align: 'left',
-                formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
-            },
-        },
-        legend: { show: false },
-        responsive: [{
-            breakpoint: 640,
-            options: {
-                grid: { padding: { left: 2, right: 2, top: 2, bottom: 0 } },
-                xaxis: { labels: { style: { fontSize: '9px' }, rotate: 0 } },
-                yaxis: { labels: { style: { fontSize: '9px' }, offsetX: -2 } },
-            },
-        }, ],
-    };
-
-    // ─── LANDING PAGE CHART (dummy) ═══
+    // ─── LANDING PAGE CHART ────────────────────────────────────────────
     function initLandingCharts() {
         var h = genSeries(22, 60.2, 1.4);
         var f = [].concat(Array(21).fill(null), [h[h.length - 1]]).concat(genSeries(8, h[h.length - 1], .6).slice(1));
         var labels = mkDates(22, 8);
         new ApexCharts(document.getElementById('landingChart'), {
-            ...BASE_OPTS,
+            chart: {
+                background: 'transparent',
+                toolbar: { show: false },
+                fontFamily: 'DM Sans,sans-serif',
+                animations: { enabled: false },
+                zoom: { enabled: false },
+                parentHeightOffset: 0,
+                type: 'line',
+                height: 210
+            },
+            theme: { mode: 'dark' },
+            dataLabels: { enabled: false },
+            grid: {
+                borderColor: 'rgba(20,30,48,0.8)',
+                strokeDashArray: 4,
+                padding: { left: 8, right: 8, top: 4, bottom: 0 },
+                xaxis: { lines: { show: true } },
+                yaxis: { lines: { show: true } },
+            },
+            stroke: { curve: 'smooth', width: [2, 2], dashArray: [0, 5] },
+            markers: { size: 0, strokeWidth: 0, hover: { size: 6, sizeOffset: 3 } },
+            states: { hover: { filter: { type: 'none' } }, active: { filter: { type: 'none' } } },
+            tooltip: {
+                enabled: true,
+                theme: 'dark',
+                shared: false,
+                intersect: false,
+                followCursor: true,
+                style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
+                marker: { show: true },
+                cssClass: 'ciq-tooltip',
+            },
+            xaxis: {
+                labels: { style: { colors: '#4e5f7a', fontSize: '10px' }, rotate: 0, hideOverlappingLabels: true,
+                    trim: false, offsetY: 2 },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+                crosshairs: { show: true, stroke: { color: '#c9a84c', width: 1, dashArray: 4 }, opacity: .7 },
+            },
+            yaxis: {
+                labels: {
+                    style: { colors: '#4e5f7a', fontSize: '10px' },
+                    offsetX: -4,
+                    align: 'left',
+                    formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+                },
+            },
+            legend: { show: false },
             series: [
                 { name: 'Historical', data: h.map(function(v, i) { return { x: labels[i], y: v }; }) },
                 { name: 'AI Forecast', data: f.map(function(v, i) { return { x: labels[i], y: v }; }) }
             ],
-            chart: { ...BASE_OPTS.chart, type: 'line', height: 210 },
             colors: ['#00d4aa', '#c9a84c'],
-            stroke: { curve: 'smooth', width: [2, 2], dashArray: [0, 5] },
             fill: { type: ['solid', 'solid'], opacity: [0.05, 0] },
+            responsive: [{
+                breakpoint: 640,
+                options: {
+                    grid: { padding: { left: 2, right: 2, top: 2, bottom: 0 } },
+                    xaxis: { labels: { style: { fontSize: '9px' }, rotate: 0 } },
+                    yaxis: { labels: { style: { fontSize: '9px' }, offsetX: -2 } },
+                },
+            }, ],
         }).render();
     }
 
-    // ─── DASHBOARD CHART ──────────────────────────────────────────
+    // ─── DASHBOARD CHART ──────────────────────────────────────────────
     function renderDashChart(points, rangeKey, chartType) {
         if (!chartType) chartType = currentChartType;
         const isCandle = chartType === 'candlestick';
@@ -4400,11 +4211,10 @@
             type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line')
         }];
 
-        // Capture prevClose for tooltip
         const prevCloseForChart = currentPrevClose !== null ? currentPrevClose :
             (isCandle ? seriesData[0]?.y?.[0] : seriesData[0]?.y);
 
-        // ─── Tooltip function ─────────────────────────────────────────
+        // ─── Tooltip function ────────────────────────────────────────────
         const tooltipFn = function(opts) {
             const { seriesIndex, dataPointIndex, w } = opts;
             const rawPoint = w.config.series[seriesIndex] && w.config.series[seriesIndex].data[dataPointIndex];
@@ -4432,23 +4242,24 @@
 
             let ohlcHtml = '';
             if (isCandle && Array.isArray(rawPoint.y)) {
-                ohlcHtml = `<div style="display:flex;gap:10px;margin-top:6px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#9ea8bc">
-                        <span>O <b style="color:#f0eeea">${rawPoint.y[0].toFixed(2)}</b></span>
-                        <span>H <b style="color:#00d4aa">${rawPoint.y[1].toFixed(2)}</b></span>
-                        <span>L <b style="color:#ff4f6e">${rawPoint.y[2].toFixed(2)}</b></span>
-                    </div>`;
+                ohlcHtml =
+                    `<div style="display:flex;gap:10px;margin-top:6px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#9ea8bc">
+                    <span>O <b style="color:#f0eeea">${rawPoint.y[0].toFixed(2)}</b></span>
+                    <span>H <b style="color:#00d4aa">${rawPoint.y[1].toFixed(2)}</b></span>
+                    <span>L <b style="color:#ff4f6e">${rawPoint.y[2].toFixed(2)}</b></span>
+                </div>`;
             }
 
             return `<div style="background:#0c1220;border:1px solid rgba(201,168,76,.35);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:170px">
-                    <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
-                    <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}
-                        <span style="font-size:11px;color:${tone};margin-left:6px">(${arrow} ${sign}${changePct.toFixed(2)}% basis prev close)</span>
-                    </div>
-                    ${ohlcHtml}
-                </div>`;
+                <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
+                <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}
+                    <span style="font-size:11px;color:${tone};margin-left:6px">(${arrow} ${sign}${changePct.toFixed(2)}% basis prev close)</span>
+                </div>
+                ${ohlcHtml}
+            </div>`;
         };
 
-        // ─── Chart options ───────────────────────────────────────────
+        // ─── Chart options ──────────────────────────────────────────────
         const sharedOptions = {
             series: series,
             chart: {
@@ -4473,6 +4284,11 @@
                 width: isCandle ? 1 : 2,
                 dashArray: 0,
             },
+            markers: {
+                size: isCandle ? 0 : 2,
+                strokeWidth: 0,
+                hover: { size: 5, sizeOffset: 3 },
+            },
             fill: {
                 type: chartType === 'area' ? 'gradient' : 'solid',
                 gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
@@ -4485,7 +4301,9 @@
                     strokeDashArray: 4,
                     label: {
                         borderColor: 'transparent',
-                        style: { color: '#9ea8bc', background: 'rgba(12,18,32,.85)', fontSize: '10px', fontFamily: 'JetBrains Mono,monospace', padding: { left: 6, right: 6, top: 2, bottom: 2 } },
+                        style: { color: '#9ea8bc', background: 'rgba(12,18,32,.85)', fontSize: '10px',
+                            fontFamily: 'JetBrains Mono,monospace', padding: { left: 6, right: 6, top: 2,
+                                bottom: 2 } },
                         text: 'Prev. Close  €' + prevCloseForChart.toFixed(2),
                         position: 'right',
                         textAnchor: 'end',
@@ -4548,7 +4366,7 @@
             }],
         };
 
-        // ─── DESTROY old chart and create a fresh one ───────────────────
+        // ─── Destroy old chart & create fresh ──────────────────────────
         if (dashChart) {
             dashChart.destroy();
             dashChart = null;
@@ -4558,12 +4376,11 @@
         dashChart = new ApexCharts(container, sharedOptions);
         dashChart.render();
 
-        // Update title
         const titleEl = document.getElementById('dashChartTitle');
         if (titleEl) titleEl.textContent = 'SparkChange Physical Carbon EUA ETC (CO2.MI) · ' + rangeKey;
     }
 
-    // ─── CHART TYPE SWITCH ──────────────────────────────────────
+    // ─── CHART TYPE SWITCH ────────────────────────────────────────────
     function setChartType(type, btn) {
         if (type === currentChartType) return;
         currentChartType = type;
@@ -4574,7 +4391,7 @@
         }
     }
 
-    // ═══ TIMEFRAME CONTROLLER ═══
+    // ─── TIMEFRAME CONTROLLER ──────────────────────────────────────────
     async function setDashRange(rangeKey, btn) {
         document.querySelectorAll('#rangeSel .range-btn').forEach(function(b) { b.classList.remove('active'); });
         if (btn) btn.classList.add('active');
@@ -4614,7 +4431,7 @@
         }
     }
 
-    // ═══ INIT DASHBOARD CHARTS ═══
+    // ─── INIT DASHBOARD ──────────────────────────────────────────────
     async function initDashCharts() {
         updateMarketStatusUI();
         setInterval(updateMarketStatusUI, 1000);
@@ -4626,7 +4443,7 @@
         currentChartType = 'area';
     }
 
-    // ═══ SCROLL REVEAL ═══
+    // ─── SCROLL REVEAL ──────────────────────────────────────────────────
     function initReveal() {
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible');
@@ -4638,7 +4455,7 @@
         });
     }
 
-    // ═══ CHAT ═══ (unchanged)
+    // ─── CHAT ──────────────────────────────────────────────────────────
     var chatOpen = { v: false };
 
     function toggleChat() {
@@ -4705,7 +4522,7 @@
     function quickSend(t) { document.getElementById('chatInput').value = t;
         sendMsg(); }
 
-    // ═══ CARBON PAGE INIT ═══
+    // ─── CARBON PAGE INIT ──────────────────────────────────────────────
     function initCarbonPage() {
         var systems = [
             { name: 'EU ETS', region: '🇪🇺 Europe', price: '€63.45', mech: 'increment',
@@ -4793,7 +4610,7 @@
         });
     }
 
-    // ═══ AI EXPLAINER PAGE INIT ═══
+    // ─── AI EXPLAINER PAGE INIT ────────────────────────────────────────
     function initAIExplainer() {
         var counters = [
             { el: 'aiCounterMape', target: 3.8, suffix: '%', decimals: 1 },
@@ -4899,12 +4716,12 @@
         window.addEventListener('resize', function() { layout(); });
     }
 
-    // ═══ RESIZE HOOK ─── keep charts crisp on window resize
+    // ─── RESIZE HOOK ────────────────────────────────────────────────────
     window.addEventListener('resize', function() {
         if (dashChart) dashChart.updateOptions({}, false, true);
     });
 
-    // ═══ INIT ═══
+    // ─── INIT ──────────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', function() {
         showPage('landing');
     });
@@ -4913,7 +4730,6 @@
         document.querySelectorAll('.orb').forEach(function(o) { o.style.animation = 'none'; });
         document.querySelectorAll('.ticker-wrap').forEach(function(t) { t.style.animation = 'none'; });
     }
-</script>
+    </script>
 </body>
 </html>
-```
