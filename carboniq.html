@@ -1,0 +1,4721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>CarbonIQ — EU ETS Intelligence Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js">
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,wght@0,400;0,500;1,400;1,500;1,600&display=swap" rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg0: #050810;
+            --bg1: #080c18;
+            --bg2: #0c1220;
+            --bg3: #111828;
+            --bg4: #182030;
+            --bg5: #1e2838;
+            --gold: #c9a84c;
+            --gold-light: #e8c96a;
+            --gold-pale: #f2dfa0;
+            --gold-dim: #8a6a28;
+            --gold-dark: #4a3a14;
+            --gold-glow: rgba(201, 168, 76, 0.12);
+            --gold-glow2: rgba(201, 168, 76, 0.06);
+            --champagne: #f0d9a8;
+            --teal: #00d4aa;
+            --teal-dim: #00967a;
+            --teal-glow: rgba(0, 212, 170, 0.1);
+            --red: #ff4f6e;
+            --amber: #f5a623;
+            --blue: #4488ff;
+            --t1: #f0eeea;
+            --t2: #9ea8bc;
+            --t3: #4e5f7a;
+            --t4: #2a3650;
+            --b1: #141e30;
+            --b2: #1c2a40;
+            --b3: #253550;
+            --display: 'Syne', sans-serif;
+            --body: 'DM Sans', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --r6: 6px;
+            --r10: 10px;
+            --r14: 14px;
+            --r20: 20px;
+            --r28: 28px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased
+        }
+        body {
+            font-family: var(--body);
+            background: var(--bg0);
+            color: var(--t1);
+            overflow-x: hidden;
+            min-height: 100vh
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg1)
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--b3);
+            border-radius: 3px
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gold-dim)
+        }
+        ::selection {
+            background: rgba(201, 168, 76, .28);
+            color: var(--gold-pale)
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: .35;
+        }
+
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: orbFloat 20s ease-in-out infinite
+        }
+        .orb1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.06) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            animation-delay: 0s
+        }
+        .orb2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 212, 170, 0.04) 0%, transparent 70%);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: -7s
+        }
+        .orb3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(201, 168, 76, 0.04) 0%, transparent 70%);
+            top: 40%;
+            left: 30%;
+            animation-delay: -14s
+        }
+        @keyframes orbFloat {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1)
+            }
+            33% {
+                transform: translate(30px, -20px) scale(1.05)
+            }
+            66% {
+                transform: translate(-20px, 30px) scale(0.95)
+            }
+        }
+
+        #page-landing,
+        #page-auth,
+        #page-dashboard,
+        #page-carbon {
+            position: relative;
+            z-index: 1
+        }
+        #page-auth,
+        #page-dashboard,
+        #page-carbon {
+            display: none
+        }
+
+        /* ─── NAV ─── */
+        #nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 clamp(16px, 4vw, 48px);
+            background: rgba(5, 8, 16, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-decoration: none
+        }
+        .nav-logo-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 55%, var(--gold-dim) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(201, 168, 76, 0.3), inset 0 1px 1px rgba(255, 255, 255, .4), inset 0 -1px 2px rgba(0, 0, 0, .25);
+        }
+        .nav-logo-mark svg {
+            width: 16px;
+            height: 16px
+        }
+        .nav-logo-text {
+            font-family: var(--display);
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--t1);
+            letter-spacing: -.3px
+        }
+        .nav-logo-text span {
+            color: var(--gold)
+        }
+        .nav-links {
+            display: flex;
+            gap: 2px
+        }
+        .nav-link {
+            font-size: 13px;
+            font-family: var(--body);
+            color: var(--t3);
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all .2s;
+            letter-spacing: .2px;
+        }
+        .nav-link:hover {
+            color: var(--t2);
+            background: rgba(255, 255, 255, .04)
+        }
+        .nav-link.active {
+            color: var(--gold);
+            background: rgba(201, 168, 76, .08)
+        }
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+        .btn-ghost {
+            font-size: 13px;
+            font-family: var(--body);
+            color: var(--t2);
+            padding: 8px 18px;
+            border-radius: var(--r10);
+            border: 1px solid var(--b2);
+            background: transparent;
+            cursor: pointer;
+            transition: all .2s;
+            letter-spacing: .2px;
+        }
+        .btn-ghost:hover {
+            border-color: var(--b3);
+            color: var(--t1)
+        }
+        .btn-gold {
+            font-size: 13px;
+            font-family: var(--body);
+            font-weight: 600;
+            color: var(--bg0);
+            padding: 8px 20px;
+            border-radius: var(--r10);
+            border: none;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-dim) 100%);
+            cursor: pointer;
+            transition: all .25s;
+            letter-spacing: .2px;
+            box-shadow: 0 2px 16px rgba(201, 168, 76, 0.25);
+        }
+        .btn-gold:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 24px rgba(201, 168, 76, 0.4)
+        }
+
+        .nav-ham {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            background: none;
+            border: none
+        }
+        .nav-ham span {
+            width: 22px;
+            height: 1.5px;
+            background: var(--t2);
+            display: block;
+            transition: .25s;
+            border-radius: 2px
+        }
+        .nav-ham.open span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px)
+        }
+        .nav-ham.open span:nth-child(2) {
+            opacity: 0;
+            transform: translateX(-8px)
+        }
+        .nav-ham.open span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px)
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 8, 16, .97);
+            backdrop-filter: blur(24px);
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-8px);
+            transition: all .3s;
+        }
+        .mobile-menu.open {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0)
+        }
+        .mob-link {
+            font-family: var(--display);
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--t2);
+            padding: 14px 40px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: .2s;
+            letter-spacing: -.5px;
+        }
+        .mob-link:hover {
+            color: var(--gold)
+        }
+        .mob-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--b2);
+            margin: 8px 0
+        }
+        .mob-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            margin-top: 16px;
+            width: 100%;
+            padding: 0 40px
+        }
+
+        /* ─── TICKER ─── */
+        #ticker {
+            height: 40px;
+            background: var(--bg1);
+            border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .ticker-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            animation: tickerRoll 50s linear infinite;
+            white-space: nowrap
+        }
+        .ticker-wrap:hover {
+            animation-play-state: paused
+        }
+        @keyframes tickerRoll {
+            0% {
+                transform: translateX(0)
+            }
+            100% {
+                transform: translateX(-50%)
+            }
+        }
+        .tick {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 24px;
+            border-right: 1px solid var(--b1)
+        }
+        .tick-name {
+            font-size: 10px;
+            color: var(--t3);
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            font-weight: 500
+        }
+        .tick-val {
+            font-size: 12px;
+            font-weight: 600;
+            font-family: var(--mono)
+        }
+        .tick-chg {
+            font-size: 10px;
+            font-family: var(--mono);
+            font-weight: 500
+        }
+        .pos {
+            color: var(--teal)
+        }
+        .neg {
+            color: var(--red)
+        }
+        .neu {
+            color: var(--amber)
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            min-height: calc(100vh - 100px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px clamp(16px, 5vw, 80px) 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(201, 168, 76, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201, 168, 76, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+        }
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            background: rgba(201, 168, 76, 0.06);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            animation: fadeDown .7s ease both;
+        }
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            animation: pulseDot 2s infinite
+        }
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+            50% {
+                opacity: .4;
+                transform: scale(.8)
+            }
+        }
+
+        .hero-h1 {
+            font-family: var(--display);
+            font-size: clamp(40px, 7vw, 90px);
+            font-weight: 700;
+            line-height: 1.08;
+            letter-spacing: -0.025em;
+            margin-bottom: 26px;
+            animation: fadeUp .8s ease .1s both;
+        }
+        .hero-h1 .line1 {
+            color: var(--t1)
+        }
+        .hero-h1 .line2 {
+            display: block;
+            margin-top: 2px;
+            font-family: 'Fraunces', serif;
+            font-style: italic;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            background: linear-gradient(100deg, var(--gold-pale) 0%, var(--gold-light) 30%, var(--gold) 55%, var(--gold-light) 75%, var(--gold-pale) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: goldShimmer 6s ease-in-out infinite;
+        }
+        @keyframes goldShimmer {
+            0%,
+            100% {
+                background-position: 0% center
+            }
+            50% {
+                background-position: 100% center
+            }
+        }
+        .hero-rule {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto 22px;
+            animation: fadeDown .7s ease both;
+        }
+        .hero-rule::before,
+        .hero-rule::after {
+            content: '';
+            width: 36px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-dim));
+        }
+        .hero-rule::after {
+            background: linear-gradient(90deg, var(--gold-dim), transparent)
+        }
+        .hero-rule-diamond {
+            width: 5px;
+            height: 5px;
+            transform: rotate(45deg);
+            background: var(--gold);
+            box-shadow: 0 0 8px rgba(201, 168, 76, .6)
+        }
+
+        .hero-sub {
+            font-size: clamp(14px, 1.8vw, 17px);
+            color: var(--t2);
+            line-height: 1.8;
+            max-width: 580px;
+            margin: 0 auto 44px;
+            animation: fadeUp .8s ease .2s both;
+        }
+        .hero-ctas {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeUp .8s ease .3s both;
+        }
+        .cta-main {
+            font-family: var(--body);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 15px 36px;
+            border-radius: var(--r14);
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-dim) 100%);
+            color: var(--bg0);
+            border: none;
+            cursor: pointer;
+            transition: all .3s;
+            letter-spacing: .3px;
+            box-shadow: 0 0 40px rgba(201, 168, 76, 0.2), inset 0 1px 1px rgba(255, 255, 255, .35);
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-main::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, .15), transparent);
+            transform: translateX(-100%);
+            transition: transform .4s;
+        }
+        .cta-main:hover::after {
+            transform: translateX(100%)
+        }
+        .cta-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(201, 168, 76, 0.4)
+        }
+        .cta-alt {
+            font-family: var(--body);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 15px 36px;
+            border-radius: var(--r14);
+            background: transparent;
+            color: var(--t1);
+            border: 1px solid var(--b3);
+            cursor: pointer;
+            transition: all .3s;
+            letter-spacing: .2px;
+        }
+        .cta-alt:hover {
+            border-color: rgba(201, 168, 76, 0.4);
+            color: var(--gold);
+            background: var(--gold-glow2)
+        }
+
+        .hero-metrics {
+            display: flex;
+            gap: 0;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 72px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(201, 168, 76, 0.1);
+            animation: fadeUp .8s ease .5s both;
+            width: 100%;
+            max-width: 720px;
+        }
+        .hm {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 0 20px;
+            border-right: 1px solid var(--b1);
+        }
+        .hm:last-child {
+            border-right: none
+        }
+        .hm-val {
+            font-family: var(--mono);
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+        .hm-lbl {
+            font-size: 10px;
+            color: var(--t3);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: .7px
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px)
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px)
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .section {
+            padding: 0 clamp(16px, 4vw, 48px) 40px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .section-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px
+        }
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--t3);
+            font-weight: 600;
+            font-family: var(--body);
+        }
+        .section-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 20px
+        }
+        .badge-live {
+            color: var(--teal);
+            background: rgba(0, 212, 170, .08);
+            border: 1px solid rgba(0, 212, 170, .2)
+        }
+        .badge-ai {
+            color: #7aaeff;
+            background: rgba(68, 136, 255, .08);
+            border: 1px solid rgba(68, 136, 255, .2)
+        }
+        .badge-warn {
+            color: var(--amber);
+            background: rgba(245, 166, 35, .08);
+            border: 1px solid rgba(245, 166, 35, .2)
+        }
+        .badge-gold {
+            color: var(--gold);
+            background: var(--gold-glow2);
+            border: 1px solid rgba(201, 168, 76, .2)
+        }
+
+        .card {
+            background: linear-gradient(165deg, var(--bg3) 0%, var(--bg2) 45%, var(--bg2) 100%);
+            border: 1px solid var(--b2);
+            border-radius: var(--r20);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color .35s, box-shadow .35s, transform .35s;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, .02) inset, 0 24px 60px -30px rgba(0, 0, 0, .55);
+        }
+        .card:hover {
+            border-color: rgba(201, 168, 76, 0.22);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 30px 70px -28px rgba(0, 0, 0, .6), 0 0 50px rgba(201, 168, 76, 0.05);
+            transform: translateY(-2px)
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.35), transparent);
+        }
+        .card::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 18px;
+            width: 5px;
+            height: 5px;
+            background: var(--gold);
+            border-radius: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            box-shadow: 0 0 10px rgba(201, 168, 76, .7);
+            opacity: 0;
+            transition: opacity .35s;
+        }
+        .card:hover::after {
+            opacity: 1
+        }
+        .card-sm {
+            padding: 18px 20px
+        }
+        .card-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px
+        }
+        .card-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--t3);
+            font-weight: 600;
+        }
+
+        .g2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px
+        }
+        .g3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px
+        }
+        .g4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px
+        }
+
+        .mkt-card {
+            background: linear-gradient(165deg, var(--bg3) 0%, var(--bg2) 55%, var(--bg2) 100%);
+            border: 1px solid var(--b2);
+            border-radius: var(--r20);
+            padding: 22px 24px;
+            transition: all .35s cubic-bezier(.2, .8, .2, 1);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, .02) inset, 0 20px 50px -28px rgba(0, 0, 0, .6);
+        }
+        .mkt-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.28), transparent);
+        }
+        .mkt-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--gold-glow2), transparent);
+            opacity: 0;
+            transition: .35s;
+            pointer-events: none;
+        }
+        .mkt-card:hover {
+            border-color: rgba(201, 168, 76, .28);
+            transform: translateY(-4px);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 24px 60px -24px rgba(0, 0, 0, .55), 0 0 40px rgba(201, 168, 76, .06)
+        }
+        .mkt-card:hover::after {
+            opacity: 1
+        }
+        .mkt-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--t3);
+            font-weight: 600;
+            margin-bottom: 12px
+        }
+        .mkt-price {
+            font-family: var(--mono);
+            font-size: 31px;
+            font-weight: 600;
+            color: var(--t1);
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+        .mkt-change {
+            font-size: 12px;
+            font-family: var(--mono);
+            margin-top: 6px
+        }
+        .mkt-sub {
+            font-size: 10px;
+            color: var(--t4);
+            margin-top: 5px
+        }
+        .mkt-accent {
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            font-size: 10px;
+            padding: 3px 9px;
+            border-radius: 4px
+        }
+        .ma-live {
+            color: var(--teal);
+            background: rgba(0, 212, 170, .08);
+            border: 1px solid rgba(0, 212, 170, .2)
+        }
+        .ma-ai {
+            color: var(--gold);
+            background: var(--gold-glow2);
+            border: 1px solid rgba(201, 168, 76, .2)
+        }
+
+        .gauge-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0
+        }
+        .gauge-value {
+            font-family: var(--display);
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--teal)
+        }
+        .gauge-conf {
+            font-size: 11px;
+            color: var(--t3)
+        }
+        .gauge-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 4px
+        }
+        .gpill {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--b2);
+            color: var(--t2);
+            background: var(--bg3)
+        }
+        .gpill.on {
+            border-color: rgba(0, 212, 170, .3);
+            color: var(--teal);
+            background: rgba(0, 212, 170, .06)
+        }
+
+        .acc-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(20, 30, 48, .8)
+        }
+        .acc-row:last-child {
+            border-bottom: none
+        }
+        .acc-lbl {
+            font-size: 12px;
+            color: var(--t2);
+            flex: 1
+        }
+        .acc-track {
+            flex: 2;
+            height: 3px;
+            background: var(--bg4);
+            border-radius: 2px
+        }
+        .acc-fill {
+            height: 3px;
+            border-radius: 2px
+        }
+        .acc-g {
+            background: linear-gradient(90deg, var(--teal-dim), var(--teal))
+        }
+        .acc-a {
+            background: var(--amber)
+        }
+        .acc-r {
+            background: var(--red)
+        }
+        .acc-num {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: var(--mono);
+            min-width: 48px;
+            text-align: right
+        }
+
+        .policy-item {
+            display: flex;
+            gap: 14px;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(20, 30, 48, .8);
+            cursor: pointer;
+            transition: .2s;
+        }
+        .policy-item:last-child {
+            border-bottom: none
+        }
+        .policy-item:hover .pi-title {
+            color: var(--gold)
+        }
+        .ptag {
+            font-size: 9px;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+        .pt-eu {
+            background: rgba(0, 212, 170, .08);
+            color: var(--teal);
+            border: 1px solid rgba(0, 212, 170, .2)
+        }
+        .pt-cb {
+            background: rgba(68, 136, 255, .08);
+            color: #7aaeff;
+            border: 1px solid rgba(68, 136, 255, .2)
+        }
+        .pt-uk {
+            background: rgba(245, 166, 35, .08);
+            color: var(--amber);
+            border: 1px solid rgba(245, 166, 35, .2)
+        }
+        .pt-al {
+            background: rgba(255, 79, 110, .08);
+            color: var(--red);
+            border: 1px solid rgba(255, 79, 110, .2)
+        }
+        .pt-carbon {
+            background: rgba(201, 168, 76, .12);
+            color: var(--gold);
+            border: 1px solid rgba(201, 168, 76, .2)
+        }
+        .pi-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--t1);
+            line-height: 1.5;
+            transition: .2s;
+        }
+        .pi-meta {
+            font-size: 10px;
+            color: var(--t3);
+            margin-top: 3px
+        }
+
+        .geo-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg3);
+            border: 1px solid var(--b1);
+            border-radius: var(--r14);
+            margin-bottom: 8px;
+            transition: .2s;
+            cursor: default;
+        }
+        .geo-row:last-child {
+            margin-bottom: 0
+        }
+        .geo-row:hover {
+            border-color: var(--b3);
+            background: var(--bg4);
+            transform: translateX(3px)
+        }
+        .geo-flag {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .3px;
+            background: linear-gradient(155deg, var(--bg4), var(--bg3));
+            border: 1px solid var(--b2);
+            color: var(--gold);
+        }
+        .geo-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--t1)
+        }
+        .geo-sub {
+            font-size: 10px;
+            color: var(--t3);
+            margin-top: 1px
+        }
+        .geo-price {
+            font-size: 14px;
+            font-weight: 600;
+            font-family: var(--mono);
+            margin-left: auto;
+            text-align: right
+        }
+        .geo-chg {
+            font-size: 10px;
+            font-family: var(--mono)
+        }
+
+        .tx-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+        .tx-card {
+            background: linear-gradient(165deg, var(--bg4), var(--bg3));
+            border: 1px solid var(--b1);
+            border-radius: var(--r14);
+            padding: 18px;
+            transition: all .3s;
+        }
+        .tx-card:hover {
+            border-color: rgba(201, 168, 76, .2);
+            transform: translateY(-2px);
+            box-shadow: 0 18px 40px -26px rgba(0, 0, 0, .6)
+        }
+        .tx-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px
+        }
+        .tx-icon svg {
+            width: 18px;
+            height: 18px
+        }
+        .tx-icon span {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .2px
+        }
+        .tx-ic-g {
+            background: rgba(0, 212, 170, .08);
+            border: 1px solid rgba(0, 212, 170, .2);
+            color: var(--teal)
+        }
+        .tx-ic-b {
+            background: rgba(68, 136, 255, .08);
+            border: 1px solid rgba(68, 136, 255, .2);
+            color: #7aaeff
+        }
+        .tx-ic-gold {
+            background: var(--gold-glow2);
+            border: 1px solid rgba(201, 168, 76, .2);
+            color: var(--gold)
+        }
+        .tx-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--t1);
+            margin-bottom: 7px;
+            font-family: var(--display)
+        }
+        .tx-desc {
+            font-size: 11px;
+            color: var(--t2);
+            line-height: 1.65
+        }
+        .tx-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px
+        }
+        .ttag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            background: var(--bg5);
+            color: var(--t3);
+            border: 1px solid var(--b1)
+        }
+
+        /* ─── AUTH ─── */
+        #page-auth {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 16px;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg2);
+            border: 1px solid var(--b2);
+            border-radius: var(--r28);
+            padding: 40px clamp(24px, 5vw, 44px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, .6), 0 0 80px rgba(201, 168, 76, 0.06);
+            animation: fadeUp .5s ease both;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 32px
+        }
+        .auth-logo-mark {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 0 40px rgba(201, 168, 76, 0.3);
+        }
+        .auth-title {
+            font-family: var(--display);
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--t1);
+            letter-spacing: -.5px;
+            text-align: center;
+            margin-bottom: 6px
+        }
+        .auth-sub {
+            font-size: 13px;
+            color: var(--t3);
+            text-align: center;
+            margin-bottom: 28px
+        }
+        .auth-tabs {
+            display: flex;
+            background: var(--bg3);
+            border-radius: var(--r10);
+            padding: 3px;
+            margin-bottom: 28px
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 9px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--t3);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all .2s;
+            font-family: var(--body);
+        }
+        .auth-tab.active {
+            background: var(--bg1);
+            color: var(--t1);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .4)
+        }
+        .auth-field {
+            margin-bottom: 14px
+        }
+        .auth-label {
+            font-size: 11px;
+            color: var(--t3);
+            font-weight: 500;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block
+        }
+        .auth-input {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--b2);
+            border-radius: var(--r10);
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--t1);
+            font-family: var(--body);
+            outline: none;
+            transition: all .2s;
+        }
+        .auth-input:focus {
+            border-color: rgba(201, 168, 76, .4);
+            background: var(--bg4);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, .07)
+        }
+        .auth-input::placeholder {
+            color: var(--t4)
+        }
+        .auth-input-wrap {
+            position: relative
+        }
+        .auth-eye {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--t3);
+            cursor: pointer;
+            font-size: 16px;
+            transition: .2s;
+        }
+        .auth-eye:hover {
+            color: var(--t1)
+        }
+        .auth-submit {
+            width: 100%;
+            margin-top: 6px;
+            padding: 14px;
+            border-radius: var(--r14);
+            font-family: var(--body);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--bg0);
+            background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dim));
+            border: none;
+            cursor: pointer;
+            transition: all .3s;
+            letter-spacing: .3px;
+            box-shadow: 0 4px 20px rgba(201, 168, 76, .25);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-submit::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .15), transparent);
+            transform: translateX(-100%);
+            transition: .4s;
+        }
+        .auth-submit:hover::after {
+            transform: translateX(100%)
+        }
+        .auth-submit:hover {
+            box-shadow: 0 6px 30px rgba(201, 168, 76, .4);
+            transform: translateY(-1px)
+        }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            color: var(--t4);
+            font-size: 11px
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--b1)
+        }
+        .auth-social {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--r14);
+            background: var(--bg3);
+            border: 1px solid var(--b2);
+            color: var(--t2);
+            font-family: var(--body);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .auth-social:hover {
+            border-color: var(--b3);
+            color: var(--t1);
+            background: var(--bg4)
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 12px;
+            color: var(--t3)
+        }
+        .auth-footer a {
+            color: var(--gold);
+            cursor: pointer;
+            text-decoration: none;
+            transition: .2s
+        }
+        .auth-footer a:hover {
+            color: var(--gold-light)
+        }
+        .auth-forgot {
+            font-size: 11px;
+            color: var(--t3);
+            text-align: right;
+            margin-top: -6px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: .2s;
+            display: block
+        }
+        .auth-forgot:hover {
+            color: var(--gold)
+        }
+        .auth-form-content {
+            animation: fadeUp .3s ease both
+        }
+        .auth-error {
+            display: none;
+            background: rgba(255, 79, 110, .08);
+            border: 1px solid rgba(255, 79, 110, .2);
+            color: var(--red);
+            font-size: 12px;
+            padding: 10px 14px;
+            border-radius: var(--r10);
+            margin-bottom: 14px;
+        }
+        .auth-error.show {
+            display: block
+        }
+
+        /* ─── DASHBOARD ─── */
+        #page-dashboard .dash-wrap {
+            display: flex;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 230px;
+            flex-shrink: 0;
+            background: var(--bg1);
+            border-right: 1px solid var(--b1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: width .3s;
+        }
+        .sb-brand {
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid var(--b1)
+        }
+        .sb-brand-name {
+            font-family: var(--display);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--t1)
+        }
+        .sb-brand-tag {
+            font-size: 10px;
+            color: var(--t4);
+            margin-top: 2px
+        }
+        .sb-section {
+            padding: 18px 12px 6px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--t4);
+            font-weight: 600
+        }
+        .sb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            margin: 1px 8px;
+            border-radius: var(--r10);
+            font-size: 13px;
+            color: var(--t2);
+            cursor: pointer;
+            border-left: 2px solid transparent;
+            transition: all .15s;
+            user-select: none;
+        }
+        .sb-item:hover {
+            color: var(--t1);
+            background: rgba(255, 255, 255, .04)
+        }
+        .sb-item.active {
+            color: var(--gold);
+            background: rgba(201, 168, 76, .07);
+            border-left-color: var(--gold)
+        }
+        .sb-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            opacity: .7
+        }
+        .sb-bottom {
+            margin-top: auto;
+            padding: 12px 8px;
+            border-top: 1px solid var(--b1)
+        }
+        .sb-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--r10);
+            cursor: pointer;
+            transition: .15s;
+            margin-bottom: 4px
+        }
+        .sb-user:hover {
+            background: rgba(255, 255, 255, .04)
+        }
+        .sb-av {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--bg0);
+            flex-shrink: 0
+        }
+        .sb-user-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--t1)
+        }
+        .sb-user-plan {
+            font-size: 10px;
+            color: var(--gold)
+        }
+
+        .dash-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: clamp(16px, 2.5vw, 32px);
+            background: var(--bg0)
+        }
+        .panel {
+            display: none
+        }
+        .panel.active {
+            display: block;
+            animation: fadeIn .3s ease
+        }
+        .panel-title {
+            font-family: var(--display);
+            font-size: clamp(20px, 3vw, 26px);
+            font-weight: 700;
+            letter-spacing: -.5px;
+            margin-bottom: 4px
+        }
+        .panel-sub {
+            font-size: 13px;
+            color: var(--t3);
+            margin-bottom: 24px
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 18px
+        }
+        .stat-card {
+            background: linear-gradient(165deg, var(--bg3), var(--bg2));
+            border: 1px solid var(--b2);
+            border-radius: var(--r14);
+            padding: 16px 18px;
+            transition: all .3s;
+            box-shadow: 0 16px 40px -26px rgba(0, 0, 0, .6)
+        }
+        .stat-card:hover {
+            border-color: rgba(201, 168, 76, .22);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 44px -22px rgba(0, 0, 0, .55)
+        }
+        .stat-lbl {
+            font-size: 10px;
+            color: var(--t3);
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            font-weight: 600;
+            margin-bottom: 8px
+        }
+        .stat-val {
+            font-size: clamp(20px, 3vw, 26px);
+            font-weight: 700;
+            font-family: var(--mono);
+            letter-spacing: -1px
+        }
+        .stat-chg {
+            font-size: 11px;
+            margin-top: 4px;
+            font-family: var(--mono)
+        }
+
+        .chart-card {
+            background: linear-gradient(165deg, var(--bg3), var(--bg2));
+            border: 1px solid var(--b2);
+            border-radius: var(--r20);
+            padding: 24px;
+            margin-bottom: 14px;
+            box-shadow: 0 24px 60px -32px rgba(0, 0, 0, .6)
+        }
+        .chart-legend {
+            display: flex;
+            gap: 18px;
+            margin-top: 14px;
+            flex-wrap: wrap
+        }
+        .leg-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11px;
+            color: var(--t2)
+        }
+        .leg-line {
+            width: 24px;
+            height: 2px;
+            border-radius: 1px
+        }
+        .leg-dash {
+            width: 24px;
+            height: 0;
+            border-top: 2px dashed
+        }
+
+        .pred-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px
+        }
+        .pred-table th {
+            text-align: left;
+            padding: 9px 12px;
+            color: var(--t3);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            border-bottom: 1px solid var(--b1);
+            font-weight: 600
+        }
+        .pred-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(20, 30, 48, .6);
+            color: var(--t2)
+        }
+        .pred-table tr:hover td {
+            background: rgba(255, 255, 255, .02);
+            color: var(--t1)
+        }
+        .conf-track {
+            width: 60px;
+            height: 3px;
+            background: var(--bg5);
+            border-radius: 2px;
+            display: inline-block;
+            vertical-align: middle
+        }
+        .conf-fill {
+            height: 3px;
+            border-radius: 2px;
+            background: var(--blue)
+        }
+
+        /* ─── CHAT ─── */
+        #chatBtn {
+            position: fixed;
+            bottom: clamp(20px, 3vw, 28px);
+            right: clamp(16px, 3vw, 28px);
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            box-shadow: 0 4px 24px rgba(201, 168, 76, .35);
+            transition: transform .25s, box-shadow .25s;
+        }
+        #chatBtn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 32px rgba(201, 168, 76, .5)
+        }
+        #chatBtn svg {
+            width: 22px;
+            height: 22px;
+            color: var(--bg0)
+        }
+
+        #chatPanel {
+            position: fixed;
+            bottom: 90px;
+            right: clamp(16px, 3vw, 28px);
+            width: clamp(280px, 90vw, 360px);
+            background: var(--bg2);
+            border: 1px solid rgba(201, 168, 76, .15);
+            border-radius: 20px;
+            overflow: hidden;
+            z-index: 499;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .7);
+        }
+        #chatPanel.open {
+            display: flex;
+            animation: slideUp .2s ease-out
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px)
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .chat-hd {
+            background: var(--bg3);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--b1);
+        }
+        .chat-av {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(201, 168, 76, .1);
+            border: 1px solid rgba(201, 168, 76, .3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .chat-hd-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--t1);
+            font-family: var(--display)
+        }
+        .chat-hd-status {
+            font-size: 10px;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 4px
+        }
+        .chat-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--t3);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            line-height: 1;
+            transition: .2s
+        }
+        .chat-close:hover {
+            color: var(--t1)
+        }
+
+        .chat-body {
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            max-height: 280px;
+            min-height: 180px
+        }
+        .msg {
+            max-width: 86%;
+            padding: 10px 13px;
+            border-radius: 12px;
+            font-size: 12px;
+            line-height: 1.6
+        }
+        .msg.bot {
+            background: var(--bg3);
+            color: var(--t1);
+            border: 1px solid var(--b1);
+            border-radius: 12px 12px 12px 3px;
+            align-self: flex-start
+        }
+        .msg.user {
+            background: rgba(201, 168, 76, .09);
+            color: var(--t1);
+            border: 1px solid rgba(201, 168, 76, .2);
+            border-radius: 12px 12px 3px 12px;
+            align-self: flex-end
+        }
+
+        .chat-pills {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            padding: 4px 14px 8px
+        }
+        .cpill {
+            font-size: 10px;
+            padding: 5px 10px;
+            border: 1px solid var(--b2);
+            border-radius: 16px;
+            color: var(--t2);
+            background: transparent;
+            cursor: pointer;
+            transition: .15s;
+            font-family: var(--body);
+        }
+        .cpill:hover {
+            border-color: rgba(201, 168, 76, .3);
+            color: var(--gold);
+            background: var(--gold-glow2)
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 7px;
+            padding: 10px 12px;
+            border-top: 1px solid var(--b1)
+        }
+        .chat-input {
+            flex: 1;
+            background: var(--bg3);
+            border: 1px solid var(--b2);
+            border-radius: var(--r10);
+            padding: 9px 13px;
+            font-size: 12px;
+            color: var(--t1);
+            outline: none;
+            font-family: var(--body);
+            transition: .2s;
+        }
+        .chat-input:focus {
+            border-color: rgba(201, 168, 76, .3)
+        }
+        .chat-input::placeholder {
+            color: var(--t4)
+        }
+        .chat-send {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            border: none;
+            border-radius: var(--r10);
+            padding: 9px 13px;
+            cursor: pointer;
+            color: var(--bg0);
+            font-weight: 700;
+            font-size: 14px;
+            transition: .2s;
+        }
+        .chat-send:hover {
+            opacity: .9;
+            transform: scale(1.05)
+        }
+        .typing-dot {
+            display: inline-flex;
+            gap: 3px;
+            align-items: center;
+            padding: 8px 4px
+        }
+        .typing-dot span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--t3);
+            animation: typeDot 1.2s infinite
+        }
+        .typing-dot span:nth-child(2) {
+            animation-delay: .2s
+        }
+        .typing-dot span:nth-child(3) {
+            animation-delay: .4s
+        }
+        @keyframes typeDot {
+            0%,
+            60%,
+            100% {
+                transform: translateY(0)
+            }
+            30% {
+                transform: translateY(-5px)
+            }
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            position: relative;
+            padding: clamp(40px, 5vw, 64px) clamp(16px, 4vw, 48px) clamp(28px, 4vw, 40px);
+            text-align: center;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(880px, 90%);
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201, 168, 76, .35) 50%, transparent);
+        }
+        .footer-diamond {
+            width: 6px;
+            height: 6px;
+            margin: 0 auto 22px;
+            transform: rotate(45deg);
+            background: var(--gold);
+            box-shadow: 0 0 10px rgba(201, 168, 76, .6);
+        }
+        .footer-logo {
+            font-family: var(--display);
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--t1);
+            letter-spacing: .2px;
+            margin-bottom: 10px
+        }
+        .footer-logo span {
+            color: var(--gold)
+        }
+        .footer-tagline {
+            font-size: 11px;
+            color: var(--t4);
+            margin-bottom: 28px;
+            letter-spacing: .6px;
+            text-transform: uppercase
+        }
+        .footer-links {
+            display: flex;
+            gap: 0;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 28px
+        }
+        .footer-link {
+            font-size: 12px;
+            color: var(--t3);
+            cursor: pointer;
+            transition: .2s;
+            padding: 0 18px;
+            border-right: 1px solid var(--b1);
+            letter-spacing: .2px
+        }
+        .footer-link:last-child {
+            border-right: none
+        }
+        .footer-link:hover {
+            color: var(--gold)
+        }
+        .footer-copy {
+            font-size: 11px;
+            color: var(--t4);
+            letter-spacing: .2px
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .range-sel {
+            display: flex;
+            gap: 4px;
+            background: var(--bg3);
+            border: 1px solid var(--b2);
+            border-radius: var(--r10);
+            padding: 3px;
+            width: fit-content;
+            margin-bottom: 16px;
+            flex-wrap: wrap
+        }
+        .range-btn {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--t3);
+            background: transparent;
+            border: none;
+            padding: 6px 13px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: .2s;
+            letter-spacing: .3px
+        }
+        .range-btn:hover {
+            color: var(--t1);
+            background: rgba(255, 255, 255, .04)
+        }
+        .range-btn.active {
+            color: var(--bg0);
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            font-weight: 700
+        }
+
+        /* Chart type selector */
+        .chart-type-sel {
+            display: flex;
+            gap: 6px;
+            background: var(--bg3);
+            border: 1px solid var(--b2);
+            border-radius: var(--r10);
+            padding: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .chart-type-btn {
+            font-family: var(--body);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--t3);
+            background: transparent;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: .2s;
+            letter-spacing: .2px;
+        }
+        .chart-type-btn:hover {
+            color: var(--t1);
+            background: rgba(255, 255, 255, .04);
+        }
+        .chart-type-btn.active {
+            color: var(--bg0);
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            font-weight: 600;
+        }
+
+        /* ═══ CARBON PAGE STYLES ═══ */
+        #page-carbon .carbon-hero {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px clamp(16px, 5vw, 80px) 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        #page-carbon .carbon-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(201, 168, 76, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201, 168, 76, 0.04) 1px, transparent 1px);
+            background-size: 70px 70px;
+            mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 100%);
+        }
+
+        .carbon-hero h1 {
+            font-family: var(--display);
+            font-size: clamp(36px, 6vw, 72px);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            line-height: 1.08;
+            margin-bottom: 20px;
+            animation: fadeUp .8s ease both;
+        }
+        .carbon-hero h1 span {
+            background: linear-gradient(135deg, var(--gold-pale), var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .carbon-hero .carbon-sub {
+            font-size: clamp(14px, 1.6vw, 18px);
+            color: var(--t2);
+            max-width: 620px;
+            margin: 0 auto 36px;
+            line-height: 1.8;
+            animation: fadeUp .8s ease .1s both;
+        }
+
+        .carbon-stats {
+            display: flex;
+            gap: 0;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            animation: fadeUp .8s ease .2s both;
+            width: 100%;
+            max-width: 800px;
+            border-top: 1px solid rgba(201, 168, 76, 0.1);
+            padding-top: 36px;
+        }
+        .carbon-stats .hm {
+            border-right: 1px solid var(--b1);
+        }
+        .carbon-stats .hm:last-child {
+            border-right: none;
+        }
+
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .system-card {
+            background: linear-gradient(165deg, var(--bg3), var(--bg2));
+            border: 1px solid var(--b2);
+            border-radius: var(--r14);
+            padding: 18px 16px;
+            transition: all .3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .system-card:hover {
+            border-color: rgba(201, 168, 76, .25);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px -26px rgba(0, 0, 0, .6);
+        }
+        .system-card .sys-name {
+            font-size: 14px;
+            font-weight: 600;
+            font-family: var(--display);
+            color: var(--t1);
+            margin-bottom: 2px;
+        }
+        .system-card .sys-region {
+            font-size: 10px;
+            color: var(--t3);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+        .system-card .sys-price {
+            font-family: var(--mono);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--gold);
+            margin: 8px 0 4px;
+            letter-spacing: -.5px;
+        }
+        .system-card .sys-mech {
+            display: inline-block;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+        .sys-fixed {
+            background: rgba(245, 166, 35, .12);
+            color: var(--amber);
+            border: 1px solid rgba(245, 166, 35, .2);
+        }
+        .sys-increment {
+            background: rgba(0, 212, 170, .10);
+            color: var(--teal);
+            border: 1px solid rgba(0, 212, 170, .2);
+        }
+        .sys-market {
+            background: rgba(68, 136, 255, .10);
+            color: #7aaeff;
+            border: 1px solid rgba(68, 136, 255, .2);
+        }
+        .system-card .sys-desc {
+            font-size: 10px;
+            color: var(--t3);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .comp-card {
+            border-radius: var(--r20);
+            padding: 28px 24px;
+            border: 1px solid var(--b2);
+            background: linear-gradient(165deg, var(--bg3), var(--bg2));
+            transition: all .3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .comp-card:hover {
+            border-color: rgba(201, 168, 76, .2);
+            transform: translateY(-2px);
+        }
+        .comp-card .comp-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .comp-card .comp-title {
+            font-family: var(--display);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--t1);
+            margin-bottom: 6px;
+        }
+        .comp-card .comp-sub {
+            font-size: 12px;
+            color: var(--t3);
+            margin-bottom: 14px;
+        }
+        .comp-card .comp-features {
+            list-style: none;
+            padding: 0;
+        }
+        .comp-card .comp-features li {
+            font-size: 12px;
+            color: var(--t2);
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(20, 30, 48, .6);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comp-card .comp-features li:last-child {
+            border-bottom: none;
+        }
+        .comp-card .comp-features li::before {
+            content: '◆';
+            color: var(--gold);
+            font-size: 7px;
+        }
+        .comp-card.compliance {
+            border-top: 2px solid var(--teal);
+        }
+        .comp-card.voluntary {
+            border-top: 2px solid var(--gold);
+        }
+
+        .pricing-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 10px 0;
+        }
+        .pricing-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+            background: var(--bg3);
+            border-radius: var(--r14);
+            border: 1px solid var(--b1);
+            transition: .2s;
+        }
+        .pricing-row:hover {
+            border-color: var(--b3);
+            background: var(--bg4);
+        }
+        .pricing-row .pr-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--t1);
+            min-width: 100px;
+        }
+        .pricing-row .pr-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg5);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+        .pricing-row .pr-bar .pr-fill {
+            height: 6px;
+            border-radius: 3px;
+            transition: width 1.2s ease;
+        }
+        .pricing-row .pr-value {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .pulse-ring {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--teal);
+            position: relative;
+        }
+        .pulse-ring::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1px solid var(--teal);
+            animation: ringPulse 2s ease-out infinite;
+            opacity: .4;
+        }
+        @keyframes ringPulse {
+            0% {
+                transform: scale(1);
+                opacity: .6;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .mech-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+        .mech-fixed {
+            background: rgba(245, 166, 35, .12);
+            color: var(--amber);
+            border: 1px solid rgba(245, 166, 35, .2);
+        }
+        .mech-increment {
+            background: rgba(0, 212, 170, .10);
+            color: var(--teal);
+            border: 1px solid rgba(0, 212, 170, .2);
+        }
+        .mech-market {
+            background: rgba(68, 136, 255, .10);
+            color: #7aaeff;
+            border: 1px solid rgba(68, 136, 255, .2);
+        }
+
+        /* ═══════════════════════════════════════════════
+        CARBON LIFECYCLE — animated visual (replaces heavy text)
+        ═══════════════════════════════════════════════ */
+        .lifecycle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 36px 20px 24px;
+            position: relative;
+        }
+        .lifecycle-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+            opacity: 0;
+            transform: translateY(14px);
+            animation: fadeUp .6s ease forwards;
+        }
+        .lifecycle-step:nth-child(1) { animation-delay: .05s; }
+        .lifecycle-step:nth-child(3) { animation-delay: .2s; }
+        .lifecycle-step:nth-child(5) { animation-delay: .35s; }
+        .lifecycle-step:nth-child(7) { animation-delay: .5s; }
+        .lifecycle-step:nth-child(9) { animation-delay: .65s; }
+        .lc-ring {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            background: radial-gradient(circle at 30% 30%, var(--bg4), var(--bg2));
+            border: 1.5px solid var(--b2);
+            position: relative;
+            box-shadow: 0 0 0 0 var(--gold-glow);
+            animation: lcPulse 2.8s ease-in-out infinite;
+        }
+        .lifecycle-step:nth-child(3) .lc-ring { animation-delay: .4s; }
+        .lifecycle-step:nth-child(5) .lc-ring { animation-delay: .8s; }
+        .lifecycle-step:nth-child(7) .lc-ring { animation-delay: 1.2s; }
+        .lifecycle-step:nth-child(9) .lc-ring { animation-delay: 1.6s; }
+        @keyframes lcPulse {
+            0%, 100% { box-shadow: 0 0 0 0 var(--gold-glow); border-color: var(--b2); }
+            50% { box-shadow: 0 0 0 8px transparent; border-color: var(--gold-dim); }
+        }
+        .lc-label {
+            font-family: var(--display);
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--t1);
+            text-align: center;
+            letter-spacing: .2px;
+        }
+        .lc-sub {
+            font-size: 10px;
+            color: var(--t3);
+            text-align: center;
+            max-width: 90px;
+            line-height: 1.4;
+        }
+        .lc-arrow {
+            flex: 0 0 auto;
+            width: clamp(16px, 3vw, 40px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+            position: relative;
+            margin-top: -34px;
+            overflow: hidden;
+        }
+        .lc-arrow::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -40%;
+            width: 40%; height: 100%;
+            background: linear-gradient(90deg, transparent, var(--gold-pale), transparent);
+            animation: lcFlow 2.2s linear infinite;
+        }
+        @keyframes lcFlow {
+            0% { left: -40%; }
+            100% { left: 100%; }
+        }
+        @media(max-width:820px) {
+            .lifecycle { flex-wrap: wrap; row-gap: 26px; }
+            .lifecycle-step { flex: 0 0 28%; }
+            .lc-arrow { display: none; }
+        }
+
+        /* ═══════════════════════════════════════════════
+        AI EXPLAINER PAGE — visual/animated, minimal copy
+        ═══════════════════════════════════════════════ */
+        #page-ai-explainer .carbon-hero { min-height: 62vh; }
+        .ai-hero-visual {
+            position: relative;
+            width: 100%;
+            max-width: 620px;
+            height: 200px;
+            margin: 10px auto 0;
+        }
+        .neuro-canvas { width: 100%; height: 100%; display: block; }
+
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            position: relative;
+            padding: 30px 6px 10px;
+        }
+        .pipeline::before {
+            content: '';
+            position: absolute;
+            top: 55px; left: 8%; right: 8%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--b3) 10%, var(--b3) 90%, transparent);
+        }
+        .pipe-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            text-align: center;
+            padding: 0 6px;
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeUp .6s ease forwards;
+        }
+        .pipe-step:nth-child(1) { animation-delay: .05s; }
+        .pipe-step:nth-child(2) { animation-delay: .18s; }
+        .pipe-step:nth-child(3) { animation-delay: .31s; }
+        .pipe-step:nth-child(4) { animation-delay: .44s; }
+        .pipe-step:nth-child(5) { animation-delay: .57s; }
+        .pipe-node {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(155deg, var(--bg4), var(--bg2));
+            border: 1.5px solid var(--b2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            position: relative;
+            z-index: 1;
+        }
+        .pipe-node.glow {
+            border-color: var(--gold-dim);
+            box-shadow: 0 0 22px var(--gold-glow2);
+            animation: pipeGlow 3.5s ease-in-out infinite;
+        }
+        .pipe-step:nth-child(2) .pipe-node.glow { animation-delay: .7s; }
+        .pipe-step:nth-child(3) .pipe-node.glow { animation-delay: 1.4s; }
+        .pipe-step:nth-child(4) .pipe-node.glow { animation-delay: 2.1s; }
+        .pipe-step:nth-child(5) .pipe-node.glow { animation-delay: 2.8s; }
+        @keyframes pipeGlow {
+            0%, 100% { box-shadow: 0 0 10px var(--gold-glow2); }
+            50% { box-shadow: 0 0 28px var(--gold-glow), 0 0 4px var(--gold-light); }
+        }
+        .pipe-num {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+        .pipe-title {
+            font-family: var(--display);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--t1);
+        }
+        .pipe-desc {
+            font-size: 10.5px;
+            color: var(--t3);
+            line-height: 1.5;
+            max-width: 140px;
+        }
+        @media(max-width:820px) {
+            .pipeline { grid-template-columns: 1fr 1fr; row-gap: 34px; }
+            .pipeline::before { display: none; }
+        }
+
+        /* Animated LSTM cell */
+        .lstm-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            padding: 20px 10px;
+        }
+        .lstm-gate {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            background: radial-gradient(circle at 30% 25%, var(--bg4), var(--bg2));
+            border: 1.5px solid var(--b2);
+            font-family: var(--mono);
+        }
+        .lstm-gate .g-icon { font-size: 20px; }
+        .lstm-gate .g-label { font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: .5px; }
+        .lstm-gate.active {
+            animation: gateActivate 4.8s ease-in-out infinite;
+        }
+        .lstm-gate:nth-child(1).active { animation-delay: 0s; }
+        .lstm-gate:nth-child(2).active { animation-delay: 1.2s; }
+        .lstm-gate:nth-child(3).active { animation-delay: 2.4s; }
+        .lstm-gate:nth-child(4).active { animation-delay: 3.6s; }
+        @keyframes gateActivate {
+            0%, 15%, 100% { border-color: var(--b2); box-shadow: none; transform: scale(1); }
+            5% { border-color: var(--teal); box-shadow: 0 0 24px var(--teal-glow); transform: scale(1.08); }
+        }
+        .lstm-arrow-wrap { color: var(--t4); font-size: 18px; }
+
+        /* Animated forecast sparkline (pure CSS, draws itself) */
+        .draw-chart {
+            width: 100%;
+            height: 130px;
+        }
+        .draw-line {
+            fill: none;
+            stroke: var(--gold);
+            stroke-width: 2.4;
+            stroke-linecap: round;
+            stroke-dasharray: 900;
+            stroke-dashoffset: 900;
+            animation: drawLine 3s cubic-bezier(.4,.1,.2,1) 0.2s forwards infinite alternate;
+        }
+        .draw-line.forecast {
+            stroke: var(--teal);
+            stroke-dasharray: 6 6;
+            animation: drawLine2 3s cubic-bezier(.4,.1,.2,1) 1.1s forwards infinite alternate;
+        }
+        @keyframes drawLine { from { stroke-dashoffset: 900; } to { stroke-dashoffset: 0; } }
+        @keyframes drawLine2 { from { stroke-dashoffset: 300; } to { stroke-dashoffset: 0; } }
+        .draw-band {
+            fill: var(--teal-glow);
+            opacity: 0;
+            animation: bandIn 1.5s ease 1.6s forwards infinite alternate;
+        }
+        @keyframes bandIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .ai-cta {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media(max-width:900px) {
+            .g4 {
+                grid-template-columns: 1fr 1fr
+            }
+            .g3 {
+                grid-template-columns: 1fr 1fr
+            }
+            .nav-links {
+                display: none
+            }
+            .nav-actions .btn-ghost {
+                display: none
+            }
+            .nav-ham {
+                display: flex
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr
+            }
+            .system-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+        }
+        @media(max-width:640px) {
+            .g2,
+            .g3,
+            .g4 {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .g2 > *,
+            .g3 > *,
+            .g4 > * {
+                min-width: 0;
+            }
+            .tx-grid {
+                grid-template-columns: 1fr
+            }
+            .sidebar {
+                width: 56px
+            }
+            .sb-item span,
+            .sb-brand-name,
+            .sb-brand-tag,
+            .sb-section,
+            .sb-user-name,
+            .sb-user-plan {
+                display: none
+            }
+            .sb-av {
+                margin: 0 auto
+            }
+            .sb-user {
+                justify-content: center;
+                padding: 8px
+            }
+            .stat-row {
+                grid-template-columns: 1fr 1fr
+            }
+            .hm {
+                padding: 0 12px
+            }
+            .hero-metrics {
+                gap: 4px
+            }
+            .pred-table th:nth-child(4),
+            .pred-table td:nth-child(4) {
+                display: none
+            }
+            .auth-card {
+                border-radius: var(--r20)
+            }
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 60px;
+                bottom: 0;
+                z-index: 50;
+                transform: translateX(-100%);
+                width: 220px !important;
+                transition: .3s
+            }
+            .sidebar.mob-open {
+                transform: translateX(0)
+            }
+            .sb-item span,
+            .sb-brand-name,
+            .sb-brand-tag,
+            .sb-section,
+            .sb-user-name,
+            .sb-user-plan {
+                display: block !important
+            }
+            .dash-content {
+                padding: 14px
+            }
+            .system-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .carbon-stats .hm {
+                min-width: 80px;
+                padding: 0 8px;
+            }
+        }
+        /* Sub‑640px tightening for very small phones */
+        @media(max-width:480px) {
+            .card,
+            .mkt-card,
+            .chart-card,
+            .system-card,
+            .comp-card {
+                padding: 16px 14px;
+            }
+            .mkt-price,
+            .stat-val {
+                font-size: 22px;
+            }
+            .hero-metrics .hm,
+            .carbon-stats .hm {
+                min-width: 70px;
+                padding: 0 6px;
+            }
+            .tx-grid,
+            .comparison-grid,
+            .system-grid {
+                grid-template-columns: 1fr;
+            }
+            .lifecycle-step {
+                flex: 0 0 45%;
+            }
+            #chatPanel {
+                width: calc(100vw - 24px);
+                right: 12px;
+            }
+        }
+
+        /* ─── THEMED APEXCHARTS TOOLTIP ─── */
+        .ciq-tooltip .apexcharts-tooltip-title {
+            background: var(--bg3) !important;
+            border-bottom: 1px solid var(--b2) !important;
+            color: var(--t2) !important;
+            font-family: var(--body) !important;
+        }
+        .apexcharts-tooltip.ciq-tooltip {
+            background: var(--bg2) !important;
+            border: 1px solid rgba(201,168,76,.25) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,.5) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BG ORBS -->
+    <div class="bg-orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+
+    <!-- ── NAV ── -->
+    <nav id="nav">
+        <a class="nav-logo" href="#" onclick="showPage('landing');return false">
+            <div class="nav-logo-mark">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L11 7H5L8 2Z" fill="#050810"/><rect x="3" y="9" width="10" height="6" rx="2" fill="#050810" opacity=".85"/></svg>
+            </div>
+            <span class="nav-logo-text">Carbon<span>IQ</span></span>
+        </a>
+        <div class="nav-links">
+            <button class="nav-link active" data-page="landing" onclick="navigateTo('landing',this)">Markets</button>
+            <button class="nav-link" data-page="carbon" onclick="navigateTo('carbon',this)">Carbon Credits</button>
+            <button class="nav-link" data-page="ai-explainer" onclick="navigateTo('ai-explainer',this)">AI Forecast</button>
+            <button class="nav-link" data-page="dashboard-policy" onclick="navigateTo('dashboard-policy',this)">Policy</button>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-ghost" onclick="showPage('auth','signin')">Sign In</button>
+            <button class="btn-gold" onclick="showPage('auth','signup')">Get Started</button>
+            <button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mob-link" onclick="navigateTo('landing');closeMM()">Markets</button>
+        <button class="mob-link" onclick="navigateTo('carbon');closeMM()">Carbon Credits</button>
+        <button class="mob-link" onclick="navigateTo('ai-explainer');closeMM()">AI Forecast</button>
+        <button class="mob-link" onclick="navigateTo('dashboard-policy');closeMM()">Policy</button>
+        <div class="mob-divider"></div>
+        <div class="mob-actions">
+            <button class="btn-ghost" style="width:100%;padding:13px;font-size:14px" onclick="showPage('auth','signin');closeMM()">Sign In</button>
+            <button class="btn-gold" style="width:100%;padding:13px;font-size:14px" onclick="showPage('auth','signup');closeMM()">Get Started Free</button>
+        </div>
+    </div>
+
+    <!-- ── TICKER ── -->
+    <div id="ticker">
+        <div class="ticker-wrap" id="tickerWrap"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+    LANDING PAGE
+    ═══════════════════════════════════════════════ -->
+    <div id="page-landing">
+
+        <section class="hero">
+            <div class="hero-eyebrow">
+                <span class="pulse-dot"></span>
+                Live EU ETS Intelligence · Phase 4 Active
+            </div>
+            <div class="hero-rule"><span class="hero-rule-diamond"></span></div>
+            <h1 class="hero-h1">
+                <span class="line1">Carbon Markets,</span>
+                <span class="line2">Decoded by AI</span>
+            </h1>
+            <p class="hero-sub">Real-time EUA price tracking fused with LSTM neural forecasting, RAG policy intelligence, and institutional-grade analytics — for ESG funds, compliance managers, and sophisticated investors.</p>
+            <div class="hero-ctas">
+                <button class="cta-main" onclick="showPage('auth','signup')">Open Live Dashboard →</button>
+                <button class="cta-alt" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">Explore Markets</button>
+            </div>
+            <div class="hero-metrics">
+                <div class="hm"><div class="hm-val">€63.45</div><div class="hm-lbl">EUA Spot Price</div></div>
+                <div class="hm"><div class="hm-val">94.2%</div><div class="hm-lbl">AI Accuracy</div></div>
+                <div class="hm"><div class="hm-val">35+</div><div class="hm-lbl">ETS Systems</div></div>
+                <div class="hm"><div class="hm-val">2.41M</div><div class="hm-lbl">Daily Volume</div></div>
+            </div>
+        </section>
+
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">Market Overview</span>
+                <span class="section-badge badge-live">● Live</span>
+            </div>
+            <div class="g4">
+                <div class="mkt-card">
+                    <div class="mkt-accent ma-live">SPOT</div>
+                    <div class="mkt-label">EUA Spot · CFI=F</div>
+                    <div class="mkt-price">€63.45</div>
+                    <div class="mkt-change pos">▲ +1.28 &nbsp;(+2.06%)</div>
+                    <div class="mkt-sub">ICE ECX · Phase 4</div>
+                </div>
+                <div class="mkt-card">
+                    <div class="mkt-accent ma-live">FUT</div>
+                    <div class="mkt-label">Dec-25 Futures</div>
+                    <div class="mkt-price">€65.10</div>
+                    <div class="mkt-change pos">▲ +0.87 &nbsp;(+1.35%)</div>
+                    <div class="mkt-sub">Settlement: 20 Dec 2025</div>
+                </div>
+                <div class="mkt-card">
+                    <div class="mkt-label">24h Volume</div>
+                    <div class="mkt-price">2.41M</div>
+                    <div class="mkt-change neu">contracts traded</div>
+                    <div class="mkt-sub">Open interest: 4.87M</div>
+                </div>
+                <div class="mkt-card" style="border-color:rgba(201,168,76,.22);background:rgba(201,168,76,.04)">
+                    <div class="mkt-accent ma-ai">AI</div>
+                    <div class="mkt-label">7-Day AI Target</div>
+                    <div class="mkt-price" style="color:var(--gold)">€66.80</div>
+                    <div class="mkt-change pos">▲ +5.3% projected</div>
+                    <div class="mkt-sub">LSTM · 78% confidence</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section reveal">
+            <div class="g2" style="align-items:start">
+                <div class="card">
+                    <div class="card-hd">
+                        <span class="card-title">EUA Price + AI Forecast (30-Day)</span>
+                        <span class="section-badge badge-live">● Live</span>
+                    </div>
+                    <div id="landingChart" style="min-height:210px"></div>
+                    <div class="chart-legend">
+                        <div class="leg-item"><div class="leg-line" style="background:var(--teal)"></div>Historical</div>
+                        <div class="leg-item"><div class="leg-dash" style="border-color:var(--gold)"></div>AI Forecast</div>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:14px">
+                    <div class="card">
+                        <div class="card-hd">
+                            <span class="card-title">AI Sentiment Gauge</span>
+                            <span class="section-badge badge-ai">ML v2.4</span>
+                        </div>
+                        <div class="gauge-wrap">
+                            <svg viewBox="0 0 220 120" width="210" height="110" style="display:block;margin:0 auto">
+                                <defs>
+                                    <linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#ff4f6e"/>
+                                        <stop offset="50%" stop-color="#f5a623"/>
+                                        <stop offset="100%" stop-color="#00d4aa"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M26 105 A84 84 0 0 1 194 105" fill="none" stroke="#1c2a40" stroke-width="14" stroke-linecap="round"/>
+                                <path d="M26 105 A84 84 0 0 1 194 105" fill="none" stroke="url(#gG)" stroke-width="14" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="55"/>
+                                <line x1="110" y1="105" x2="168" y2="48" stroke="var(--t1)" stroke-width="2.5" stroke-linecap="round"/>
+                                <circle cx="110" cy="105" r="6" fill="var(--gold)"/>
+                                <circle cx="110" cy="105" r="2.5" fill="var(--bg0)"/>
+                                <text x="22" y="120" font-size="9.5" fill="#ff4f6e" font-family="DM Sans,sans-serif" font-weight="600">Bearish</text>
+                                <text x="90" y="14" font-size="9.5" fill="#f5a623" font-family="DM Sans,sans-serif" font-weight="600">Neutral</text>
+                                <text x="163" y="120" font-size="9.5" fill="#00d4aa" font-family="DM Sans,sans-serif" font-weight="600">Bullish</text>
+                            </svg>
+                            <div class="gauge-value">BULLISH</div>
+                            <div class="gauge-conf">78.4% confidence · Updated 4 min ago</div>
+                            <div class="gauge-pills">
+                                <span class="gpill">RSI 62.1</span>
+                                <span class="gpill on">MACD ▲</span>
+                                <span class="gpill on">OBV ▲</span>
+                                <span class="gpill">BB Width 0.08</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-hd">
+                            <span class="card-title">Model Accuracy</span>
+                            <span class="section-badge badge-ai">Backtested</span>
+                        </div>
+                        <div style="font-family:var(--mono);font-size:36px;font-weight:600;color:var(--teal);letter-spacing:-2px;margin-bottom:4px">94.2%</div>
+                        <div style="font-size:11px;color:var(--t3);margin-bottom:16px">Directional accuracy · trailing 7 days</div>
+                        <div class="acc-row"><span class="acc-lbl">7-Day Directional</span><div class="acc-track"><div class="acc-fill acc-g" style="width:94%"></div></div><span class="acc-num pos">94.2%</span></div>
+                        <div class="acc-row"><span class="acc-lbl">30-Day MAPE</span><div class="acc-track"><div class="acc-fill acc-g" style="width:88%"></div></div><span class="acc-num pos">3.8%</span></div>
+                        <div class="acc-row"><span class="acc-lbl">Sharpe Ratio</span><div class="acc-track"><div class="acc-fill acc-a" style="width:71%"></div></div><span class="acc-num neu">1.42</span></div>
+                        <div class="acc-row"><span class="acc-lbl">Max Drawdown</span><div class="acc-track"><div class="acc-fill acc-r" style="width:22%"></div></div><span class="acc-num neg">-7.1%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">Policy Analytics Feed</span>
+                <span class="section-badge badge-warn">4 Updates Today</span>
+            </div>
+            <div class="g2">
+                <div class="card">
+                    <div class="policy-item">
+                        <span class="ptag pt-eu">FIT 55</span>
+                        <div><div class="pi-title">EU tightens 2030 allowance cap — MSR intervention threshold revised downward</div><div class="pi-meta">European Commission · June 2025</div></div>
+                    </div>
+                    <div class="policy-item">
+                        <span class="ptag pt-cb">CBAM</span>
+                        <div><div class="pi-title">CBAM Phase 2 reporting requirements now in full effect for all sectors</div><div class="pi-meta">EU Customs Authority · May 2025</div></div>
+                    </div>
+                    <div class="policy-item">
+                        <span class="ptag pt-uk">UK ETS</span>
+                        <div><div class="pi-title">UK ETS–EU ETS cross-border linking negotiation talks formally resume</div><div class="pi-meta">UK DESNZ · April 2025</div></div>
+                    </div>
+                    <div class="policy-item">
+                        <span class="ptag pt-al">ALERT</span>
+                        <div><div class="pi-title">Free allowance phase-out for aviation sector accelerated by 18 months</div><div class="pi-meta">EUROCONTROL · March 2025</div></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-hd"><span class="card-title">Global Market Snapshot</span><span class="section-badge badge-live" id="snapshotLiveBadge">● Live</span></div>
+                    <div class="geo-row" id="geo-eua"><span class="geo-flag">EU</span><div><div class="geo-name">EU ETS (EUA)</div><div class="geo-sub" id="geo-eua-sub">2.41M lots · ICE ECX · Phase 4</div></div><div style="margin-left:auto;text-align:right"><div class="geo-price pos" id="geo-eua-price">€63.45</div><div class="geo-chg pos" id="geo-eua-chg">▲ +2.06%</div></div></div>
+                    <div class="geo-row" id="geo-krbn"><span class="geo-flag">GL</span><div><div class="geo-name">Global Carbon (KRBN)</div><div class="geo-sub" id="geo-krbn-sub">IHS Markit Global Carbon Index · ETF proxy</div></div><div style="margin-left:auto;text-align:right"><div class="geo-price neu" id="geo-krbn-price">$28.40</div><div class="geo-chg neu" id="geo-krbn-chg">▲ +0.44%</div></div></div>
+                    <div class="geo-row" id="geo-uka"><span class="geo-flag">UK</span><div><div class="geo-name">UK ETS (UKA)</div><div class="geo-sub">0.38M lots · ICE · indicative</div></div><div style="margin-left:auto;text-align:right"><div class="geo-price pos">£38.75</div><div class="geo-chg pos">▲ +1.18%</div></div></div>
+                    <div class="geo-row" id="geo-cca"><span class="geo-flag">US</span><div><div class="geo-name">California/RGGI (KCCA)</div><div class="geo-sub" id="geo-cca-sub">KraneShares CCA ETF · proxy</div></div><div style="margin-left:auto;text-align:right"><div class="geo-price" style="color:var(--blue)" id="geo-cca-price">$14.80</div><div class="geo-chg neg" id="geo-cca-chg">▼ -0.27%</div></div></div>
+                    <div style="font-size:10px;color:var(--t4);margin-top:10px;text-align:right" id="snapshotUpdated">Live data via Yahoo Finance</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section reveal">
+            <div class="section-hd"><span class="section-label">Carbon Market Taxonomy</span></div>
+            <div class="card">
+                <div class="tx-grid">
+                    <div class="tx-card">
+                        <div class="tx-icon tx-ic-g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 21h14M5 7l-3 6a3 3 0 0 0 6 0l-3-6Zm14 0l-3 6a3 3 0 0 0 6 0l-3-6ZM4 7h16M9 7 12 3l3 4"/></svg></div>
+                        <div class="tx-name">Compliance Carbon Markets (CCM)</div>
+                        <div class="tx-desc">Legally mandated cap-and-trade systems operated by government bodies. Scarcity engineered via annual Linear Reduction Factor. Penalties for non-compliance up to €100/tCO₂. Institutional-grade liquidity.</div>
+                        <div class="tx-tags"><span class="ttag">EU ETS</span><span class="ttag">UK ETS</span><span class="ttag">California CCA</span><span class="ttag">RGGI</span><span class="ttag">Korea ETS</span></div>
+                    </div>
+                    <div class="tx-card">
+                        <div class="tx-icon tx-ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4.5 0-8-3.5-8-9 6 0 9 2 9 2s-1-6 6-9c1 6.5-2 12-7 16Z"/><path d="M12 21c0-4 1-7 4-10"/></svg></div>
+                        <div class="tx-name">Voluntary Carbon Markets (VCM)</div>
+                        <div class="tx-desc">Corporate CSR-driven offset purchases beyond mandatory compliance thresholds. Third-party verified by Gold Standard, Verra VCS, or ACR. Project-specific risk adjustments. Lower base liquidity vs CCM.</div>
+                        <div class="tx-tags"><span class="ttag">Verra VCS</span><span class="ttag">Gold Standard</span><span class="ttag">ACR</span><span class="ttag">CAR</span></div>
+                    </div>
+                    <div class="tx-card">
+                        <div class="tx-icon tx-ic-g"><span>EU</span></div>
+                        <div class="tx-name">EU ETS — Core System</div>
+                        <div class="tx-desc">World's longest-running carbon market. Covers ~40% of EU GHG emissions across power, industry, and aviation. Phase 4 (2021–30) applies 4.3% LRF from 2024 under Fit for 55 revisions.</div>
+                        <div class="tx-tags"><span class="ttag">Phase 4 Active</span><span class="ttag">~€63/tCO₂</span><span class="ttag">LRF 4.3%</span></div>
+                    </div>
+                    <div class="tx-card">
+                        <div class="tx-icon tx-ic-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9Z"/></svg></div>
+                        <div class="tx-name">Global ETS Landscape</div>
+                        <div class="tx-desc">China National ETS (world's largest by volume), RGGI and CCA in North America, UK ETS post-Brexit, and Korea ETS among 35+ active trading systems globally covering 23% of world emissions.</div>
+                        <div class="tx-tags"><span class="ttag">35+ Systems</span><span class="ttag">23% Global GHG</span><span class="ttag">China CETS</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer reveal">
+            <div class="footer-diamond"></div>
+            <div class="footer-logo">Carbon<span>IQ</span></div>
+            <div class="footer-tagline">EU ETS Intelligence Platform · LSTM + RAG Architecture</div>
+            <div class="footer-links">
+                <span class="footer-link">Markets</span>
+                <span class="footer-link">Forecast</span>
+                <span class="footer-link">Policy</span>
+                <span class="footer-link">Privacy</span>
+                <span class="footer-link">Terms</span>
+            </div>
+            <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
+        </footer>
+
+    </div><!-- /landing -->
+
+    <!-- ═══════════════════════════════════════════════
+    CARBON CREDITS PAGE — Theory & Visuals
+    ═══════════════════════════════════════════════ -->
+    <div id="page-carbon">
+
+        <!-- HERO -->
+        <section class="carbon-hero">
+            <div class="hero-eyebrow">
+                <span class="pulse-dot"></span>
+                Carbon Markets 101 · Theory &amp; Systems
+            </div>
+            <div class="hero-rule"><span class="hero-rule-diamond"></span></div>
+            <h1>Understanding <span>Carbon Credits</span></h1>
+            <p class="carbon-sub">A deep-dive into the world's carbon pricing systems — from compliance markets like EU ETS to voluntary offset markets, with 35+ active systems and 87+ pricing instruments globally.</p>
+
+            <div class="carbon-stats">
+                <div class="hm"><div class="hm-val" id="counterSystems">35+</div><div class="hm-lbl">Active ETS Systems</div></div>
+                <div class="hm"><div class="hm-val" id="counterInstruments">87+</div><div class="hm-lbl">Pricing Instruments</div></div>
+                <div class="hm"><div class="hm-val" id="counterCoverage">23%</div><div class="hm-lbl">Global GHG Covered</div></div>
+                <div class="hm"><div class="hm-val" id="counterPrice">€63.45</div><div class="hm-lbl">Avg. Carbon Price</div></div>
+            </div>
+        </section>
+
+        <!-- WHAT ARE CARBON CREDITS -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">The Basics</span>
+                <span class="section-badge badge-gold">◆ Core Concept</span>
+            </div>
+            <div class="card" style="padding:28px 20px">
+                <div style="max-width:640px;margin:0 auto;text-align:center">
+                    <h2 style="font-family:var(--display);font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-.5px;color:var(--gold)">1 Credit = 1 Ton of CO₂e</h2>
+                    <p style="font-size:13.5px;color:var(--t3);line-height:1.7;margin-top:8px">Removed, reduced, or avoided — then verified, issued, and traded.</p>
+                </div>
+
+                <!-- Animated lifecycle: from emission to retirement -->
+                <div class="lifecycle">
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🏭</div>
+                        <div class="lc-label">Emit</div>
+                        <div class="lc-sub">Baseline CO₂e</div>
+                    </div>
+                    <div class="lc-arrow"></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🌱</div>
+                        <div class="lc-label">Reduce</div>
+                        <div class="lc-sub">Avoid / remove</div>
+                    </div>
+                    <div class="lc-arrow"></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">✅</div>
+                        <div class="lc-label">Verify</div>
+                        <div class="lc-sub">3rd‑party audit</div>
+                    </div>
+                    <div class="lc-arrow"></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🎫</div>
+                        <div class="lc-label">Issue</div>
+                        <div class="lc-sub">1 credit / tCO₂e</div>
+                    </div>
+                    <div class="lc-arrow"></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🔁</div>
+                        <div class="lc-label">Trade / Retire</div>
+                        <div class="lc-sub">Market or offset</div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px">
+                    <span class="ttag" style="background:var(--gold-glow2);color:var(--gold);border-color:rgba(201,168,76,.2)">1 credit = 1 tCO₂e</span>
+                    <span class="ttag" style="background:rgba(0,212,170,.06);color:var(--teal);border-color:rgba(0,212,170,.15)">Compliance + Voluntary</span>
+                    <span class="ttag" style="background:rgba(68,136,255,.06);color:#7aaeff;border-color:rgba(68,136,255,.15)">35+ Systems Globally</span>
+                    <span class="ttag" style="background:rgba(245,166,35,.06);color:var(--amber);border-color:rgba(245,166,35,.15)">87+ Instruments</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPLIANCE VS VOLUNTARY -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">Market Types</span>
+                <span class="section-badge badge-gold">◆ CCM vs VCM</span>
+            </div>
+            <div class="comparison-grid">
+                <div class="comp-card compliance">
+                    <span class="comp-icon">⚖️</span>
+                    <div class="comp-title">Compliance Markets</div>
+                    <div class="comp-sub">Mandatory cap-and-trade systems</div>
+                    <ul class="comp-features">
+                        <li>Legally mandated · cap enforced by law</li>
+                        <li>EU ETS · UK ETS · California · RGGI · China · Korea</li>
+                        <li>Penalties up to €100/tCO₂</li>
+                        <li>High liquidity · institutional-grade</li>
+                    </ul>
+                </div>
+                <div class="comp-card voluntary">
+                    <span class="comp-icon">🌿</span>
+                    <div class="comp-title">Voluntary Markets</div>
+                    <div class="comp-sub">CSR-driven offset purchases</div>
+                    <ul class="comp-features">
+                        <li>No legal mandate · CSR-driven</li>
+                        <li>Verra VCS · Gold Standard · ACR · CAR</li>
+                        <li>Independently verified projects</li>
+                        <li>Lower liquidity · project-specific risk</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- GLOBAL SYSTEMS GRID -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">Global Carbon Pricing Systems</span>
+                <span class="section-badge badge-live">● 35+ Active</span>
+            </div>
+            <div class="system-grid" id="systemGrid">
+                <!-- Rows injected by JS -->
+            </div>
+            <div style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+                <span class="mech-tag mech-fixed">● Fixed Price (40+ systems)</span>
+                <span class="mech-tag mech-increment">● 5-Year Increment</span>
+                <span class="mech-tag mech-market">● Market-Determined</span>
+            </div>
+            <div style="font-size:10px;color:var(--t4);text-align:center;margin-top:12px">
+                Based on World Bank &amp; ICAP data · Pricing mechanisms vary by jurisdiction
+            </div>
+        </div>
+
+        <!-- PRICING MECHANISMS -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">How Pricing Works</span>
+                <span class="section-badge badge-ai">◆ Fixed vs Increment</span>
+            </div>
+            <div class="g2">
+                <div class="card">
+                    <div class="card-hd"><span class="card-title">Fixed Price Mechanisms</span><span class="mech-tag mech-fixed">~40-47 systems</span></div>
+                    <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:14px">Government sets the price per ton. <strong style="color:var(--t1)">Certainty over cuts.</strong></p>
+                    <div style="background:var(--bg3);border-radius:var(--r10);padding:14px;border:1px solid var(--b1)">
+                        <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px">Examples</div>
+                        <div style="font-size:12px;color:var(--t2);margin-top:4px">🇲🇽 Mexico · 🇨🇴 Colombia · 🇿🇦 South Africa · 🇨🇳 China (some pilots)</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-hd"><span class="card-title">5‑Year Increment Systems</span><span class="mech-tag mech-increment">LRF · Phase-based</span></div>
+                    <p style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:14px">Cap shrinks yearly via the <strong style="color:var(--gold)">LRF</strong>. <strong style="color:var(--t1)">Scarcity drives price.</strong></p>
+                    <div style="background:var(--bg3);border-radius:var(--r10);padding:14px;border:1px solid var(--b1)">
+                        <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px">Examples</div>
+                        <div style="font-size:12px;color:var(--t2);margin-top:4px">🇪🇺 EU ETS (4.3% LRF from 2024) · 🇬🇧 UK ETS · 🇰🇷 Korea ETS</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual bar -->
+            <div class="card" style="margin-top:14px">
+                <div class="card-hd"><span class="card-title">Pricing Mechanism Distribution</span></div>
+                <div class="pricing-visual">
+                    <div class="pricing-row">
+                        <span class="pr-label">Fixed Price</span>
+                        <div class="pr-bar"><div class="pr-fill" style="width:48%;background:var(--amber)"></div></div>
+                        <span class="pr-value" style="color:var(--amber)">~48%</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span class="pr-label">5‑Year Increment</span>
+                        <div class="pr-bar"><div class="pr-fill" style="width:32%;background:var(--teal)"></div></div>
+                        <span class="pr-value" style="color:var(--teal)">~32%</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span class="pr-label">Market‑Determined</span>
+                        <div class="pr-bar"><div class="pr-fill" style="width:20%;background:#7aaeff"></div></div>
+                        <span class="pr-value" style="color:#7aaeff">~20%</span>
+                    </div>
+                </div>
+                <div style="font-size:10px;color:var(--t4);text-align:right;margin-top:6px">Based on global carbon pricing instruments · World Bank 2025</div>
+            </div>
+        </div>
+
+        <!-- DEEP DIVE: MAJOR SYSTEMS -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">Major Systems Deep Dive</span>
+                <span class="section-badge badge-gold">◆ Key Markets</span>
+            </div>
+            <div class="g3">
+                <div class="card" style="border-top:2px solid var(--gold)">
+                    <div class="card-hd"><span class="card-title">🇪🇺 EU ETS</span><span class="mech-tag mech-increment">5‑Year</span></div>
+                    <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--gold)">€63.45</div>
+                    <div style="font-size:11px;color:var(--t3);margin:4px 0 10px">Phase 4 · 4.3% LRF · 40% EU GHG coverage</div>
+                    <div style="font-size:11px;color:var(--t2);line-height:1.7">World's largest & oldest carbon market — power, industry, aviation.</div>
+                    <div class="tx-tags" style="margin-top:10px"><span class="ttag">~2.41M daily lots</span><span class="ttag">ICE ECX</span></div>
+                </div>
+                <div class="card" style="border-top:2px solid var(--blue)">
+                    <div class="card-hd"><span class="card-title">🇺🇸 California CCA</span><span class="mech-tag mech-market">Market</span></div>
+                    <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--blue)">$14.80</div>
+                    <div style="font-size:11px;color:var(--t3);margin:4px 0 10px">Cap-and-trade · linked with RGGI · ~85% coverage</div>
+                    <div style="font-size:11px;color:var(--t2);line-height:1.7">Price floor + ceiling. Quarterly auctions across power, industry, fuels.</div>
+                    <div class="tx-tags" style="margin-top:10px"><span class="ttag">KCCA ETF</span><span class="ttag">CARB</span></div>
+                </div>
+                <div class="card" style="border-top:2px solid var(--teal)">
+                    <div class="card-hd"><span class="card-title">🇬🇧 UK ETS</span><span class="mech-tag mech-increment">5‑Year</span></div>
+                    <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--teal)">£38.75</div>
+                    <div style="font-size:11px;color:var(--t3);margin:4px 0 10px">Post-Brexit · linked to EU ETS via negotiations</div>
+                    <div style="font-size:11px;color:var(--t2);line-height:1.7">Post-Brexit successor to EU ETS. Tighter cap, EU-linking talks underway.</div>
+                    <div class="tx-tags" style="margin-top:10px"><span class="ttag">0.38M lots</span><span class="ttag">ICE</span></div>
+                </div>
+            </div>
+            <div class="g3" style="margin-top:14px">
+                <div class="card" style="border-top:2px solid #f5a623">
+                    <div class="card-hd"><span class="card-title">🇨🇳 China CETS</span><span class="mech-tag mech-fixed">Fixed</span></div>
+                    <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--amber)">¥68.50</div>
+                    <div style="font-size:11px;color:var(--t3);margin:4px 0 10px">World's largest by volume · power sector only</div>
+                    <div style="font-size:11px;color:var(--t2);line-height:1.7">World's largest by volume — 2,200+ power plants, shifting to market pricing.</div>
+                    <div class="tx-tags" style="margin-top:10px"><span class="ttag">~4.5B tCO₂ covered</span></div>
+                </div>
+                <div class="card" style="border-top:2px solid #7aaeff">
+                    <div class="card-hd"><span class="card-title">🇰🇷 Korea ETS</span><span class="mech-tag mech-increment">5‑Year</span></div>
+                    <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:#7aaeff">₩45,200</div>
+                    <div style="font-size:11px;color:var(--t3);margin:4px 0 10px">Asia's first national ETS · Phase 3 underway</div>
+                    <div style="font-size:11px;color:var(--t2);line-height:1.7">Asia's first national ETS. 600+ entities, rising auction share each phase.</div>
+                    <div class="tx-tags" style="margin-top:10px"><span class="ttag">KRX</span><span class="ttag">~74% auction</span></div>
+                </div>
+                <div class="card" style="border-top:2px solid var(--teal-dim)">
+                    <div class="card-hd"><span class="card-title">🌎 RGGI</span><span class="mech-tag mech-market">Market</span></div>
+                    <div style="font-family:var(--mono);font-size:24px;font-weight:600;color:var(--teal-dim)">$6.80</div>
+                    <div style="font-size:11px;color:var(--t3);margin:4px 0 10px">US East Coast · power sector only</div>
+                    <div style="font-size:11px;color:var(--t2);line-height:1.7">12 US states, power sector only. Quarterly auctions, cap falls yearly.</div>
+                    <div class="tx-tags" style="margin-top:10px"><span class="ttag">12 states</span><span class="ttag">~30% cap reduction</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER (same) -->
+        <footer class="footer reveal">
+            <div class="footer-diamond"></div>
+            <div class="footer-logo">Carbon<span>IQ</span></div>
+            <div class="footer-tagline">EU ETS Intelligence Platform · LSTM + RAG Architecture</div>
+            <div class="footer-links">
+                <span class="footer-link">Markets</span>
+                <span class="footer-link">Forecast</span>
+                <span class="footer-link">Policy</span>
+                <span class="footer-link">Privacy</span>
+                <span class="footer-link">Terms</span>
+            </div>
+            <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
+        </footer>
+
+    </div><!-- /carbon -->
+
+    <!-- ═══════════════════════════════════════════════
+    AI FORECAST EXPLAINER — public, no login required.
+    Live model output lives inside the authenticated dashboard.
+    ═══════════════════════════════════════════════ -->
+    <div id="page-ai-explainer">
+
+        <!-- HERO -->
+        <section class="carbon-hero">
+            <div class="hero-eyebrow">
+                <span class="pulse-dot"></span>
+                AI Forecasting Engine · Theory &amp; Method
+            </div>
+            <div class="hero-rule"><span class="hero-rule-diamond"></span></div>
+            <h1>How CarbonIQ <span>Predicts</span> Prices</h1>
+            <p class="carbon-sub">An LSTM neural network trained on a decade of EU ETS data, retrained daily, and continuously backtested — turning noisy carbon markets into probable price paths.</p>
+
+            <div class="ai-hero-visual">
+                <canvas class="neuro-canvas" id="neuroCanvas"></canvas>
+            </div>
+        </section>
+
+        <!-- WHAT IS AI FORECASTING -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">The Idea</span>
+                <span class="section-badge badge-ai">◆ In One Picture</span>
+            </div>
+            <div class="card" style="padding:26px 20px">
+                <svg class="draw-chart" viewBox="0 0 600 130" preserveAspectRatio="none">
+                    <path class="draw-band" d="M 330,70 C 380,55 430,50 480,40 C 520,32 560,26 600,18 L 600,60 C 560,66 520,72 480,80 C 430,92 380,96 330,100 Z"></path>
+                    <path class="draw-line" d="M 0,95 C 40,88 70,100 100,85 C 140,66 170,90 210,72 C 250,52 280,78 330,70" ></path>
+                    <path class="draw-line forecast" d="M 330,70 C 380,55 430,50 480,40 C 520,32 560,26 600,18"></path>
+                </svg>
+                <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--t3)">
+                    <span><span style="display:inline-block;width:10px;height:2px;background:var(--gold);vertical-align:middle;margin-right:5px"></span>Historical price</span>
+                    <span><span style="display:inline-block;width:10px;height:2px;background:var(--teal);vertical-align:middle;margin-right:5px;border-top:2px dashed var(--teal)"></span>AI forecast</span>
+                    <span><span style="display:inline-block;width:10px;height:10px;background:var(--teal-glow);vertical-align:middle;margin-right:5px;border-radius:2px"></span>Confidence band</span>
+                </div>
+                <p style="text-align:center;font-size:13px;color:var(--t2);max-width:520px;margin:14px auto 0;line-height:1.7">The model learns patterns humans can't hold in their head at once — then projects them forward with a probability range, not a guess.</p>
+            </div>
+        </div>
+
+        <!-- HOW WE DO IT — PIPELINE -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">How We Do It</span>
+                <span class="section-badge badge-gold">◆ End-to-End Pipeline</span>
+            </div>
+            <div class="card" style="padding:10px 16px 26px">
+                <div class="pipeline">
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">📡</div>
+                        <div class="pipe-num">01</div>
+                        <div class="pipe-title">Ingest</div>
+                        <div class="pipe-desc">Prices, auctions, weather, macro &amp; news feeds — live</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">🧮</div>
+                        <div class="pipe-num">02</div>
+                        <div class="pipe-title">Engineer</div>
+                        <div class="pipe-desc">Volatility, seasonality &amp; policy-shock features</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">🧠</div>
+                        <div class="pipe-num">03</div>
+                        <div class="pipe-title">Train</div>
+                        <div class="pipe-desc">LSTM learns sequences across 10y of trading data</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">✅</div>
+                        <div class="pipe-num">04</div>
+                        <div class="pipe-title">Backtest</div>
+                        <div class="pipe-desc">Validated against unseen history before going live</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">📈</div>
+                        <div class="pipe-num">05</div>
+                        <div class="pipe-title">Forecast</div>
+                        <div class="pipe-desc">Daily-refreshed price path with confidence bands</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INSIDE THE MODEL — LSTM GATES -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">Inside the Model</span>
+                <span class="section-badge badge-ai">◆ LSTM Memory Cell</span>
+            </div>
+            <div class="card" style="padding:24px 16px">
+                <div class="lstm-visual">
+                    <div class="lstm-gate active"><span class="g-icon">🚪</span><span class="g-label">Forget</span></div>
+                    <span class="lstm-arrow-wrap">→</span>
+                    <div class="lstm-gate active"><span class="g-icon">➕</span><span class="g-label">Input</span></div>
+                    <span class="lstm-arrow-wrap">→</span>
+                    <div class="lstm-gate active"><span class="g-icon">💾</span><span class="g-label">Cell State</span></div>
+                    <span class="lstm-arrow-wrap">→</span>
+                    <div class="lstm-gate active"><span class="g-icon">📤</span><span class="g-label">Output</span></div>
+                </div>
+                <p style="text-align:center;font-size:12.5px;color:var(--t3);max-width:480px;margin:6px auto 0;line-height:1.7">Each gate decides what to forget, what to remember, and what to pass forward — giving the network a working memory for long, noisy price sequences.</p>
+            </div>
+        </div>
+
+        <!-- PERFORMANCE STATS -->
+        <div class="section reveal">
+            <div class="section-hd">
+                <span class="section-label">Track Record</span>
+                <span class="section-badge badge-live">● Continuously Backtested</span>
+            </div>
+            <div class="carbon-stats" style="border-top:none;padding-top:0;margin-top:0">
+                <div class="hm"><div class="hm-val" id="aiCounterMape">3.8%</div><div class="hm-lbl">30d MAPE</div></div>
+                <div class="hm"><div class="hm-val" id="aiCounterSharpe">1.42</div><div class="hm-lbl">Sharpe (backtest)</div></div>
+                <div class="hm"><div class="hm-val" id="aiCounterHorizon">30d</div><div class="hm-lbl">Forecast Horizon</div></div>
+                <div class="hm"><div class="hm-val" id="aiCounterRetrain">Daily</div><div class="hm-lbl">Retrain Frequency</div></div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="section reveal" style="text-align:center">
+            <div class="card" style="padding:36px 24px;max-width:640px;margin:0 auto">
+                <h2 style="font-family:var(--display);font-size:clamp(20px,2.6vw,26px);font-weight:700;margin-bottom:10px">Live forecasts live in your dashboard</h2>
+                <p style="font-size:13.5px;color:var(--t2);line-height:1.7;margin-bottom:22px">Sign in to see today's LSTM price path, confidence intervals, and model diagnostics updated in real time.</p>
+                <div class="ai-cta">
+                    <button class="btn-gold" onclick="showPage('auth','signin')">Sign In</button>
+                    <button class="btn-ghost" onclick="showPage('auth','signup')">Create Free Account</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER (same) -->
+        <footer class="footer reveal">
+            <div class="footer-diamond"></div>
+            <div class="footer-logo">Carbon<span>IQ</span></div>
+            <div class="footer-tagline">EU ETS Intelligence Platform · LSTM + RAG Architecture</div>
+            <div class="footer-links">
+                <span class="footer-link">Markets</span>
+                <span class="footer-link">Forecast</span>
+                <span class="footer-link">Policy</span>
+                <span class="footer-link">Privacy</span>
+                <span class="footer-link">Terms</span>
+            </div>
+            <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
+        </footer>
+
+    </div><!-- /ai-explainer -->
+
+    <!-- ═══════════════════════════════════════════════
+    AUTH PAGE
+    ═══════════════════════════════════════════════ -->
+    <div id="page-auth">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="auth-logo-mark">
+                    <svg viewBox="0 0 24 24" fill="none" width="28" height="28"><path d="M12 3L16 10H8L12 3Z" fill="#050810"/><rect x="5" y="13" width="14" height="9" rx="3" fill="#050810" opacity=".85"/></svg>
+                </div>
+                <div class="auth-title">CarbonIQ</div>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+                <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+            </div>
+
+            <div id="form-signin" class="auth-form-content">
+                <div class="auth-sub">Welcome back. Sign in to your account.</div>
+                <div class="auth-error" id="err-signin">Invalid email or password. Please try again.</div>
+                <div class="auth-field">
+                    <label class="auth-label">Email Address</label>
+                    <input class="auth-input" type="email" placeholder="you@company.com" id="si-email"/>
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label">Password</label>
+                    <div class="auth-input-wrap">
+                        <input class="auth-input" type="password" placeholder="••••••••" id="si-pass" style="padding-right:44px"/>
+                        <button class="auth-eye" onclick="togglePass('si-pass',this)" type="button">👁</button>
+                    </div>
+                </div>
+                <span class="auth-forgot" onclick="">Forgot your password?</span>
+                <button class="auth-submit" onclick="doSignIn()">Sign In to CarbonIQ</button>
+                <div class="auth-divider">or continue with</div>
+                <button class="auth-social" onclick="doSignIn()">
+                    <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#4285F4"/><text x="4" y="12" font-size="10" fill="white" font-family="sans-serif" font-weight="700">G</text></svg>
+                    Continue with Google
+                </button>
+            </div>
+
+            <div id="form-signup" style="display:none" class="auth-form-content">
+                <div class="auth-sub">Start your 14-day free trial. No credit card required.</div>
+                <div class="auth-error" id="err-signup">Please fill in all required fields correctly.</div>
+                <div class="g2" style="gap:10px;margin-bottom:14px">
+                    <div class="auth-field" style="margin-bottom:0">
+                        <label class="auth-label">First Name</label>
+                        <input class="auth-input" type="text" placeholder="Alex" id="su-first"/>
+                    </div>
+                    <div class="auth-field" style="margin-bottom:0">
+                        <label class="auth-label">Last Name</label>
+                        <input class="auth-input" type="text" placeholder="Morgan" id="su-last"/>
+                    </div>
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label">Work Email</label>
+                    <input class="auth-input" type="email" placeholder="you@company.com" id="su-email"/>
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label">Password</label>
+                    <div class="auth-input-wrap">
+                        <input class="auth-input" type="password" placeholder="Min. 8 characters" id="su-pass" style="padding-right:44px"/>
+                        <button class="auth-eye" onclick="togglePass('su-pass',this)" type="button">👁</button>
+                    </div>
+                </div>
+                <button class="auth-submit" onclick="doSignUp()">Create Account & Start Free Trial</button>
+                <div class="auth-divider">or</div>
+                <button class="auth-social" onclick="doSignUp()">
+                    <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="8" fill="#4285F4"/><text x="4" y="12" font-size="10" fill="white" font-family="sans-serif" font-weight="700">G</text></svg>
+                    Sign up with Google
+                </button>
+            </div>
+
+            <div class="auth-footer">
+                <span id="auth-toggle-link">Don't have an account? <a onclick="switchAuthTab('signup')">Create one</a></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+    DASHBOARD
+    ═══════════════════════════════════════════════ -->
+    <div id="page-dashboard">
+        <div class="dash-wrap">
+            <nav class="sidebar" id="sidebar">
+                <div class="sb-brand">
+                    <div class="sb-brand-name">CarbonIQ</div>
+                    <div class="sb-brand-tag">Analytics Platform</div>
+                </div>
+                <div class="sb-section">Navigation</div>
+                <div class="sb-item active" onclick="switchPanel('prices',this)">
+                    <svg class="sb-icon" viewBox="0 0 16 16" fill="none"><polyline points="2,11 6,6 9,9 14,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Live Prices</span>
+                </div>
+                <div class="sb-item" onclick="switchPanel('ai',this)">
+                    <svg class="sb-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="7" r=".8" fill="currentColor"/><circle cx="10" cy="7" r=".8" fill="currentColor"/><path d="M5.5 10C6 11 7 11.5 8 11.5S10 11 10.5 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                    <span>AI Predictions</span>
+                </div>
+                <div class="sb-item" onclick="switchPanel('policy',this)">
+                    <svg class="sb-icon" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v2H3zM3 7h8v2H3zM3 11h6v2H3z" fill="currentColor" opacity=".7"/></svg>
+                    <span>Policy Feed</span>
+                </div>
+                <div class="sb-bottom">
+                    <div class="sb-user" onclick="">
+                        <div class="sb-av" id="sb-avatar">A</div>
+                        <div><div class="sb-user-name" id="sb-name">Alex Morgan</div><div class="sb-user-plan">Pro Plan</div></div>
+                    </div>
+                    <div class="sb-item" onclick="showPage('landing')">
+                        <svg class="sb-icon" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span>Back to Site</span>
+                    </div>
+                    <div class="sb-item" onclick="doSignOut()">
+                        <svg class="sb-icon" viewBox="0 0 16 16" fill="none"><path d="M10 8H3m4-3l-3 3 3 3M8 3h4a1 1 0 011 1v8a1 1 0 01-1 1H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span>Sign Out</span>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="dash-content">
+
+                <div class="panel active" id="panel-prices">
+                    <div class="panel-title">Live Price Tracking</div>
+                    <div class="panel-sub">SparkChange Physical Carbon EUA ETC (CO2.MI) · Live from Yahoo Finance</div>
+                    <div class="stat-row">
+                        <div class="stat-card"><div class="stat-lbl">Current Price</div><div class="stat-val pos" id="statCurrentPrice">€—</div><div class="stat-chg" id="statChange">Loading...</div></div>
+                        <div class="stat-card"><div class="stat-lbl">Open</div><div class="stat-val" id="statOpen">—</div></div>
+                        <div class="stat-card"><div class="stat-lbl">High</div><div class="stat-val" id="statHigh">—</div></div>
+                        <div class="stat-card"><div class="stat-lbl">Low</div><div class="stat-val" id="statLow">—</div></div>
+                    </div>
+                    <div class="chart-card">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+                            <div>
+                                <div style="font-size:13px;font-weight:600;font-family:var(--display)" id="dashChartTitle">SparkChange Physical Carbon EUA ETC (CO2.MI)</div>
+                                <div style="font-size:11px;color:var(--t3);margin-top:2px" id="dashChartSub">Live price data from Yahoo Finance</div>
+                            </div>
+                            <span class="section-badge badge-live">● Live</span>
+                        </div>
+
+                        <!-- Chart type selector -->
+                        <div class="chart-type-sel" id="chartTypeSel">
+                            <button class="chart-type-btn active" data-type="area" onclick="setChartType('area',this)">Area</button>
+                            <button class="chart-type-btn" data-type="line" onclick="setChartType('line',this)">Line</button>
+                            <button class="chart-type-btn" data-type="candlestick" onclick="setChartType('candlestick',this)">Candle</button>
+                        </div>
+
+                        <div class="range-sel" id="rangeSel">
+                            <button class="range-btn" data-range="1D" onclick="setDashRange('1D',this)">1D</button>
+                            <button class="range-btn" data-range="1W" onclick="setDashRange('1W',this)">1W</button>
+                            <button class="range-btn active" data-range="1M" onclick="setDashRange('1M',this)">1M</button>
+                            <button class="range-btn" data-range="3M" onclick="setDashRange('3M',this)">3M</button>
+                            <button class="range-btn" data-range="1Y" onclick="setDashRange('1Y',this)">1Y</button>
+                            <button class="range-btn" data-range="ALL" onclick="setDashRange('ALL',this)">ALL</button>
+                        </div>
+                        <div id="dashPriceChart" style="min-height:280px"></div>
+                        <div class="chart-legend">
+                            <div class="leg-item"><div class="leg-line" style="background:var(--gold)"></div>CO2.MI (SparkChange ETC)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" id="panel-ai">
+                    <div class="panel-title">AI Predictions</div>
+                    <div class="panel-sub">LSTM neural network · 60-step lookback · 14-day horizon · Updated hourly</div>
+                    <div class="g2" style="align-items:start">
+                        <div>
+                            <div class="chart-card" style="margin-bottom:14px">
+                                <div style="font-size:13px;font-weight:600;font-family:var(--display);margin-bottom:16px">14-Day Forecast Horizon</div>
+                                <div id="aiForecastChart" style="min-height:220px"></div>
+                            </div>
+                            <div class="chart-card" style="padding:0;overflow:hidden">
+                                <table class="pred-table" id="predTable">
+                                    <thead><tr><th>Date</th><th>Forecast</th><th>Change</th><th>Confidence</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:12px">
+                            <div class="card">
+                                <div class="card-hd"><span class="card-title">Model Signal Summary</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Trend Direction</span><div class="acc-track"><div class="acc-fill acc-g" style="width:78%"></div></div><span class="acc-num pos">Bullish</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Volatility</span><div class="acc-track"><div class="acc-fill acc-a" style="width:42%"></div></div><span class="acc-num neu">Moderate</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Momentum</span><div class="acc-track"><div class="acc-fill acc-g" style="width:68%"></div></div><span class="acc-num pos">Positive</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Policy Risk</span><div class="acc-track"><div class="acc-fill acc-a" style="width:35%"></div></div><span class="acc-num neu">Low-Med</span></div>
+                            </div>
+                            <div class="card">
+                                <div class="card-hd"><span class="card-title">Feature Inputs</span></div>
+                                <div style="font-size:11px;color:var(--t2);line-height:2.1">
+                                    ✓ EUA close price (60d lookback)<br>✓ Daily volume &amp; open interest<br>✓ Gas/power spread proxy<br>✓ EU policy event flags<br>✓ RSI, MACD, Bollinger Bands<br>✓ EUR/USD exchange rate<br>✓ VIX volatility index<br>✓ Temperature anomaly index
+                                </div>
+                            </div>
+                            <div class="card" style="background:rgba(201,168,76,.04);border-color:rgba(201,168,76,.2)">
+                                <div class="card-hd"><span class="card-title" style="color:var(--gold)">Accuracy Report</span></div>
+                                <div style="font-family:var(--mono);font-size:32px;font-weight:600;color:var(--gold);letter-spacing:-1.5px">94.2%</div>
+                                <div style="font-size:11px;color:var(--t3);margin-top:4px;margin-bottom:10px">7-day directional accuracy</div>
+                                <div style="font-size:11px;color:var(--t2)">MAPE 30d: <strong style="color:var(--gold)">3.8%</strong> &nbsp;·&nbsp; Sharpe: <strong style="color:var(--gold)">1.42</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel" id="panel-policy">
+                    <div class="panel-title">Policy Intelligence Feed</div>
+                    <div class="panel-sub">RAG-powered regulatory tracking · EU ETS, CBAM, UK ETS, and global systems</div>
+                    <div class="card" style="margin-bottom:14px">
+                        <div class="policy-item">
+                            <span class="ptag pt-eu">FIT 55</span>
+                            <div><div class="pi-title">EU tightens 2030 allowance cap — MSR intervention threshold revised downward to improve market stability</div><div class="pi-meta">European Commission · June 2025 · Impact: HIGH</div></div>
+                        </div>
+                        <div class="policy-item">
+                            <span class="ptag pt-cb">CBAM</span>
+                            <div><div class="pi-title">CBAM Phase 2 reporting requirements now in full effect for steel, aluminium, cement, fertilizers, and hydrogen sectors</div><div class="pi-meta">EU Customs Authority · May 2025 · Impact: HIGH</div></div>
+                        </div>
+                        <div class="policy-item">
+                            <span class="ptag pt-uk">UK ETS</span>
+                            <div><div class="pi-title">UK ETS–EU ETS cross-border linking negotiation talks formally resume after 18-month pause</div><div class="pi-meta">UK DESNZ · April 2025 · Impact: MEDIUM</div></div>
+                        </div>
+                        <div class="policy-item">
+                            <span class="ptag pt-al">ALERT</span>
+                            <div><div class="pi-title">Free allowance phase-out for aviation sector accelerated by 18 months under updated Fit for 55 schedule</div><div class="pi-meta">EUROCONTROL · March 2025 · Impact: HIGH</div></div>
+                        </div>
+                        <div class="policy-item">
+                            <span class="ptag pt-cb">CBAM</span>
+                            <div><div class="pi-title">New embedded carbon calculation methodology published for electricity sector imports effective Q3 2025</div><div class="pi-meta">European Commission · February 2025 · Impact: MEDIUM</div></div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- CHAT WIDGET -->
+    <button id="chatBtn" onclick="toggleChat()" aria-label="Open AI Copilot">
+        <svg viewBox="0 0 22 22" fill="none"><path d="M4 4h14a2 2 0 012 2v8a2 2 0 01-2 2H8l-4 4V6a2 2 0 012-2z" stroke="var(--bg0)" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="10" r="1" fill="var(--bg0)"/><circle cx="11" cy="10" r="1" fill="var(--bg0)"/><circle cx="14" cy="10" r="1" fill="var(--bg0)"/></svg>
+    </button>
+
+    <div id="chatPanel">
+        <div class="chat-hd">
+            <div class="chat-av">🤖</div>
+            <div>
+                <div class="chat-hd-name">CarbonIQ Copilot</div>
+                <div class="chat-hd-status"><span class="pulse-dot" style="width:5px;height:5px"></span>Online · EU ETS Expert</div>
+            </div>
+            <button class="chat-close" onclick="toggleChat()" aria-label="Close">✕</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="msg bot">Hi! I'm your EU ETS AI Copilot. Ask me about carbon prices, AI forecasts, policy updates, and the difference between CCM and VCM markets.</div>
+        </div>
+        <div class="chat-pills">
+            <button class="cpill" onclick="quickSend('What is the forecast for Friday?')">Friday forecast?</button>
+            <button class="cpill" onclick="quickSend('Explain CCM vs VCM')">CCM vs VCM</button>
+            <button class="cpill" onclick="quickSend('What is Fit for 55?')">Fit for 55</button>
+            <button class="cpill" onclick="quickSend('Latest policy update')">Policy news</button>
+        </div>
+        <div class="chat-input-row">
+            <input class="chat-input" id="chatInput" placeholder="Ask about EU ETS, forecasts, policy…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+            <button class="chat-send" onclick="sendMsg()">↑</button>
+        </div>
+    </div>
+
+    <script>
+    // ═══ STATE ═══
+    let currentUser = null;
+    let chartsInit = false;
+    let dashChartsInit = false;
+    let pendingPanel = null;
+    let dashChart = null;
+    let currentChartType = 'area';
+    let currentRange = '1M';
+    let currentDataPoints = [];
+    let usingLiveData = true;
+
+    // ─── WAIT FOR CONTAINER WIDTH ────────────────────────────────
+    function whenContainerReady(id, cb, attempts = 0) {
+        const el = document.getElementById(id);
+        if (el && el.offsetWidth > 0) {
+            requestAnimationFrame(cb);
+            return;
+        }
+        if (attempts > 40) {
+            console.warn('whenContainerReady: "' + id + '" never reached non-zero width, initializing anyway.');
+            cb();
+            return;
+        }
+        requestAnimationFrame(function() { whenContainerReady(id, cb, attempts + 1); });
+    }
+
+    // ═══ NAVIGATION ═══
+    function navigateTo(page, el) {
+        document.querySelectorAll('.nav-link').forEach(function(x) { x.classList.remove('active'); });
+        if (el) el.classList.add('active');
+
+        if (page === 'landing') {
+            showPage('landing');
+        } else if (page === 'carbon') {
+            showPage('carbon');
+            if (!window._carbonInited) { initCarbonPage();
+                window._carbonInited = true; }
+        } else if (page === 'ai-explainer') {
+            showPage('ai-explainer');
+        } else if (page === 'dashboard-policy') {
+            if (currentUser) {
+                showPage('dashboard');
+                switchPanel('policy', document.querySelector('.sb-item:nth-child(4)'));
+            } else {
+                pendingPanel = 'policy';
+                showPage('auth', 'signin');
+            }
+        }
+        closeMM();
+    }
+
+    // ═══ PAGE CONTROL ═══
+    function showPage(page, tab) {
+        document.getElementById('page-landing').style.display = 'none';
+        document.getElementById('page-auth').style.display = 'none';
+        document.getElementById('page-dashboard').style.display = 'none';
+        document.getElementById('page-carbon').style.display = 'none';
+        document.getElementById('page-ai-explainer').style.display = 'none';
+        document.getElementById('ticker').style.display = (page === 'dashboard') ? 'none' : 'flex';
+
+        if (page === 'landing') {
+            document.getElementById('page-landing').style.display = 'block';
+            document.getElementById('nav').style.display = 'flex';
+            updateNavForAuth(!!currentUser);
+            if (!chartsInit) { whenContainerReady('landingChart', initLandingCharts);
+                chartsInit = true; }
+            initReveal();
+        } else if (page === 'auth') {
+            document.getElementById('page-auth').style.display = 'flex';
+            document.getElementById('nav').style.display = 'flex';
+            if (tab) switchAuthTab(tab);
+        } else if (page === 'dashboard') {
+            document.getElementById('page-dashboard').style.display = 'block';
+            document.getElementById('nav').style.display = 'none';
+            if (!dashChartsInit) { whenContainerReady('dashPriceChart', initDashCharts);
+                dashChartsInit = true; }
+            updateSidebarUser();
+        } else if (page === 'carbon') {
+            document.getElementById('page-carbon').style.display = 'block';
+            document.getElementById('nav').style.display = 'flex';
+            updateNavForAuth(!!currentUser);
+            if (!window._carbonInited) { whenContainerReady('systemGrid', initCarbonPage);
+                window._carbonInited = true; }
+            initReveal();
+        } else if (page === 'ai-explainer') {
+            document.getElementById('page-ai-explainer').style.display = 'block';
+            document.getElementById('nav').style.display = 'flex';
+            updateNavForAuth(!!currentUser);
+            if (!window._aiExplainerInited) { whenContainerReady('neuroCanvas', initAIExplainer);
+                window._aiExplainerInited = true; }
+            initReveal();
+        }
+        window.scrollTo(0, 0);
+    }
+
+    function updateNavForAuth(loggedIn) {
+        var ra = document.querySelector('.nav-actions');
+        if (loggedIn) {
+            ra.innerHTML =
+                '<button class="btn-gold" onclick="showPage(\'dashboard\')">Open Dashboard</button><button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>';
+        } else {
+            ra.innerHTML =
+                '<button class="btn-ghost" onclick="showPage(\'auth\',\'signin\')">Sign In</button><button class="btn-gold" onclick="showPage(\'auth\',\'signup\')">Get Started</button><button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>';
+        }
+    }
+
+    // ═══ MOBILE MENU ═══
+    function toggleMobileMenu() {
+        var menu = document.getElementById('mobileMenu');
+        var ham = document.getElementById('navHam');
+        if (!ham) return;
+        menu.classList.toggle('open');
+        ham.classList.toggle('open');
+    }
+
+    function closeMM() {
+        document.getElementById('mobileMenu').classList.remove('open');
+        var h = document.getElementById('navHam');
+        if (h) h.classList.remove('open');
+    }
+
+    // ═══ AUTH ═══
+    function switchAuthTab(tab) {
+        document.getElementById('form-signin').style.display = tab === 'signin' ? 'block' : 'none';
+        document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+        document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+        document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+        var link = document.getElementById('auth-toggle-link');
+        link.innerHTML = tab === 'signin' ?
+            'Don\'t have an account? <a onclick="switchAuthTab(\'signup\')">Create one</a>' :
+            'Already have an account? <a onclick="switchAuthTab(\'signin\')">Sign in</a>';
+    }
+
+    function togglePass(id, btn) {
+        var input = document.getElementById(id);
+        if (input.type === 'password') { input.type = 'text';
+            btn.textContent = '🙈'; } else { input.type = 'password';
+            btn.textContent = '👁'; }
+    }
+
+    function doSignIn() {
+        var email = document.getElementById('si-email').value.trim();
+        var pass = document.getElementById('si-pass').value;
+        document.getElementById('err-signin').classList.remove('show');
+        if (!email || !pass) {
+            document.getElementById('err-signin').classList.add('show');
+            document.getElementById('err-signin').textContent = 'Please enter your email and password.';
+            return;
+        }
+        currentUser = { name: email.split('@')[0].replace(/\./g, ' '), email: email, initials: email[0].toUpperCase() };
+        showPage('dashboard');
+        updateNavForAuth(true);
+        if (pendingPanel) { switchPanel(pendingPanel, document.querySelector(pendingPanel === 'policy' ? '.sb-item:nth-child(4)' : '.sb-item:nth-child(3)'));
+            pendingPanel = null; }
+    }
+
+    function doSignUp() {
+        var first = document.getElementById('su-first').value.trim();
+        var last = document.getElementById('su-last').value.trim();
+        var email = document.getElementById('su-email').value.trim();
+        var pass = document.getElementById('su-pass').value;
+        document.getElementById('err-signup').classList.remove('show');
+        if (!first || !last || !email || pass.length < 6) {
+            document.getElementById('err-signup').classList.add('show');
+            document.getElementById('err-signup').textContent = !email ? 'Please enter a valid email.' : pass.length < 6 ?
+                'Password must be at least 6 characters.' : 'Please fill in all required fields.';
+            return;
+        }
+        currentUser = { name: first + ' ' + last, email: email, initials: first[0].toUpperCase() };
+        showPage('dashboard');
+        updateNavForAuth(true);
+        if (pendingPanel) { switchPanel(pendingPanel, document.querySelector(pendingPanel === 'policy' ? '.sb-item:nth-child(4)' : '.sb-item:nth-child(3)'));
+            pendingPanel = null; }
+    }
+
+    function doSignOut() {
+        currentUser = null;
+        showPage('landing');
+        updateNavForAuth(false);
+    }
+
+    function updateSidebarUser() {
+        if (!currentUser) return;
+        var nameEl = document.getElementById('sb-name');
+        var avEl = document.getElementById('sb-avatar');
+        if (nameEl) nameEl.textContent = currentUser.name;
+        if (avEl) avEl.textContent = currentUser.initials;
+    }
+
+    // ═══ PANEL SWITCH ═══
+    function switchPanel(name, el) {
+        document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelectorAll('.sb-item').forEach(function(s) { s.classList.remove('active'); });
+        var target = document.getElementById('panel-' + name);
+        if (target) target.classList.add('active');
+        if (el) el.classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(function(x) { x.classList.remove('active'); });
+        if (name === 'prices') {
+            var n = document.querySelector('.nav-link[data-page="landing"]');
+            if (n) n.classList.add('active');
+        } else if (name === 'ai') {
+            var n2 = document.querySelector('.nav-link[data-page="ai-explainer"]');
+            if (n2) n2.classList.add('active');
+        } else if (name === 'policy') {
+            var n3 = document.querySelector('.nav-link[data-page="dashboard-policy"]');
+            if (n3) n3.classList.add('active');
+        }
+    }
+
+    // ═══ TICKER ═══
+    var TICKS = [
+        { n: 'EUA CFI=F', v: '—', c: '—', t: 'neu', key: 'eua' },
+        { n: 'FCO2 ETC', v: '—', c: '—', t: 'neu', key: 'fco2' },
+        { n: 'Dec-25 Futures', v: '—', c: '—', t: 'neu' },
+        { n: 'UK ETS UKA', v: '—', c: '—', t: 'neu' },
+        { n: 'Global Carbon (KRBN)', v: '—', c: '—', t: 'neu', key: 'krbn' },
+        { n: 'California/RGGI (KCCA)', v: '—', c: '—', t: 'neu', key: 'kcca' },
+        { n: '24h Volume', v: '—', c: '—', t: 'neu' },
+        { n: 'Open Interest', v: '—', c: '—', t: 'neu' },
+        { n: 'AI 7d Target', v: '—', c: '—', t: 'neu' },
+        { n: 'Sharpe', v: '—', c: '—', t: 'neu' },
+        { n: 'MAPE 30d', v: '—', c: '—', t: 'neu' },
+    ];
+
+    (function buildTicker() {
+        var wrap = document.getElementById('tickerWrap');
+        TICKS.concat(TICKS).forEach(function(t) {
+            var d = document.createElement('div');
+            d.className = 'tick';
+            if (t.key) d.dataset.key = t.key;
+            d.innerHTML =
+                '<span class="tick-name">' + t.n + '</span><span class="tick-val ' + t.t + '">' + t.v +
+                '</span><span class="tick-chg ' + t.t + '">' + t.c + '</span>';
+            wrap.appendChild(d);
+        });
+    })();
+
+    // ─── REAL DATA FETCH WITH MULTI-PROXY FALLBACK ───────────────
+    // Yahoo Finance blocks direct browser calls (no CORS headers), so we
+    // must go through a CORS proxy. Relying on a single proxy (as before)
+    // means one outage = permanent "simulated data" mode. We now try
+    // several proxies in order and only fall back to synthetic data if
+    // ALL of them fail.
+    const CORS_PROXIES = [
+        (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
+    ];
+
+    // Remembers the last real price we successfully fetched, so that IF
+    // every proxy fails at some point, the fallback can pick up from
+    // reality instead of teleporting to a fresh random number.
+    let lastKnownGood = null; // { price, open, high, low, previousClose, ts }
+
+    async function fetchYahooFinanceData(range, interval) {
+        const symbol = 'CO2.MI';
+        const yahooUrl =
+            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}&includePrePost=false`;
+
+        for (let i = 0; i < CORS_PROXIES.length; i++) {
+            const proxyUrl = CORS_PROXIES[i](yahooUrl);
+            try {
+                // NOTE: we intentionally do NOT use AbortController here.
+                // In sandboxed/iframed preview environments, fetch() calls
+                // get relayed to the parent window via postMessage, which
+                // uses the structured clone algorithm — and AbortSignal
+                // objects cannot be structured-cloned. Passing `signal`
+                // there throws "AbortSignal object could not be cloned"
+                // and every fetch fails instantly, before ever reaching
+                // the network. Promise.race gives us the same timeout
+                // behavior without touching fetch's options object.
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timed out')), 8000)
+                );
+                const response = await Promise.race([
+                    fetch(proxyUrl, { headers: { 'Accept': 'application/json' } }),
+                    timeoutPromise
+                ]);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                // allorigins' /get endpoint wraps the payload as
+                // {contents: "<json string>"}. corsproxy.io, allorigins'
+                // /raw, and thingproxy pass the real Yahoo JSON straight
+                // through. Handle both shapes.
+                const raw = await response.text();
+                let json;
+                try {
+                    const parsedOuter = JSON.parse(raw);
+                    json = (parsedOuter && typeof parsedOuter.contents === 'string') ?
+                        JSON.parse(parsedOuter.contents) : parsedOuter;
+                } catch (parseErr) {
+                    throw new Error('Unparseable proxy response');
+                }
+
+                const result = json && json.chart && json.chart.result && json.chart.result[0];
+                if (!result) throw new Error('No result in response');
+
+                const timestamps = result.timestamp;
+                const quotes = result.indicators.quote[0];
+                const closePrices = quotes.close;
+                if (!timestamps || !closePrices || closePrices.length === 0) throw new Error('No price data');
+
+                const points = [];
+                let latestPrice = null;
+                let latestOpen = null, latestHigh = null, latestLow = null;
+                for (let j = 0; j < timestamps.length; j++) {
+                    const price = closePrices[j];
+                    if (price !== null && price !== undefined && !isNaN(price)) {
+                        const ts = timestamps[j] * 1000;
+                        points.push({
+                            x: ts,
+                            y: price,
+                            open: (quotes.open && quotes.open[j] !== null) ? quotes.open[j] : price,
+                            high: (quotes.high && quotes.high[j] !== null) ? quotes.high[j] : price,
+                            low: (quotes.low && quotes.low[j] !== null) ? quotes.low[j] : price,
+                            close: price
+                        });
+                        latestPrice = price;
+                        if (quotes.open && quotes.open[j] !== null) latestOpen = quotes.open[j];
+                        if (quotes.high && quotes.high[j] !== null) latestHigh = quotes.high[j];
+                        if (quotes.low && quotes.low[j] !== null) latestLow = quotes.low[j];
+                    }
+                }
+                if (points.length === 0) throw new Error('No valid points');
+
+                const meta = result.meta || {};
+
+                // Remember this real quote in case a later call fails and
+                // has to fall back — see generateFallbackData().
+                lastKnownGood = {
+                    price: latestPrice,
+                    open: latestOpen,
+                    high: latestHigh,
+                    low: latestLow,
+                    previousClose: meta.previousClose || null,
+                    ts: Date.now(),
+                };
+
+                return {
+                    points: points,
+                    latestPrice: latestPrice,
+                    previousClose: meta.previousClose || null,
+                    open: latestOpen,
+                    high: latestHigh,
+                    low: latestLow,
+                    success: true
+                };
+            } catch (err) {
+                console.warn(`CORS proxy ${i + 1}/${CORS_PROXIES.length} failed:`, err.message || err);
+                // fall through and try the next proxy in the list
+            }
+        }
+
+        console.warn('All CORS proxies failed for this request — using fallback data.');
+        return generateFallbackData(range);
+    }
+
+    // ─── FALLBACK DATA GENERATOR ────────────────────────────────
+    // Only reached if every proxy above failed. If we already fetched a
+    // real price earlier this session, we anchor to it and take small
+    // realistic steps (±0.06 max per point) instead of re-rolling a
+    // completely new random price on every call. Re-rolling on every call
+    // is what caused the price to visibly jump (e.g. €75 -> €70) every
+    // ~60 seconds in the previous version — each failed fetch generated
+    // an unrelated random number instead of continuing from reality.
+    function generateFallbackData(range) {
+        const now = Date.now();
+        const map = {
+            '1d': { points: 60, interval: 60000 },
+            '7d': { points: 100, interval: 3600000 },
+            '1mo': { points: 90, interval: 28800000 },
+            '3mo': { points: 90, interval: 86400000 },
+            '1y': { points: 52, interval: 604800000 },
+            'max': { points: 100, interval: 2592000000 }
+        };
+        let key = '1mo';
+        if (range.includes('1d')) key = '1d';
+        else if (range.includes('7d') || range.includes('5d')) key = '7d';
+        else if (range.includes('1mo')) key = '1mo';
+        else if (range.includes('3mo')) key = '3mo';
+        else if (range.includes('1y')) key = '1y';
+        else if (range.includes('max')) key = 'max';
+        const cfg = map[key] || map['1mo'];
+
+        // Anchor to the last real price seen this session. Only if we've
+        // NEVER had a real quote yet do we seed near CO2.MI's actual
+        // recent trading range (~€60-90) instead of a wide arbitrary band.
+        const anchor = lastKnownGood ? lastKnownGood.price : (66 + Math.random() * 3);
+        const points = [];
+        let price = anchor;
+        for (let i = 0; i < cfg.points; i++) {
+            const ts = now - (cfg.points - i) * cfg.interval;
+            price += (Math.random() - 0.5) * 0.12;
+            price = Math.max(anchor - 2, Math.min(anchor + 2, price));
+            const o = price + (Math.random() - 0.5) * 0.08;
+            const h = Math.max(o, price) + Math.random() * 0.15;
+            const l = Math.min(o, price) - Math.random() * 0.15;
+            points.push({ x: ts, y: price, open: o, high: h, low: l, close: price });
+        }
+        const latest = points[points.length - 1];
+        return {
+            points: points,
+            latestPrice: latest.close,
+            previousClose: points.length > 1 ? points[points.length - 2].close : latest.close,
+            open: latest.open,
+            high: latest.high,
+            low: latest.low,
+            success: false,
+            isFallback: true
+        };
+    }
+
+    // ─── UPDATE LIVE TICKER AND STATS ────────────────────────────
+    async function updateLiveData() {
+        try {
+            const data = await fetchYahooFinanceData('1d', '1m');
+            if (!data || !data.points || data.points.length === 0) return;
+
+            const latest = data.latestPrice;
+            const prevClose = data.previousClose || data.points[data.points.length - 2]?.close || latest;
+            const change = latest - prevClose;
+            const changePct = (change / prevClose) * 100;
+            const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
+            const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
+            const sign = change > 0 ? '+' : '';
+
+            // Update ticker
+            const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
+            fco2Ticks.forEach(function(el) {
+                var valEl = el.querySelector('.tick-val');
+                var chgEl = el.querySelector('.tick-chg');
+                valEl.textContent = '€' + latest.toFixed(2);
+                chgEl.textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
+                valEl.className = 'tick-val ' + tone;
+                chgEl.className = 'tick-chg ' + tone;
+            });
+
+            // Update stats
+            document.getElementById('statCurrentPrice').textContent = '€' + latest.toFixed(2);
+            document.getElementById('statCurrentPrice').className = 'stat-val ' + tone;
+            document.getElementById('statChange').textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
+            document.getElementById('statChange').className = 'stat-chg ' + tone;
+            if (data.open) document.getElementById('statOpen').textContent = '€' + data.open.toFixed(2);
+            if (data.high) document.getElementById('statHigh').textContent = '€' + data.high.toFixed(2);
+            if (data.low) document.getElementById('statLow').textContent = '€' + data.low.toFixed(2);
+
+            // Show indicator if using fallback
+            const subEl = document.getElementById('dashChartSub');
+            if (subEl) {
+                subEl.textContent = data.isFallback ?
+                    '⚠️ Live feed unavailable – showing simulated data' :
+                    'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
+            }
+            usingLiveData = !data.isFallback;
+        } catch (err) {
+            console.warn('updateLiveData error:', err);
+        }
+    }
+
+    // ═══ CHART UTILS ═══
+    function mkDates(n, future) {
+        if (future === undefined) future = 0;
+        var a = [];
+        var now = new Date();
+        for (var i = n - 1; i >= -future; i--) {
+            var d = new Date(now);
+            d.setDate(d.getDate() - i);
+            a.push(d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }));
+        }
+        return a;
+    }
+
+    function genSeries(n, start, vol) {
+        var a = [parseFloat(start.toFixed(2))];
+        for (var i = 1; i < n; i++) a.push(parseFloat((a[i - 1] + (Math.random() - .46) * vol).toFixed(2)));
+        return a;
+    }
+
+    // ─── BASE_OPTS ─────────────────────────────────────────────────
+    var BASE_OPTS = {
+        chart: {
+            background: 'transparent',
+            toolbar: { show: false },
+            fontFamily: 'DM Sans,sans-serif',
+            animations: { enabled: false },
+            zoom: { enabled: false },
+            parentHeightOffset: 0,
+        },
+        theme: { mode: 'dark' },
+        dataLabels: { enabled: false },
+        grid: {
+            borderColor: 'rgba(20,30,48,0.8)',
+            strokeDashArray: 4,
+            padding: { left: 8, right: 8, top: 4, bottom: 0 },
+            xaxis: { lines: { show: true } },
+            yaxis: { lines: { show: true } },
+        },
+        stroke: { curve: 'smooth', width: 2 },
+        markers: { size: 0, strokeWidth: 0, hover: { size: 6, sizeOffset: 3 } },
+        states: { hover: { filter: { type: 'none' } }, active: { filter: { type: 'none' } } },
+        tooltip: {
+            theme: 'dark',
+            shared: false,
+            intersect: false,
+            style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
+            marker: { show: true },
+            cssClass: 'ciq-tooltip',
+        },
+        xaxis: {
+            labels: {
+                style: { colors: '#4e5f7a', fontSize: '10px' },
+                rotate: 0,
+                hideOverlappingLabels: true,
+                trim: false,
+                offsetY: 2,
+            },
+            tickPlacement: 'on',
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            tooltip: { enabled: false },
+            crosshairs: { show: true, stroke: { color: '#c9a84c', width: 1, dashArray: 4 }, opacity: .7 },
+        },
+        yaxis: {
+            labels: {
+                style: { colors: '#4e5f7a', fontSize: '10px' },
+                offsetX: -4,
+                align: 'left',
+                formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+            },
+        },
+        legend: { show: false },
+        responsive: [{
+            breakpoint: 640,
+            options: {
+                grid: { padding: { left: 2, right: 2, top: 2, bottom: 0 } },
+                xaxis: { labels: { style: { fontSize: '9px' }, rotate: 0 } },
+                yaxis: { labels: { style: { fontSize: '9px' }, offsetX: -2 } },
+            },
+        }, ],
+    };
+
+    // ─── LANDING PAGE CHART (dummy) ═══
+    function initLandingCharts() {
+        var h = genSeries(22, 60.2, 1.4);
+        var f = [].concat(Array(21).fill(null), [h[h.length - 1]]).concat(genSeries(8, h[h.length - 1], .6).slice(1));
+        var labels = mkDates(22, 8);
+        new ApexCharts(document.getElementById('landingChart'), {
+            ...BASE_OPTS,
+            series: [
+                { name: 'Historical', data: h.map(function(v, i) { return { x: labels[i], y: v }; }) },
+                { name: 'AI Forecast', data: f.map(function(v, i) { return { x: labels[i], y: v }; }) }
+            ],
+            chart: { ...BASE_OPTS.chart, type: 'line', height: 210 },
+            colors: ['#00d4aa', '#c9a84c'],
+            stroke: { curve: 'smooth', width: [2, 2], dashArray: [0, 5] },
+            fill: { type: ['solid', 'solid'], opacity: [0.05, 0] },
+        }).render();
+    }
+
+    // ─── DASHBOARD CHART ──────────────────────────────────────────
+    function renderDashChart(points, rangeKey, chartType) {
+        if (!chartType) chartType = currentChartType;
+        const isCandle = chartType === 'candlestick';
+
+        let seriesData;
+        if (isCandle) {
+            seriesData = points.map(p => ({
+                x: p.x,
+                y: [p.open || p.y, p.high || p.y, p.low || p.y, p.close || p.y]
+            }));
+        } else {
+            seriesData = points.map(p => ({ x: p.x, y: p.y }));
+        }
+
+        const series = [{
+            name: 'CO2.MI',
+            data: seriesData,
+            type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line')
+        }];
+
+        const tooltipFn = function(opts) {
+            const seriesIndex = opts.seriesIndex;
+            const dataPointIndex = opts.dataPointIndex;
+            const seriesArr = opts.series;
+            if (!seriesArr || !seriesArr[seriesIndex]) return '';
+            const val = seriesArr[seriesIndex][dataPointIndex];
+            if (val === null || val === undefined) return '';
+
+            let price = val;
+            let openVal = null;
+            if (isCandle && Array.isArray(val)) {
+                price = val[3];
+                openVal = val[0];
+            }
+            let prevClose = null;
+            if (dataPointIndex > 0) {
+                const prev = seriesArr[seriesIndex][dataPointIndex - 1];
+                if (prev !== null && prev !== undefined) {
+                    if (isCandle && Array.isArray(prev)) {
+                        prevClose = prev[3];
+                    } else {
+                        prevClose = prev;
+                    }
+                }
+            }
+            if (prevClose === null && openVal !== null) prevClose = openVal;
+
+            let change = null;
+            let changePct = null;
+            if (prevClose !== null && prevClose !== undefined && !isNaN(prevClose)) {
+                change = price - prevClose;
+                changePct = (change / prevClose) * 100;
+            }
+
+            const dateLabel = opts.w.globals.categoryLabels[dataPointIndex] || '';
+            let deltaHtml = '';
+            if (change !== null) {
+                const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
+                const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
+                const sign = change > 0 ? '+' : '';
+                deltaHtml = `<div style="font-size:11px;font-family:'DM Sans',sans-serif;color:var(--${tone});margin-top:4px">
+                            ${arrow} ${sign}${change.toFixed(2)} (${sign}${changePct.toFixed(2)}%)
+                        </div>`;
+            }
+
+            return `<div style="background:#0c1220;border:1px solid rgba(201,168,76,.35);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:140px">
+                        <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
+                        <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}</div>
+                        ${deltaHtml}
+                    </div>`;
+        };
+
+        if (dashChart) {
+            dashChart.updateOptions({
+                series: series,
+                chart: { type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line') },
+                xaxis: {
+                    ...BASE_OPTS.xaxis,
+                    type: 'datetime',
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        datetimeUTC: false,
+                        format: 'dd MMM',
+                    },
+                    tickAmount: 'auto',
+                },
+                yaxis: {
+                    ...BASE_OPTS.yaxis,
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        offsetX: -4,
+                        align: 'left',
+                        formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+                    },
+                },
+                tooltip: {
+                    ...BASE_OPTS.tooltip,
+                    shared: false,
+                    x: { format: 'dd MMM yyyy HH:mm' },
+                    y: {
+                        formatter: function(val) { return '€' + (typeof val === 'number' ? val.toFixed(2) : '—'); },
+                        title: { formatter: function() { return 'Price'; } },
+                    },
+                    custom: tooltipFn,
+                },
+            }, false, true);
+            dashChart.updateSeries(series, true);
+        } else {
+            dashChart = new ApexCharts(document.getElementById('dashPriceChart'), {
+                ...BASE_OPTS,
+                series: series,
+                chart: {
+                    ...BASE_OPTS.chart,
+                    type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line'),
+                    height: 280,
+                },
+                colors: ['#c9a84c'],
+                stroke: {
+                    curve: 'smooth',
+                    width: chartType === 'line' ? 2 : 0,
+                    dashArray: 0,
+                },
+                fill: {
+                    type: chartType === 'area' ? 'gradient' : 'solid',
+                    gradient: { shadeIntensity: .5, opacityFrom: .10, opacityTo: .01 },
+                    opacity: chartType === 'area' ? 1 : 0,
+                },
+                xaxis: {
+                    ...BASE_OPTS.xaxis,
+                    type: 'datetime',
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        datetimeUTC: false,
+                        format: 'dd MMM',
+                    },
+                    tickAmount: 'auto',
+                },
+                yaxis: {
+                    ...BASE_OPTS.yaxis,
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        offsetX: -4,
+                        align: 'left',
+                        formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+                    },
+                },
+                tooltip: {
+                    ...BASE_OPTS.tooltip,
+                    shared: false,
+                    x: { format: 'dd MMM yyyy HH:mm' },
+                    y: {
+                        formatter: function(val) { return '€' + (typeof val === 'number' ? val.toFixed(2) : '—'); },
+                        title: { formatter: function() { return 'Price'; } },
+                    },
+                    custom: tooltipFn,
+                },
+            });
+            dashChart.render();
+        }
+        // Update title
+        var titleEl = document.getElementById('dashChartTitle');
+        if (titleEl) titleEl.textContent = 'SparkChange Physical Carbon EUA ETC (CO2.MI) · ' + rangeKey;
+    }
+
+    // ─── CHART TYPE SWITCH ──────────────────────────────────────
+    function setChartType(type, btn) {
+        if (type === currentChartType) return;
+        currentChartType = type;
+        document.querySelectorAll('.chart-type-btn').forEach(function(b) { b.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        if (currentDataPoints && currentDataPoints.length > 0) {
+            renderDashChart(currentDataPoints, currentRange, type);
+        }
+    }
+
+    // ═══ TIMEFRAME CONTROLLER ═══
+    async function setDashRange(rangeKey, btn) {
+        document.querySelectorAll('#rangeSel .range-btn').forEach(function(b) { b.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        currentRange = rangeKey;
+
+        const map = {
+            '1D': { range: '1d', interval: '5m' },
+            '1W': { range: '7d', interval: '15m' },
+            '1M': { range: '1mo', interval: '1d' },
+            '3M': { range: '3mo', interval: '1d' },
+            '1Y': { range: '1y', interval: '1wk' },
+            'ALL': { range: 'max', interval: '1mo' },
+        };
+        const config = map[rangeKey];
+        if (!config) return;
+
+        const chartContainer = document.getElementById('dashPriceChart');
+        chartContainer.style.opacity = '0.5';
+
+        try {
+            const result = await fetchYahooFinanceData(config.range, config.interval);
+            currentDataPoints = result.points;
+            renderDashChart(result.points, rangeKey, currentChartType);
+            chartContainer.style.opacity = '1';
+            // Update subtitle with data status
+            const subEl = document.getElementById('dashChartSub');
+            if (subEl) {
+                subEl.textContent = result.isFallback ?
+                    '⚠️ Live feed unavailable – showing simulated data' :
+                    'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
+            }
+            // Also update stats
+            await updateLiveData();
+        } catch (err) {
+            console.error('Failed to load data for range', rangeKey, err);
+            chartContainer.style.opacity = '1';
+            var subEl2 = document.getElementById('dashChartSub');
+            if (subEl2) subEl2.textContent = 'Error loading data. Using fallback.';
+        }
+    }
+
+    // ═══ INIT DASHBOARD CHARTS ═══
+    async function initDashCharts() {
+        await setDashRange('1M', document.querySelector('#rangeSel .range-btn.active'));
+        await updateLiveData();
+        setInterval(updateLiveData, 60000);
+        document.querySelector('.chart-type-btn.active')?.classList.remove('active');
+        document.querySelector('.chart-type-btn[data-type="area"]')?.classList.add('active');
+        currentChartType = 'area';
+    }
+
+    // ═══ SCROLL REVEAL ═══
+    function initReveal() {
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible');
+                    observer.unobserve(e.target); } });
+        }, { threshold: .08 });
+        document.querySelectorAll('.reveal').forEach(function(el) {
+            el.classList.remove('visible');
+            observer.observe(el);
+        });
+    }
+
+    // ═══ CHAT ═══ (unchanged)
+    var chatOpen = { v: false };
+
+    function toggleChat() {
+        chatOpen.v = !chatOpen.v;
+        document.getElementById('chatPanel').classList.toggle('open', chatOpen.v);
+    }
+
+    var BOTS = {
+        friday: function() {
+            return 'Based on LSTM 14-day model, EUA prices are projected to reach <b>€65.20–€66.10</b> by Friday — a +' +
+                (2.8 + Math.random()).toFixed(1) + '% gain from today\'s close. Confidence: 73%.';
+        },
+        ccm: '<b>Compliance Carbon Markets (CCM)</b> are legally mandated cap-and-trade systems. Regulated entities must surrender allowances equal to verified annual emissions or face penalties up to €100/tCO₂ in the EU ETS.',
+        vcm: '<b>Voluntary Carbon Markets (VCM)</b> let companies offset beyond their legal obligations. Credits are verified by third-party standards like Verra VCS or Gold Standard — no legal mandate applies.',
+        fit: '<b>Fit for 55</b> is the EU\'s legislative package targeting a 55% net GHG reduction by 2030 vs 1990 levels. It significantly tightens the EU ETS cap, introduces CBAM, and extends ETS to maritime and buildings.',
+        policy: 'Latest policy: EU revised MSR intervention threshold under Phase 4 (June 2025). CBAM Phase 2 entered full effect Q2 2025. UK ETS–EU ETS linking talks resumed April 2025. Aviation free allowance phase-out accelerated by 18 months.',
+        default: 'I can analyse EU ETS price drivers, LSTM model outputs, policy impacts (Fit for 55, CBAM), and compare CCM vs VCM markets. What would you like to explore?'
+    };
+
+    function getReply(m) {
+        var t = m.toLowerCase();
+        if (t.includes('friday') || t.includes('forecast') || t.includes('predict')) return BOTS.friday();
+        if (t.includes('ccm') || t.includes('compliance')) return BOTS.ccm;
+        if (t.includes('vcm') || t.includes('voluntary')) return BOTS.vcm;
+        if (t.includes('fit') || t.includes('55')) return BOTS.fit;
+        if (t.includes('policy') || t.includes('cbam') || t.includes('update')) return BOTS.policy;
+        return BOTS.default;
+    }
+
+    function appendMsg(text, role) {
+        var body = document.getElementById('chatBody');
+        var div = document.createElement('div');
+        div.className = 'msg ' + role;
+        div.innerHTML = text;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+        return div;
+    }
+
+    function sendMsg() {
+        var inp = document.getElementById('chatInput');
+        var val = inp.value.trim();
+        if (!val) return;
+        appendMsg(val, 'user');
+        inp.value = '';
+        var typDiv = document.createElement('div');
+        typDiv.className = 'msg bot';
+        typDiv.innerHTML = '<div class="typing-dot"><span></span><span></span><span></span></div>';
+        document.getElementById('chatBody').appendChild(typDiv);
+        document.getElementById('chatBody').scrollTop = 9999;
+        setTimeout(function() {
+            typDiv.remove();
+            var reply = getReply(val);
+            var i = 0;
+            var div = appendMsg('', 'bot');
+            var iv = setInterval(function() {
+                div.innerHTML = reply.substring(0, i += 4);
+                document.getElementById('chatBody').scrollTop = 9999;
+                if (i >= reply.length) clearInterval(iv);
+            }, 14);
+        }, 700);
+    }
+
+    function quickSend(t) { document.getElementById('chatInput').value = t;
+        sendMsg(); }
+
+    // ═══ CARBON PAGE INIT ═══
+    function initCarbonPage() {
+        var systems = [
+            { name: 'EU ETS', region: '🇪🇺 Europe', price: '€63.45', mech: 'increment',
+                desc: 'Phase 4 · 4.3% LRF · 40% EU GHG', tags: ['Largest', 'Most liquid'] },
+            { name: 'California CCA', region: '🇺🇸 USA', price: '$14.80', mech: 'market',
+                desc: 'Cap-and-trade · linked RGGI · 85% coverage', tags: ['Price floor', 'Quarterly auctions'] },
+            { name: 'UK ETS', region: '🇬🇧 UK', price: '£38.75', mech: 'increment', desc: 'Post-Brexit · tighter cap',
+                tags: ['Linking talks'] },
+            { name: 'China CETS', region: '🇨🇳 China', price: '¥68.50', mech: 'fixed',
+                desc: 'World\'s largest by volume · power sector', tags: ['4.5B tCO₂', 'Fixed price'] },
+            { name: 'Korea ETS', region: '🇰🇷 S.Korea', price: '₩45,200', mech: 'increment',
+                desc: 'Phase 3 · 600+ entities', tags: ['74% auction'] },
+            { name: 'RGGI', region: '🇺🇸 US East', price: '$6.80', mech: 'market', desc: '12 states · power sector',
+                tags: ['30% cap reduction'] },
+            { name: 'Mexico ETS', region: '🇲🇽 Mexico', price: 'MX$820', mech: 'fixed', desc: 'Pilot phase · voluntary',
+                tags: ['Fixed price'] },
+            { name: 'Colombia ETS', region: '🇨🇴 Colombia', price: 'COP 35,000', mech: 'fixed',
+                desc: 'Emerging market · pilot', tags: ['Fixed price'] },
+            { name: 'South Africa', region: '🇿🇦 S.Africa', price: 'ZAR 120', mech: 'fixed',
+                desc: 'Carbon tax · fixed price', tags: ['Tax-based'] },
+            { name: 'Japan GX', region: '🇯🇵 Japan', price: '¥1,200', mech: 'market',
+                desc: 'Green Transformation · voluntary', tags: ['Voluntary'] },
+            { name: 'Australia', region: '🇦🇺 Australia', price: 'A$42', mech: 'market',
+                desc: 'Safeguard mechanism · market', tags: ['Market-based'] },
+            { name: 'New Zealand', region: '🇳🇿 NZ', price: 'NZ$78', mech: 'market', desc: 'NZ ETS · all sectors',
+                tags: ['All sectors'] },
+        ];
+
+        var grid = document.getElementById('systemGrid');
+        if (grid) {
+            grid.innerHTML = '';
+            systems.forEach(function(s) {
+                var mechClass = s.mech === 'fixed' ? 'sys-fixed' : s.mech === 'increment' ? 'sys-increment' :
+                    'sys-market';
+                var mechLabel = s.mech === 'fixed' ? '● Fixed' : s.mech === 'increment' ? '◆ 5‑Year Inc.' :
+                    '◉ Market';
+                var div = document.createElement('div');
+                div.className = 'system-card';
+                div.innerHTML =
+                    '<div class="sys-name">' + s.name + '</div>' +
+                    '<div class="sys-region">' + s.region + '</div>' +
+                    '<div class="sys-price">' + s.price + '</div>' +
+                    '<span class="sys-mech ' + mechClass + '">' + mechLabel + '</span>' +
+                    '<div class="sys-desc">' + s.desc + '</div>' +
+                    '<div class="tx-tags" style="margin-top:6px">' + s.tags.map(function(t) { return '<span class="ttag">' +
+                            t + '</span>'; }).join('') + '</div>';
+                grid.appendChild(div);
+            });
+        }
+
+        var counters = [
+            { el: 'counterSystems', target: 35, suffix: '+' },
+            { el: 'counterInstruments', target: 87, suffix: '+' },
+            { el: 'counterCoverage', target: 23, suffix: '%' },
+            { el: 'counterPrice', target: 63.45, prefix: '€', suffix: '', decimals: 2 },
+        ];
+
+        counters.forEach(function(c) {
+            var el = document.getElementById(c.el);
+            if (!el) return;
+            var duration = 2000;
+            var startTime = performance.now();
+            var startVal = 0;
+            var target = c.target;
+            var isFloat = Number.isFinite(target) && !Number.isInteger(target);
+
+            function updateCounter(now) {
+                var progress = Math.min(1, (now - startTime) / duration);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var current = startVal + (target - startVal) * eased;
+                var display;
+                if (isFloat) {
+                    display = (c.prefix || '') + current.toFixed(c.decimals || 2) + (c.suffix || '');
+                } else {
+                    display = (c.prefix || '') + Math.floor(current) + (c.suffix || '');
+                }
+                el.textContent = display;
+                if (progress < 1) requestAnimationFrame(updateCounter);
+                else {
+                    el.textContent = (c.prefix || '') + (isFloat ? target.toFixed(c.decimals || 2) : target) + (c.suffix ||
+                        '');
+                }
+            }
+            requestAnimationFrame(updateCounter);
+        });
+    }
+
+    // ═══ AI EXPLAINER PAGE INIT ═══
+    function initAIExplainer() {
+        var counters = [
+            { el: 'aiCounterMape', target: 3.8, suffix: '%', decimals: 1 },
+            { el: 'aiCounterSharpe', target: 1.42, suffix: '', decimals: 2 },
+        ];
+        counters.forEach(function(c) {
+            var el = document.getElementById(c.el);
+            if (!el) return;
+            var duration = 1600;
+            var startTime = performance.now();
+
+            function tick(now) {
+                var progress = Math.min(1, (now - startTime) / duration);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = (c.target * eased).toFixed(c.decimals) + c.suffix;
+                if (progress < 1) requestAnimationFrame(tick);
+                else el.textContent = c.target.toFixed(c.decimals) + c.suffix;
+            }
+            requestAnimationFrame(tick);
+        });
+
+        initNeuroCanvas();
+    }
+
+    function initNeuroCanvas() {
+        var canvas = document.getElementById('neuroCanvas');
+        if (!canvas || canvas._inited) return;
+        canvas._inited = true;
+        var ctx = canvas.getContext('2d');
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        var layers = [4, 6, 6, 3];
+        var nodes = [];
+        var W = 0,
+            H = 0;
+
+        function layout() {
+            var rect = canvas.getBoundingClientRect();
+            W = rect.width;
+            H = rect.height;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            nodes = layers.map(function(count, li) {
+                var x = (W / (layers.length - 1)) * li;
+                return Array.from({ length: count }, function(_, ni) {
+                    return {
+                        x: x,
+                        y: (H / (count + 1)) * (ni + 1),
+                        pulse: Math.random() * Math.PI * 2,
+                    };
+                });
+            });
+        }
+
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+        var t = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            for (var li = 0; li < nodes.length - 1; li++) {
+                nodes[li].forEach(function(a, ai) {
+                    nodes[li + 1].forEach(function(b, bi) {
+                        var flow = (Math.sin(t * 0.9 + ai * 0.7 + bi * 0.3 + li) + 1) / 2;
+                        ctx.strokeStyle = 'rgba(201,168,76,' + (0.05 + flow * 0.14) + ')';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
+                    });
+                });
+            }
+
+            nodes.forEach(function(layer, li) {
+                layer.forEach(function(n) {
+                    var glow = (Math.sin(t * 1.4 + n.pulse) + 1) / 2;
+                    var isOutput = li === nodes.length - 1;
+                    var baseColor = isOutput ? '0,212,170' : '201,168,76';
+                    var r = 3.2 + glow * 2.2;
+                    var grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 3.2);
+                    grad.addColorStop(0, 'rgba(' + baseColor + ',' + (0.55 + glow * 0.35) + ')');
+                    grad.addColorStop(1, 'rgba(' + baseColor + ',0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, r * 3.2, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = 'rgba(' + baseColor + ',0.95)';
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            });
+
+            t += 0.012;
+            if (!reduceMotion) requestAnimationFrame(draw);
+        }
+
+        layout();
+        draw();
+        window.addEventListener('resize', function() { layout(); });
+    }
+
+    // ═══ RESIZE HOOK ─── keep charts crisp on window resize
+    window.addEventListener('resize', function() {
+        if (dashChart) dashChart.updateOptions({}, false, true);
+    });
+
+    // ═══ INIT ═══
+    window.addEventListener('DOMContentLoaded', function() {
+        showPage('landing');
+    });
+
+    if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) {
+        document.querySelectorAll('.orb').forEach(function(o) { o.style.animation = 'none'; });
+        document.querySelectorAll('.ticker-wrap').forEach(function(t) { t.style.animation = 'none'; });
+    }
+</script>
+</body>
+</html>
