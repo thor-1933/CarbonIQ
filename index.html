@@ -3885,10 +3885,10 @@
     // several proxies in order and only fall back to synthetic data if
     // ALL of them fail.
     const CORS_PROXIES = [
-        (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
+        (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     ];
 
     // Remembers the last real price we successfully fetched, so that IF
@@ -3938,14 +3938,14 @@
 
                 const result = json && json.chart && json.chart.result && json.chart.result[0];
                 if (!result) throw new Error('No result in response');
+                if (json.chart.error) throw new Error(json.chart.error.description || 'Yahoo returned an error');
 
-                const timestamps = result.timestamp;
-                const quotes = result.indicators.quote[0];
-                const closePrices = quotes.close;
-                if (!timestamps || !closePrices || closePrices.length === 0) throw new Error('No price data');
+                const meta = result.meta || {};
+                const timestamps = result.timestamp || [];
+                const quotes = (result.indicators && result.indicators.quote && result.indicators.quote[0]) || {};
+                const closePrices = quotes.close || [];
 
                 const points = [];
-                let latestPrice = null;
                 let latestOpen = null, latestHigh = null, latestLow = null;
                 for (let j = 0; j < timestamps.length; j++) {
                     const price = closePrices[j];
@@ -3959,15 +3959,49 @@
                             low: (quotes.low && quotes.low[j] !== null) ? quotes.low[j] : price,
                             close: price
                         });
-                        latestPrice = price;
                         if (quotes.open && quotes.open[j] !== null) latestOpen = quotes.open[j];
                         if (quotes.high && quotes.high[j] !== null) latestHigh = quotes.high[j];
                         if (quotes.low && quotes.low[j] !== null) latestLow = quotes.low[j];
                     }
                 }
-                if (points.length === 0) throw new Error('No valid points');
 
-                const meta = result.meta || {};
+                // KEY FIX: Yahoo's `meta` block carries the current/last
+                // traded price (regularMarketPrice), previous close, day
+                // high/low, etc. — and it's populated even when the
+                // requested intraday interval (e.g. 1m) has NO points
+                // because the exchange (Borsa Italiana for CO2.MI) is
+                // currently closed. The old code treated an empty
+                // intraday array as a hard failure ("No price data") and
+                // fell back to fake data every time it ran outside market
+                // hours. Now we prefer real points when we have them, but
+                // fall back to meta fields instead of failing outright.
+                let latestPrice = points.length > 0 ? points[points.length - 1].y : null;
+                if (latestPrice === null || latestPrice === undefined) {
+                    if (meta.regularMarketPrice !== undefined && meta.regularMarketPrice !== null) {
+                        latestPrice = meta.regularMarketPrice;
+                    }
+                }
+                if (latestOpen === null) latestOpen = (meta.regularMarketOpen !== undefined) ? meta.regularMarketOpen : null;
+                if (latestHigh === null) latestHigh = (meta.regularMarketDayHigh !== undefined) ? meta.regularMarketDayHigh : null;
+                if (latestLow === null) latestLow = (meta.regularMarketDayLow !== undefined) ? meta.regularMarketDayLow : null;
+
+                if (latestPrice === null || latestPrice === undefined || isNaN(latestPrice)) {
+                    throw new Error('No price data available (no intraday points and no meta price)');
+                }
+
+                // If there were no chartable points at all (fully closed
+                // market with nothing this session), synthesize a single
+                // point from meta so the chart/series isn't empty.
+                if (points.length === 0) {
+                    points.push({
+                        x: Date.now(),
+                        y: latestPrice,
+                        open: latestOpen || latestPrice,
+                        high: latestHigh || latestPrice,
+                        low: latestLow || latestPrice,
+                        close: latestPrice
+                    });
+                }
 
                 // Remember this real quote in case a later call fails and
                 // has to fall back — see generateFallbackData().
@@ -4057,7 +4091,7 @@
     // ─── UPDATE LIVE TICKER AND STATS ────────────────────────────
     async function updateLiveData() {
         try {
-            const data = await fetchYahooFinanceData('1d', '1m');
+            const data = await fetchYahooFinanceData('5d', '15m');
             if (!data || !data.points || data.points.length === 0) return;
 
             const latest = data.latestPrice;
@@ -4278,6 +4312,17 @@
             dashChart.updateOptions({
                 series: series,
                 chart: { type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line') },
+                colors: ['#c9a84c'],
+                stroke: {
+                    curve: 'smooth',
+                    width: chartType === 'candlestick' ? 0 : 2,
+                    dashArray: 0,
+                },
+                fill: {
+                    type: chartType === 'area' ? 'gradient' : 'solid',
+                    gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
+                    opacity: chartType === 'area' ? 1 : (chartType === 'line' ? 1 : 0),
+                },
                 xaxis: {
                     ...BASE_OPTS.xaxis,
                     type: 'datetime',
@@ -4321,13 +4366,13 @@
                 colors: ['#c9a84c'],
                 stroke: {
                     curve: 'smooth',
-                    width: chartType === 'line' ? 2 : 0,
+                    width: chartType === 'candlestick' ? 0 : 2,
                     dashArray: 0,
                 },
                 fill: {
                     type: chartType === 'area' ? 'gradient' : 'solid',
-                    gradient: { shadeIntensity: .5, opacityFrom: .10, opacityTo: .01 },
-                    opacity: chartType === 'area' ? 1 : 0,
+                    gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
+                    opacity: chartType === 'area' ? 1 : (chartType === 'line' ? 1 : 0),
                 },
                 xaxis: {
                     ...BASE_OPTS.xaxis,
