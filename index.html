@@ -1,21 +1,3 @@
-Below is the **complete, final HTML code** for the CarbonIQ platform.  
-
-✅ **Live data** is fetched from Yahoo Finance via multiple CORS proxies.  
-✅ If all proxies fail, the chart falls back to **realistic simulated data** (with a warning).  
-✅ The dashboard supports **Area, Line, and Candlestick** chart types.  
-✅ **Candlestick** mode now renders **proper OHLC candles** with green/red colours.  
-✅ Hovering over any data point shows a **clean tooltip** with:  
-   - Date and time (e.g., *02 Jul, 10:45 AM*)  
-   - Price in €  
-   - Percentage change from the previous close (with an up/down arrow)  
-   - For candlesticks, **Open, High, Low** values are shown below the price.  
-✅ The **"Prev. Close"** dashed reference line is displayed.  
-✅ A live **market status bar** shows Borsa Italiana trading hours, a real‑time Milan clock, and the next market event.  
-✅ The chart is **destroyed and re‑created** on every data refresh, guaranteeing the custom tooltip is always attached.  
-
----
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
