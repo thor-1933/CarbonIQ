@@ -1,3 +1,21 @@
+Below is the **complete, final HTML code** for the CarbonIQ platform.  
+
+✅ **Live data** is fetched from Yahoo Finance via multiple CORS proxies.  
+✅ If all proxies fail, the chart falls back to **realistic simulated data** (with a warning).  
+✅ The dashboard supports **Area, Line, and Candlestick** chart types.  
+✅ **Candlestick** mode now renders **proper OHLC candles** with green/red colours.  
+✅ Hovering over any data point shows a **clean tooltip** with:  
+   - Date and time (e.g., *02 Jul, 10:45 AM*)  
+   - Price in €  
+   - Percentage change from the previous close (with an up/down arrow)  
+   - For candlesticks, **Open, High, Low** values are shown below the price.  
+✅ The **"Prev. Close"** dashed reference line is displayed.  
+✅ A live **market status bar** shows Borsa Italiana trading hours, a real‑time Milan clock, and the next market event.  
+✅ The chart is **destroyed and re‑created** on every data refresh, guaranteeing the custom tooltip is always attached.  
+
+---
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4378,6 +4396,7 @@
         if (!chartType) chartType = currentChartType;
         const isCandle = chartType === 'candlestick';
 
+        // Build series data
         let seriesData;
         if (isCandle) {
             seriesData = points.map(p => ({
@@ -4399,10 +4418,11 @@
             type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line')
         }];
 
-        // prevClose used to draw the dashed reference line + tooltip % change
+        // Capture prevClose for tooltip
         const prevCloseForChart = currentPrevClose !== null ? currentPrevClose :
             (isCandle ? seriesData[0]?.y?.[0] : seriesData[0]?.y);
 
+        // ─── Tooltip function ─────────────────────────────────────────
         const tooltipFn = function(opts) {
             const { seriesIndex, dataPointIndex, w } = opts;
             const rawPoint = w.config.series[seriesIndex] && w.config.series[seriesIndex].data[dataPointIndex];
@@ -4438,34 +4458,27 @@
             }
 
             return `<div style="background:#0c1220;border:1px solid rgba(201,168,76,.35);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:170px">
-                        <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
-                        <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}
-                            <span style="font-size:11px;color:${tone};margin-left:6px">(${arrow} ${sign}${changePct.toFixed(2)}% basis prev close)</span>
-                        </div>
-                        ${ohlcHtml}
-                    </div>`;
+                    <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
+                    <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}
+                        <span style="font-size:11px;color:${tone};margin-left:6px">(${arrow} ${sign}${changePct.toFixed(2)}% basis prev close)</span>
+                    </div>
+                    ${ohlcHtml}
+                </div>`;
         };
 
-        const annotations = {
-            yaxis: (prevCloseForChart !== null && prevCloseForChart !== undefined) ? [{
-                y: prevCloseForChart,
-                borderColor: '#4e5f7a',
-                strokeDashArray: 4,
-                label: {
-                    borderColor: 'transparent',
-                    style: { color: '#9ea8bc', background: 'rgba(12,18,32,.85)', fontSize: '10px', fontFamily: 'JetBrains Mono,monospace', padding: { left: 6, right: 6, top: 2, bottom: 2 } },
-                    text: 'Prev. Close  €' + prevCloseForChart.toFixed(2),
-                    position: 'right',
-                    textAnchor: 'end',
-                    offsetX: -2,
-                    offsetY: -6,
-                }
-            }] : []
-        };
-
+        // ─── Chart options ───────────────────────────────────────────
         const sharedOptions = {
             series: series,
-            chart: { type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line') },
+            chart: {
+                type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line'),
+                height: 280,
+                background: 'transparent',
+                toolbar: { show: false },
+                fontFamily: 'DM Sans,sans-serif',
+                animations: { enabled: false },
+                zoom: { enabled: false },
+                parentHeightOffset: 0,
+            },
             colors: isCandle ? undefined : ['#c9a84c'],
             plotOptions: {
                 candlestick: {
@@ -4483,9 +4496,23 @@
                 gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
                 opacity: chartType === 'area' ? 1 : (chartType === 'line' ? 1 : 0),
             },
-            annotations: annotations,
+            annotations: {
+                yaxis: (prevCloseForChart !== null && prevCloseForChart !== undefined) ? [{
+                    y: prevCloseForChart,
+                    borderColor: '#4e5f7a',
+                    strokeDashArray: 4,
+                    label: {
+                        borderColor: 'transparent',
+                        style: { color: '#9ea8bc', background: 'rgba(12,18,32,.85)', fontSize: '10px', fontFamily: 'JetBrains Mono,monospace', padding: { left: 6, right: 6, top: 2, bottom: 2 } },
+                        text: 'Prev. Close  €' + prevCloseForChart.toFixed(2),
+                        position: 'right',
+                        textAnchor: 'end',
+                        offsetX: -2,
+                        offsetY: -6,
+                    }
+                }] : []
+            },
             xaxis: {
-                ...BASE_OPTS.xaxis,
                 type: 'datetime',
                 labels: {
                     style: { colors: '#4e5f7a', fontSize: '10px' },
@@ -4493,9 +4520,11 @@
                     format: 'dd MMM',
                 },
                 tickAmount: 'auto',
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+                crosshairs: { show: true, stroke: { color: '#c9a84c', width: 1, dashArray: 4 }, opacity: .7 },
             },
             yaxis: {
-                ...BASE_OPTS.yaxis,
                 labels: {
                     style: { colors: '#4e5f7a', fontSize: '10px' },
                     offsetX: -4,
@@ -4503,28 +4532,52 @@
                     formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
                 },
             },
+            grid: {
+                borderColor: 'rgba(20,30,48,0.8)',
+                strokeDashArray: 4,
+                padding: { left: 8, right: 8, top: 4, bottom: 0 },
+                xaxis: { lines: { show: true } },
+                yaxis: { lines: { show: true } },
+            },
+            dataLabels: { enabled: false },
+            legend: { show: false },
             tooltip: {
-                ...BASE_OPTS.tooltip,
                 enabled: true,
+                theme: 'dark',
                 shared: false,
                 intersect: false,
                 followCursor: true,
+                style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
+                marker: { show: true },
+                cssClass: 'ciq-tooltip',
                 custom: tooltipFn,
             },
+            states: {
+                hover: { filter: { type: 'none' } },
+                active: { filter: { type: 'none' } }
+            },
+            responsive: [{
+                breakpoint: 640,
+                options: {
+                    grid: { padding: { left: 2, right: 2, top: 2, bottom: 0 } },
+                    xaxis: { labels: { style: { fontSize: '9px' }, rotate: 0 } },
+                    yaxis: { labels: { style: { fontSize: '9px' }, offsetX: -2 } },
+                },
+            }],
         };
 
+        // ─── DESTROY old chart and create a fresh one ───────────────────
         if (dashChart) {
-            dashChart.updateOptions(sharedOptions, false, true);
-            dashChart.updateSeries(series, true);
-        } else {
-            dashChart = new ApexCharts(document.getElementById('dashPriceChart'), {
-                ...BASE_OPTS,
-                ...sharedOptions,
-                chart: { ...BASE_OPTS.chart, ...sharedOptions.chart, height: 280 },
-            });
-            dashChart.render();
+            dashChart.destroy();
+            dashChart = null;
         }
-        var titleEl = document.getElementById('dashChartTitle');
+
+        const container = document.getElementById('dashPriceChart');
+        dashChart = new ApexCharts(container, sharedOptions);
+        dashChart.render();
+
+        // Update title
+        const titleEl = document.getElementById('dashChartTitle');
         if (titleEl) titleEl.textContent = 'SparkChange Physical Carbon EUA ETC (CO2.MI) · ' + rangeKey;
     }
 
@@ -4881,3 +4934,4 @@
 </script>
 </body>
 </html>
+```
