@@ -3522,9 +3522,10 @@
 
                     <div class="stat-row">
                         <div class="stat-card"><div class="stat-lbl">Current Price</div><div class="stat-val pos" id="statCurrentPrice">€—</div><div class="stat-chg" id="statChange">Loading...</div></div>
+                        <div class="stat-card"><div class="stat-lbl">Prev. Close</div><div class="stat-val" id="statPrevClose" style="color:var(--t2)">—</div></div>
                         <div class="stat-card"><div class="stat-lbl">Open</div><div class="stat-val" id="statOpen">—</div></div>
-                        <div class="stat-card"><div class="stat-lbl">High</div><div class="stat-val" id="statHigh">—</div></div>
-                        <div class="stat-card"><div class="stat-lbl">Low</div><div class="stat-val" id="statLow">—</div></div>
+                        <div class="stat-card"><div class="stat-lbl">High</div><div class="stat-val" id="statHigh" style="color:var(--teal)">—</div></div>
+                        <div class="stat-card"><div class="stat-lbl">Low</div><div class="stat-val" id="statLow" style="color:var(--red)">—</div></div>
                     </div>
                     <div class="chart-card">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
@@ -3668,6 +3669,8 @@
     let currentRange = '1M';
     let currentDataPoints = [];
     let usingLiveData = true;
+    let currentPrevClose = null;
+    let dashRefreshTimer = null;
 
     // ─── WAIT FOR CONTAINER WIDTH ────────────────────────────────
     function whenContainerReady(id, cb, attempts = 0) {
@@ -3896,11 +3899,6 @@
     })();
 
     // ─── REAL DATA FETCH WITH MULTI-PROXY FALLBACK ───────────────
-    // Yahoo Finance blocks direct browser calls (no CORS headers), so we
-    // must go through a CORS proxy. Relying on a single proxy (as before)
-    // means one outage = permanent "simulated data" mode. We now try
-    // several proxies in order and only fall back to synthetic data if
-    // ALL of them fail.
     const CORS_PROXIES = [
         (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
         (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
@@ -3908,9 +3906,6 @@
         (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     ];
 
-    // Remembers the last real price we successfully fetched, so that IF
-    // every proxy fails at some point, the fallback can pick up from
-    // reality instead of teleporting to a fresh random number.
     let lastKnownGood = null; // { price, open, high, low, previousClose, ts }
 
     async function fetchYahooFinanceData(range, interval) {
@@ -3921,15 +3916,6 @@
         for (let i = 0; i < CORS_PROXIES.length; i++) {
             const proxyUrl = CORS_PROXIES[i](yahooUrl);
             try {
-                // NOTE: we intentionally do NOT use AbortController here.
-                // In sandboxed/iframed preview environments, fetch() calls
-                // get relayed to the parent window via postMessage, which
-                // uses the structured clone algorithm — and AbortSignal
-                // objects cannot be structured-cloned. Passing `signal`
-                // there throws "AbortSignal object could not be cloned"
-                // and every fetch fails instantly, before ever reaching
-                // the network. Promise.race gives us the same timeout
-                // behavior without touching fetch's options object.
                 const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Request timed out')), 8000)
                 );
@@ -3939,10 +3925,6 @@
                 ]);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-                // allorigins' /get endpoint wraps the payload as
-                // {contents: "<json string>"}. corsproxy.io, allorigins'
-                // /raw, and thingproxy pass the real Yahoo JSON straight
-                // through. Handle both shapes.
                 const raw = await response.text();
                 let json;
                 try {
@@ -3976,22 +3958,16 @@
                             low: (quotes.low && quotes.low[j] !== null) ? quotes.low[j] : price,
                             close: price
                         });
-                        if (quotes.open && quotes.open[j] !== null) latestOpen = quotes.open[j];
-                        if (quotes.high && quotes.high[j] !== null) latestHigh = quotes.high[j];
-                        if (quotes.low && quotes.low[j] !== null) latestLow = quotes.low[j];
+                        if (quotes.high && quotes.high[j] !== null) {
+                            if (latestHigh === null || quotes.high[j] > latestHigh) latestHigh = quotes.high[j];
+                        }
+                        if (quotes.low && quotes.low[j] !== null) {
+                            if (latestLow === null || quotes.low[j] < latestLow) latestLow = quotes.low[j];
+                        }
+                        if (latestOpen === null && quotes.open && quotes.open[j] !== null) latestOpen = quotes.open[j];
                     }
                 }
 
-                // KEY FIX: Yahoo's `meta` block carries the current/last
-                // traded price (regularMarketPrice), previous close, day
-                // high/low, etc. — and it's populated even when the
-                // requested intraday interval (e.g. 1m) has NO points
-                // because the exchange (Borsa Italiana for CO2.MI) is
-                // currently closed. The old code treated an empty
-                // intraday array as a hard failure ("No price data") and
-                // fell back to fake data every time it ran outside market
-                // hours. Now we prefer real points when we have them, but
-                // fall back to meta fields instead of failing outright.
                 let latestPrice = points.length > 0 ? points[points.length - 1].y : null;
                 if (latestPrice === null || latestPrice === undefined) {
                     if (meta.regularMarketPrice !== undefined && meta.regularMarketPrice !== null) {
@@ -4006,9 +3982,6 @@
                     throw new Error('No price data available (no intraday points and no meta price)');
                 }
 
-                // If there were no chartable points at all (fully closed
-                // market with nothing this session), synthesize a single
-                // point from meta so the chart/series isn't empty.
                 if (points.length === 0) {
                     points.push({
                         x: Date.now(),
@@ -4020,8 +3993,6 @@
                     });
                 }
 
-                // Remember this real quote in case a later call fails and
-                // has to fall back — see generateFallbackData().
                 lastKnownGood = {
                     price: latestPrice,
                     open: latestOpen,
@@ -4042,7 +4013,6 @@
                 };
             } catch (err) {
                 console.warn(`CORS proxy ${i + 1}/${CORS_PROXIES.length} failed:`, err.message || err);
-                // fall through and try the next proxy in the list
             }
         }
 
@@ -4051,13 +4021,6 @@
     }
 
     // ─── FALLBACK DATA GENERATOR ────────────────────────────────
-    // Only reached if every proxy above failed. If we already fetched a
-    // real price earlier this session, we anchor to it and take small
-    // realistic steps (±0.06 max per point) instead of re-rolling a
-    // completely new random price on every call. Re-rolling on every call
-    // is what caused the price to visibly jump (e.g. €75 -> €70) every
-    // ~60 seconds in the previous version — each failed fetch generated
-    // an unrelated random number instead of continuing from reality.
     function generateFallbackData(range) {
         const now = Date.now();
         const map = {
@@ -4077,9 +4040,6 @@
         else if (range.includes('max')) key = 'max';
         const cfg = map[key] || map['1mo'];
 
-        // Anchor to the last real price seen this session. Only if we've
-        // NEVER had a real quote yet do we seed near CO2.MI's actual
-        // recent trading range (~€60-90) instead of a wide arbitrary band.
         const anchor = lastKnownGood ? lastKnownGood.price : (66 + Math.random() * 3);
         const points = [];
         let price = anchor;
@@ -4093,22 +4053,21 @@
             points.push({ x: ts, y: price, open: o, high: h, low: l, close: price });
         }
         const latest = points[points.length - 1];
+        const prevCloseFallback = lastKnownGood && lastKnownGood.previousClose ? lastKnownGood.previousClose :
+            (points.length > 1 ? points[0].close : latest.close);
         return {
             points: points,
             latestPrice: latest.close,
-            previousClose: points.length > 1 ? points[points.length - 2].close : latest.close,
-            open: latest.open,
-            high: latest.high,
-            low: latest.low,
+            previousClose: prevCloseFallback,
+            open: points[0] ? points[0].open : latest.open,
+            high: Math.max.apply(null, points.map(p => p.high)),
+            low: Math.min.apply(null, points.map(p => p.low)),
             success: false,
             isFallback: true
         };
     }
 
     // ─── MARKET HOURS (Borsa Italiana, where CO2.MI trades) ──────
-    // 09:00–17:30 CET/CEST, Monday–Friday. Computed against real Milan
-    // local time (via Intl timeZone) so it's correct regardless of the
-    // visitor's own timezone or DST offset.
     var MARKET_OPEN_MIN = 9 * 60; // 09:00
     var MARKET_CLOSE_MIN = 17 * 60 + 30; // 17:30
     var MARKET_TZ = 'Europe/Rome';
@@ -4126,7 +4085,7 @@
         var map = {};
         parts.forEach(function(p) { map[p.type] = p.value; });
         return {
-            weekday: map.weekday, // 'Mon'..'Sun'
+            weekday: map.weekday,
             hour: parseInt(map.hour, 10),
             minute: parseInt(map.minute, 10),
             second: parseInt(map.second, 10),
@@ -4148,7 +4107,6 @@
                 m = minsToClose % 60;
             nextEvent = 'Closes in ' + (h > 0 ? h + 'h ' : '') + m + 'm';
         } else {
-            // Find minutes until next 09:00 on the next open weekday.
             var dayIdx = WEEKDAY_ORDER.indexOf(now.weekday);
             var minutesUntilMidnight = (24 * 60) - minutesNow;
             var daysAhead = 0;
@@ -4160,11 +4118,10 @@
                     m2 = minsToOpenToday % 60;
                 nextEvent = 'Opens in ' + (h2 > 0 ? h2 + 'h ' : '') + m2 + 'm';
             } else {
-                // step forward to the next weekday (Mon-Fri)
                 var totalMins = minutesUntilMidnight;
                 candidateIdx = (dayIdx + 1) % 7;
                 daysAhead = 1;
-                while (candidateIdx === 0 || candidateIdx === 6) { // Sun=0, Sat=6
+                while (candidateIdx === 0 || candidateIdx === 6) {
                     totalMins += 24 * 60;
                     candidateIdx = (candidateIdx + 1) % 7;
                     daysAhead++;
@@ -4208,21 +4165,75 @@
         }
     }
 
-    // ─── UPDATE LIVE TICKER AND STATS ────────────────────────────
-    async function updateLiveData() {
+    // ─── COMPUTE STATS FROM WHATEVER RANGE DATA WE HAVE ──────────
+    function computeRangeStats(data) {
+        const points = data.points || [];
+        if (points.length === 0) return null;
+        const opens = points.map(p => p.open).filter(v => v !== null && v !== undefined && !isNaN(v));
+        const highs = points.map(p => p.high).filter(v => v !== null && v !== undefined && !isNaN(v));
+        const lows = points.map(p => p.low).filter(v => v !== null && v !== undefined && !isNaN(v));
+        const open = opens.length ? opens[0] : points[0].y;
+        const high = highs.length ? Math.max.apply(null, highs) : Math.max.apply(null, points.map(p => p.y));
+        const low = lows.length ? Math.min.apply(null, lows) : Math.min.apply(null, points.map(p => p.y));
+        const close = data.latestPrice;
+        const prevClose = (data.previousClose !== null && data.previousClose !== undefined) ? data.previousClose : open;
+        return { open: open, high: high, low: low, close: close, prevClose: prevClose };
+    }
+
+    function fmtEur(v) {
+        return (v === null || v === undefined || isNaN(v)) ? '—' : '€' + v.toFixed(2);
+    }
+
+    // ─── UPDATE STAT CARDS (Current / Prev Close / Open / High / Low) FOR CURRENT RANGE ──
+    function updateDashStats(data) {
+        const stats = computeRangeStats(data);
+        if (!stats) return;
+        currentPrevClose = stats.prevClose;
+
+        const change = stats.close - stats.prevClose;
+        const changePct = stats.prevClose ? (change / stats.prevClose) * 100 : 0;
+        const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
+        const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
+        const sign = change > 0 ? '+' : '';
+
+        const curEl = document.getElementById('statCurrentPrice');
+        const chgEl = document.getElementById('statChange');
+        const prevEl = document.getElementById('statPrevClose');
+        const openEl = document.getElementById('statOpen');
+        const highEl = document.getElementById('statHigh');
+        const lowEl = document.getElementById('statLow');
+
+        if (curEl) { curEl.textContent = fmtEur(stats.close); curEl.className = 'stat-val ' + tone; }
+        if (chgEl) { chgEl.textContent = arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + changePct.toFixed(2) + '%)'; chgEl.className = 'stat-chg ' + tone; }
+        if (prevEl) prevEl.textContent = fmtEur(stats.prevClose);
+        if (openEl) openEl.textContent = fmtEur(stats.open);
+        if (highEl) highEl.textContent = fmtEur(stats.high);
+        if (lowEl) lowEl.textContent = fmtEur(stats.low);
+
+        // Also refresh the ticker's FCO2 entry from the same data (keeps UI consistent)
+        const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
+        fco2Ticks.forEach(function(el) {
+            var valEl = el.querySelector('.tick-val');
+            var tchgEl = el.querySelector('.tick-chg');
+            valEl.textContent = fmtEur(stats.close);
+            tchgEl.textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
+            valEl.className = 'tick-val ' + tone;
+            tchgEl.className = 'tick-chg ' + tone;
+        });
+    }
+
+    // ─── LIGHTWEIGHT TICKER-ONLY REFRESH (every 60s, independent of selected range) ──
+    async function updateTickerOnly() {
         try {
             const data = await fetchYahooFinanceData('5d', '15m');
             if (!data || !data.points || data.points.length === 0) return;
-
             const latest = data.latestPrice;
             const prevClose = data.previousClose || data.points[data.points.length - 2]?.close || latest;
             const change = latest - prevClose;
-            const changePct = (change / prevClose) * 100;
+            const changePct = prevClose ? (change / prevClose) * 100 : 0;
             const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
             const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
             const sign = change > 0 ? '+' : '';
-
-            // Update ticker
             const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
             fco2Ticks.forEach(function(el) {
                 var valEl = el.querySelector('.tick-val');
@@ -4232,31 +4243,31 @@
                 valEl.className = 'tick-val ' + tone;
                 chgEl.className = 'tick-chg ' + tone;
             });
-
-            // Update stats
-            document.getElementById('statCurrentPrice').textContent = '€' + latest.toFixed(2);
-            document.getElementById('statCurrentPrice').className = 'stat-val ' + tone;
-            document.getElementById('statChange').textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
-            document.getElementById('statChange').className = 'stat-chg ' + tone;
-            if (data.open) document.getElementById('statOpen').textContent = '€' + data.open.toFixed(2);
-            if (data.high) document.getElementById('statHigh').textContent = '€' + data.high.toFixed(2);
-            if (data.low) document.getElementById('statLow').textContent = '€' + data.low.toFixed(2);
-
-            // Show indicator if using fallback, and reflect market status
-            const subEl = document.getElementById('dashChartSub');
-            if (subEl) {
-                const mStatus = getMarketStatus();
-                if (data.isFallback) {
-                    subEl.textContent = '⚠️ Live feed unavailable – showing simulated data';
-                } else if (!mStatus.isOpen) {
-                    subEl.textContent = 'Market closed · showing last traded price from Yahoo Finance · ' + new Date().toLocaleString();
-                } else {
-                    subEl.textContent = 'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
-                }
-            }
-            usingLiveData = !data.isFallback;
         } catch (err) {
-            console.warn('updateLiveData error:', err);
+            console.warn('updateTickerOnly error:', err);
+        }
+    }
+
+    // If the user is looking at 1D, refresh the whole chart+stats periodically so it
+    // stays live. For other ranges we just refresh the lightweight ticker.
+    async function periodicRefresh() {
+        if (currentRange === '1D') {
+            try {
+                const result = await fetchYahooFinanceData('1d', '5m');
+                currentDataPoints = result.points;
+                renderDashChart(result.points, currentRange, currentChartType);
+                updateDashStats(result);
+                const subEl = document.getElementById('dashChartSub');
+                if (subEl) {
+                    subEl.textContent = result.isFallback ?
+                        '⚠️ Live feed unavailable – showing simulated data' :
+                        'Live price data from Yahoo Finance · ' + new Date().toLocaleTimeString();
+                }
+            } catch (err) {
+                console.warn('periodicRefresh (1D) error:', err);
+            }
+        } else {
+            await updateTickerOnly();
         }
     }
 
@@ -4302,9 +4313,11 @@
         markers: { size: 0, strokeWidth: 0, hover: { size: 6, sizeOffset: 3 } },
         states: { hover: { filter: { type: 'none' } }, active: { filter: { type: 'none' } } },
         tooltip: {
+            enabled: true,
             theme: 'dark',
             shared: false,
             intersect: false,
+            followCursor: true,
             style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
             marker: { show: true },
             cssClass: 'ciq-tooltip',
@@ -4369,7 +4382,12 @@
         if (isCandle) {
             seriesData = points.map(p => ({
                 x: p.x,
-                y: [p.open || p.y, p.high || p.y, p.low || p.y, p.close || p.y]
+                y: [
+                    Number((p.open ?? p.y).toFixed(4)),
+                    Number((p.high ?? p.y).toFixed(4)),
+                    Number((p.low ?? p.y).toFixed(4)),
+                    Number((p.close ?? p.y).toFixed(4))
+                ]
             }));
         } else {
             seriesData = points.map(p => ({ x: p.x, y: p.y }));
@@ -4381,157 +4399,131 @@
             type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line')
         }];
 
+        // prevClose used to draw the dashed reference line + tooltip % change
+        const prevCloseForChart = currentPrevClose !== null ? currentPrevClose :
+            (isCandle ? seriesData[0]?.y?.[0] : seriesData[0]?.y);
+
         const tooltipFn = function(opts) {
-            const seriesIndex = opts.seriesIndex;
-            const dataPointIndex = opts.dataPointIndex;
-            const seriesArr = opts.series;
-            if (!seriesArr || !seriesArr[seriesIndex]) return '';
-            const val = seriesArr[seriesIndex][dataPointIndex];
-            if (val === null || val === undefined) return '';
+            const { seriesIndex, dataPointIndex, w } = opts;
+            const rawPoint = w.config.series[seriesIndex] && w.config.series[seriesIndex].data[dataPointIndex];
+            if (!rawPoint) return '';
 
-            let price = val;
-            let openVal = null;
-            if (isCandle && Array.isArray(val)) {
-                price = val[3];
-                openVal = val[0];
+            let price;
+            if (isCandle && Array.isArray(rawPoint.y)) {
+                price = rawPoint.y[3];
+            } else {
+                price = rawPoint.y;
             }
-            let prevClose = null;
-            if (dataPointIndex > 0) {
-                const prev = seriesArr[seriesIndex][dataPointIndex - 1];
-                if (prev !== null && prev !== undefined) {
-                    if (isCandle && Array.isArray(prev)) {
-                        prevClose = prev[3];
-                    } else {
-                        prevClose = prev;
-                    }
-                }
-            }
-            if (prevClose === null && openVal !== null) prevClose = openVal;
+            if (price === null || price === undefined || isNaN(price)) return '';
 
-            let change = null;
-            let changePct = null;
-            if (prevClose !== null && prevClose !== undefined && !isNaN(prevClose)) {
-                change = price - prevClose;
-                changePct = (change / prevClose) * 100;
-            }
+            const ts = rawPoint.x;
+            const dateObj = new Date(ts);
+            const dateLabel = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+                ', ' + dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-            const dateLabel = opts.w.globals.categoryLabels[dataPointIndex] || '';
-            let deltaHtml = '';
-            if (change !== null) {
-                const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
-                const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
-                const sign = change > 0 ? '+' : '';
-                deltaHtml = `<div style="font-size:11px;font-family:'DM Sans',sans-serif;color:var(--${tone});margin-top:4px">
-                            ${arrow} ${sign}${change.toFixed(2)} (${sign}${changePct.toFixed(2)}%)
-                        </div>`;
+            const basis = (prevCloseForChart !== null && prevCloseForChart !== undefined) ? prevCloseForChart : price;
+            const change = price - basis;
+            const changePct = basis ? (change / basis) * 100 : 0;
+            const tone = change > 0 ? '#00d4aa' : change < 0 ? '#ff4f6e' : '#f5a623';
+            const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
+            const sign = change > 0 ? '+' : '';
+
+            let ohlcHtml = '';
+            if (isCandle && Array.isArray(rawPoint.y)) {
+                ohlcHtml = `<div style="display:flex;gap:10px;margin-top:6px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#9ea8bc">
+                        <span>O <b style="color:#f0eeea">${rawPoint.y[0].toFixed(2)}</b></span>
+                        <span>H <b style="color:#00d4aa">${rawPoint.y[1].toFixed(2)}</b></span>
+                        <span>L <b style="color:#ff4f6e">${rawPoint.y[2].toFixed(2)}</b></span>
+                    </div>`;
             }
 
-            return `<div style="background:#0c1220;border:1px solid rgba(201,168,76,.35);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:140px">
+            return `<div style="background:#0c1220;border:1px solid rgba(201,168,76,.35);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:170px">
                         <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
-                        <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}</div>
-                        ${deltaHtml}
+                        <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}
+                            <span style="font-size:11px;color:${tone};margin-left:6px">(${arrow} ${sign}${changePct.toFixed(2)}% basis prev close)</span>
+                        </div>
+                        ${ohlcHtml}
                     </div>`;
         };
 
+        const annotations = {
+            yaxis: (prevCloseForChart !== null && prevCloseForChart !== undefined) ? [{
+                y: prevCloseForChart,
+                borderColor: '#4e5f7a',
+                strokeDashArray: 4,
+                label: {
+                    borderColor: 'transparent',
+                    style: { color: '#9ea8bc', background: 'rgba(12,18,32,.85)', fontSize: '10px', fontFamily: 'JetBrains Mono,monospace', padding: { left: 6, right: 6, top: 2, bottom: 2 } },
+                    text: 'Prev. Close  €' + prevCloseForChart.toFixed(2),
+                    position: 'right',
+                    textAnchor: 'end',
+                    offsetX: -2,
+                    offsetY: -6,
+                }
+            }] : []
+        };
+
+        const sharedOptions = {
+            series: series,
+            chart: { type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line') },
+            colors: isCandle ? undefined : ['#c9a84c'],
+            plotOptions: {
+                candlestick: {
+                    colors: { upward: '#00d4aa', downward: '#ff4f6e' },
+                    wick: { useFillColor: true }
+                }
+            },
+            stroke: {
+                curve: 'smooth',
+                width: isCandle ? 1 : 2,
+                dashArray: 0,
+            },
+            fill: {
+                type: chartType === 'area' ? 'gradient' : 'solid',
+                gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
+                opacity: chartType === 'area' ? 1 : (chartType === 'line' ? 1 : 0),
+            },
+            annotations: annotations,
+            xaxis: {
+                ...BASE_OPTS.xaxis,
+                type: 'datetime',
+                labels: {
+                    style: { colors: '#4e5f7a', fontSize: '10px' },
+                    datetimeUTC: false,
+                    format: 'dd MMM',
+                },
+                tickAmount: 'auto',
+            },
+            yaxis: {
+                ...BASE_OPTS.yaxis,
+                labels: {
+                    style: { colors: '#4e5f7a', fontSize: '10px' },
+                    offsetX: -4,
+                    align: 'left',
+                    formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+                },
+            },
+            tooltip: {
+                ...BASE_OPTS.tooltip,
+                enabled: true,
+                shared: false,
+                intersect: false,
+                followCursor: true,
+                custom: tooltipFn,
+            },
+        };
+
         if (dashChart) {
-            dashChart.updateOptions({
-                series: series,
-                chart: { type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line') },
-                colors: ['#c9a84c'],
-                stroke: {
-                    curve: 'smooth',
-                    width: chartType === 'candlestick' ? 0 : 2,
-                    dashArray: 0,
-                },
-                fill: {
-                    type: chartType === 'area' ? 'gradient' : 'solid',
-                    gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
-                    opacity: chartType === 'area' ? 1 : (chartType === 'line' ? 1 : 0),
-                },
-                xaxis: {
-                    ...BASE_OPTS.xaxis,
-                    type: 'datetime',
-                    labels: {
-                        style: { colors: '#4e5f7a', fontSize: '10px' },
-                        datetimeUTC: false,
-                        format: 'dd MMM',
-                    },
-                    tickAmount: 'auto',
-                },
-                yaxis: {
-                    ...BASE_OPTS.yaxis,
-                    labels: {
-                        style: { colors: '#4e5f7a', fontSize: '10px' },
-                        offsetX: -4,
-                        align: 'left',
-                        formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
-                    },
-                },
-                tooltip: {
-                    ...BASE_OPTS.tooltip,
-                    shared: false,
-                    x: { format: 'dd MMM yyyy HH:mm' },
-                    y: {
-                        formatter: function(val) { return '€' + (typeof val === 'number' ? val.toFixed(2) : '—'); },
-                        title: { formatter: function() { return 'Price'; } },
-                    },
-                    custom: tooltipFn,
-                },
-            }, false, true);
+            dashChart.updateOptions(sharedOptions, false, true);
             dashChart.updateSeries(series, true);
         } else {
             dashChart = new ApexCharts(document.getElementById('dashPriceChart'), {
                 ...BASE_OPTS,
-                series: series,
-                chart: {
-                    ...BASE_OPTS.chart,
-                    type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line'),
-                    height: 280,
-                },
-                colors: ['#c9a84c'],
-                stroke: {
-                    curve: 'smooth',
-                    width: chartType === 'candlestick' ? 0 : 2,
-                    dashArray: 0,
-                },
-                fill: {
-                    type: chartType === 'area' ? 'gradient' : 'solid',
-                    gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
-                    opacity: chartType === 'area' ? 1 : (chartType === 'line' ? 1 : 0),
-                },
-                xaxis: {
-                    ...BASE_OPTS.xaxis,
-                    type: 'datetime',
-                    labels: {
-                        style: { colors: '#4e5f7a', fontSize: '10px' },
-                        datetimeUTC: false,
-                        format: 'dd MMM',
-                    },
-                    tickAmount: 'auto',
-                },
-                yaxis: {
-                    ...BASE_OPTS.yaxis,
-                    labels: {
-                        style: { colors: '#4e5f7a', fontSize: '10px' },
-                        offsetX: -4,
-                        align: 'left',
-                        formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
-                    },
-                },
-                tooltip: {
-                    ...BASE_OPTS.tooltip,
-                    shared: false,
-                    x: { format: 'dd MMM yyyy HH:mm' },
-                    y: {
-                        formatter: function(val) { return '€' + (typeof val === 'number' ? val.toFixed(2) : '—'); },
-                        title: { formatter: function() { return 'Price'; } },
-                    },
-                    custom: tooltipFn,
-                },
+                ...sharedOptions,
+                chart: { ...BASE_OPTS.chart, ...sharedOptions.chart, height: 280 },
             });
             dashChart.render();
         }
-        // Update title
         var titleEl = document.getElementById('dashChartTitle');
         if (titleEl) titleEl.textContent = 'SparkChange Physical Carbon EUA ETC (CO2.MI) · ' + rangeKey;
     }
@@ -4570,17 +4562,15 @@
         try {
             const result = await fetchYahooFinanceData(config.range, config.interval);
             currentDataPoints = result.points;
+            updateDashStats(result);
             renderDashChart(result.points, rangeKey, currentChartType);
             chartContainer.style.opacity = '1';
-            // Update subtitle with data status
             const subEl = document.getElementById('dashChartSub');
             if (subEl) {
                 subEl.textContent = result.isFallback ?
                     '⚠️ Live feed unavailable – showing simulated data' :
                     'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
             }
-            // Also update stats
-            await updateLiveData();
         } catch (err) {
             console.error('Failed to load data for range', rangeKey, err);
             chartContainer.style.opacity = '1';
@@ -4594,8 +4584,8 @@
         updateMarketStatusUI();
         setInterval(updateMarketStatusUI, 1000);
         await setDashRange('1M', document.querySelector('#rangeSel .range-btn.active'));
-        await updateLiveData();
-        setInterval(updateLiveData, 60000);
+        if (dashRefreshTimer) clearInterval(dashRefreshTimer);
+        dashRefreshTimer = setInterval(periodicRefresh, 60000);
         document.querySelector('.chart-type-btn.active')?.classList.remove('active');
         document.querySelector('.chart-type-btn[data-type="area"]')?.classList.add('active');
         currentChartType = 'area';
