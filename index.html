@@ -1982,6 +1982,7 @@
             font-weight: 700
         }
 
+        /* Chart type selector */
         .chart-type-sel {
             display: flex;
             gap: 6px;
@@ -2278,12 +2279,6 @@
             animation: ringPulse 2s ease-out infinite;
             opacity: .4;
         }
-        .pulse-ring.ms-closed {
-            background: var(--amber);
-        }
-        .pulse-ring.ms-closed::after {
-            border-color: var(--amber);
-        }
         @keyframes ringPulse {
             0% {
                 transform: scale(1);
@@ -2323,7 +2318,7 @@
         }
 
         /* ═══════════════════════════════════════════════
-        CARBON LIFECYCLE — animated visual
+        CARBON LIFECYCLE — animated visual (replaces heavy text)
         ═══════════════════════════════════════════════ */
         .lifecycle {
             display: flex;
@@ -2414,7 +2409,7 @@
         }
 
         /* ═══════════════════════════════════════════════
-        AI EXPLAINER PAGE
+        AI EXPLAINER PAGE — visual/animated, minimal copy
         ═══════════════════════════════════════════════ */
         #page-ai-explainer .carbon-hero { min-height: 62vh; }
         .ai-hero-visual {
@@ -2505,6 +2500,7 @@
             .pipeline::before { display: none; }
         }
 
+        /* Animated LSTM cell */
         .lstm-visual {
             display: flex;
             align-items: center;
@@ -2541,6 +2537,7 @@
         }
         .lstm-arrow-wrap { color: var(--t4); font-size: 18px; }
 
+        /* Animated forecast sparkline (pure CSS, draws itself) */
         .draw-chart {
             width: 100%;
             height: 130px;
@@ -2578,27 +2575,77 @@
 
         /* ─── RESPONSIVE ─── */
         @media(max-width:900px) {
-            .g4 { grid-template-columns: 1fr 1fr }
-            .g3 { grid-template-columns: 1fr 1fr }
-            .nav-links { display: none }
-            .nav-actions .btn-ghost { display: none }
-            .nav-ham { display: flex }
-            .comparison-grid { grid-template-columns: 1fr }
-            .system-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .g4 {
+                grid-template-columns: 1fr 1fr
+            }
+            .g3 {
+                grid-template-columns: 1fr 1fr
+            }
+            .nav-links {
+                display: none
+            }
+            .nav-actions .btn-ghost {
+                display: none
+            }
+            .nav-ham {
+                display: flex
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr
+            }
+            .system-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
         }
         @media(max-width:640px) {
-            .g2, .g3, .g4 { grid-template-columns: 1fr; gap: 10px; }
-            .g2 > *, .g3 > *, .g4 > * { min-width: 0; }
-            .tx-grid { grid-template-columns: 1fr }
-            .sidebar { width: 56px }
-            .sb-item span, .sb-brand-name, .sb-brand-tag, .sb-section, .sb-user-name, .sb-user-plan { display: none }
-            .sb-av { margin: 0 auto }
-            .sb-user { justify-content: center; padding: 8px }
-            .stat-row { grid-template-columns: 1fr 1fr }
-            .hm { padding: 0 12px }
-            .hero-metrics { gap: 4px }
-            .pred-table th:nth-child(4), .pred-table td:nth-child(4) { display: none }
-            .auth-card { border-radius: var(--r20) }
+            .g2,
+            .g3,
+            .g4 {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .g2 > *,
+            .g3 > *,
+            .g4 > * {
+                min-width: 0;
+            }
+            .tx-grid {
+                grid-template-columns: 1fr
+            }
+            .sidebar {
+                width: 56px
+            }
+            .sb-item span,
+            .sb-brand-name,
+            .sb-brand-tag,
+            .sb-section,
+            .sb-user-name,
+            .sb-user-plan {
+                display: none
+            }
+            .sb-av {
+                margin: 0 auto
+            }
+            .sb-user {
+                justify-content: center;
+                padding: 8px
+            }
+            .stat-row {
+                grid-template-columns: 1fr 1fr
+            }
+            .hm {
+                padding: 0 12px
+            }
+            .hero-metrics {
+                gap: 4px
+            }
+            .pred-table th:nth-child(4),
+            .pred-table td:nth-child(4) {
+                display: none
+            }
+            .auth-card {
+                border-radius: var(--r20)
+            }
             .sidebar {
                 position: fixed;
                 left: 0;
@@ -2609,21 +2656,61 @@
                 width: 220px !important;
                 transition: .3s
             }
-            .sidebar.mob-open { transform: translateX(0) }
-            .sb-item span, .sb-brand-name, .sb-brand-tag, .sb-section, .sb-user-name, .sb-user-plan { display: block !important }
-            .dash-content { padding: 14px }
-            .system-grid { grid-template-columns: 1fr 1fr; }
-            .carbon-stats .hm { min-width: 80px; padding: 0 8px; }
+            .sidebar.mob-open {
+                transform: translateX(0)
+            }
+            .sb-item span,
+            .sb-brand-name,
+            .sb-brand-tag,
+            .sb-section,
+            .sb-user-name,
+            .sb-user-plan {
+                display: block !important
+            }
+            .dash-content {
+                padding: 14px
+            }
+            .system-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .carbon-stats .hm {
+                min-width: 80px;
+                padding: 0 8px;
+            }
         }
+        /* Sub‑640px tightening for very small phones */
         @media(max-width:480px) {
-            .card, .mkt-card, .chart-card, .system-card, .comp-card { padding: 16px 14px; }
-            .mkt-price, .stat-val { font-size: 22px; }
-            .hero-metrics .hm, .carbon-stats .hm { min-width: 70px; padding: 0 6px; }
-            .tx-grid, .comparison-grid, .system-grid { grid-template-columns: 1fr; }
-            .lifecycle-step { flex: 0 0 45%; }
-            #chatPanel { width: calc(100vw - 24px); right: 12px; }
+            .card,
+            .mkt-card,
+            .chart-card,
+            .system-card,
+            .comp-card {
+                padding: 16px 14px;
+            }
+            .mkt-price,
+            .stat-val {
+                font-size: 22px;
+            }
+            .hero-metrics .hm,
+            .carbon-stats .hm {
+                min-width: 70px;
+                padding: 0 6px;
+            }
+            .tx-grid,
+            .comparison-grid,
+            .system-grid {
+                grid-template-columns: 1fr;
+            }
+            .lifecycle-step {
+                flex: 0 0 45%;
+            }
+            #chatPanel {
+                width: calc(100vw - 24px);
+                right: 12px;
+            }
         }
 
+        /* ─── THEMED APEXCHARTS TOOLTIP ─── */
         .ciq-tooltip .apexcharts-tooltip-title {
             background: var(--bg3) !important;
             border-bottom: 1px solid var(--b2) !important;
@@ -2691,6 +2778,7 @@
     LANDING PAGE
     ═══════════════════════════════════════════════ -->
     <div id="page-landing">
+
         <section class="hero">
             <div class="hero-eyebrow">
                 <span class="pulse-dot"></span>
@@ -2895,12 +2983,15 @@
             </div>
             <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
         </footer>
+
     </div><!-- /landing -->
 
     <!-- ═══════════════════════════════════════════════
-    CARBON CREDITS PAGE
+    CARBON CREDITS PAGE — Theory & Visuals
     ═══════════════════════════════════════════════ -->
     <div id="page-carbon">
+
+        <!-- HERO -->
         <section class="carbon-hero">
             <div class="hero-eyebrow">
                 <span class="pulse-dot"></span>
@@ -2909,6 +3000,7 @@
             <div class="hero-rule"><span class="hero-rule-diamond"></span></div>
             <h1>Understanding <span>Carbon Credits</span></h1>
             <p class="carbon-sub">A deep-dive into the world's carbon pricing systems — from compliance markets like EU ETS to voluntary offset markets, with 35+ active systems and 87+ pricing instruments globally.</p>
+
             <div class="carbon-stats">
                 <div class="hm"><div class="hm-val" id="counterSystems">35+</div><div class="hm-lbl">Active ETS Systems</div></div>
                 <div class="hm"><div class="hm-val" id="counterInstruments">87+</div><div class="hm-lbl">Pricing Instruments</div></div>
@@ -2917,6 +3009,7 @@
             </div>
         </section>
 
+        <!-- WHAT ARE CARBON CREDITS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">The Basics</span>
@@ -2927,17 +3020,40 @@
                     <h2 style="font-family:var(--display);font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-.5px;color:var(--gold)">1 Credit = 1 Ton of CO₂e</h2>
                     <p style="font-size:13.5px;color:var(--t3);line-height:1.7;margin-top:8px">Removed, reduced, or avoided — then verified, issued, and traded.</p>
                 </div>
+
+                <!-- Animated lifecycle: from emission to retirement -->
                 <div class="lifecycle">
-                    <div class="lifecycle-step"><div class="lc-ring">🏭</div><div class="lc-label">Emit</div><div class="lc-sub">Baseline CO₂e</div></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🏭</div>
+                        <div class="lc-label">Emit</div>
+                        <div class="lc-sub">Baseline CO₂e</div>
+                    </div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step"><div class="lc-ring">🌱</div><div class="lc-label">Reduce</div><div class="lc-sub">Avoid / remove</div></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🌱</div>
+                        <div class="lc-label">Reduce</div>
+                        <div class="lc-sub">Avoid / remove</div>
+                    </div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step"><div class="lc-ring">✅</div><div class="lc-label">Verify</div><div class="lc-sub">3rd‑party audit</div></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">✅</div>
+                        <div class="lc-label">Verify</div>
+                        <div class="lc-sub">3rd‑party audit</div>
+                    </div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step"><div class="lc-ring">🎫</div><div class="lc-label">Issue</div><div class="lc-sub">1 credit / tCO₂e</div></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🎫</div>
+                        <div class="lc-label">Issue</div>
+                        <div class="lc-sub">1 credit / tCO₂e</div>
+                    </div>
                     <div class="lc-arrow"></div>
-                    <div class="lifecycle-step"><div class="lc-ring">🔁</div><div class="lc-label">Trade / Retire</div><div class="lc-sub">Market or offset</div></div>
+                    <div class="lifecycle-step">
+                        <div class="lc-ring">🔁</div>
+                        <div class="lc-label">Trade / Retire</div>
+                        <div class="lc-sub">Market or offset</div>
+                    </div>
                 </div>
+
                 <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px">
                     <span class="ttag" style="background:var(--gold-glow2);color:var(--gold);border-color:rgba(201,168,76,.2)">1 credit = 1 tCO₂e</span>
                     <span class="ttag" style="background:rgba(0,212,170,.06);color:var(--teal);border-color:rgba(0,212,170,.15)">Compliance + Voluntary</span>
@@ -2947,6 +3063,7 @@
             </div>
         </div>
 
+        <!-- COMPLIANCE VS VOLUNTARY -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Market Types</span>
@@ -2978,12 +3095,15 @@
             </div>
         </div>
 
+        <!-- GLOBAL SYSTEMS GRID -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Global Carbon Pricing Systems</span>
                 <span class="section-badge badge-live">● 35+ Active</span>
             </div>
-            <div class="system-grid" id="systemGrid"></div>
+            <div class="system-grid" id="systemGrid">
+                <!-- Rows injected by JS -->
+            </div>
             <div style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
                 <span class="mech-tag mech-fixed">● Fixed Price (40+ systems)</span>
                 <span class="mech-tag mech-increment">● 5-Year Increment</span>
@@ -2994,6 +3114,7 @@
             </div>
         </div>
 
+        <!-- PRICING MECHANISMS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">How Pricing Works</span>
@@ -3017,6 +3138,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Visual bar -->
             <div class="card" style="margin-top:14px">
                 <div class="card-hd"><span class="card-title">Pricing Mechanism Distribution</span></div>
                 <div class="pricing-visual">
@@ -3040,6 +3163,7 @@
             </div>
         </div>
 
+        <!-- DEEP DIVE: MAJOR SYSTEMS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Major Systems Deep Dive</span>
@@ -3093,6 +3217,7 @@
             </div>
         </div>
 
+        <!-- FOOTER (same) -->
         <footer class="footer reveal">
             <div class="footer-diamond"></div>
             <div class="footer-logo">Carbon<span>IQ</span></div>
@@ -3106,12 +3231,16 @@
             </div>
             <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
         </footer>
+
     </div><!-- /carbon -->
 
     <!-- ═══════════════════════════════════════════════
-    AI EXPLAINER PAGE
+    AI FORECAST EXPLAINER — public, no login required.
+    Live model output lives inside the authenticated dashboard.
     ═══════════════════════════════════════════════ -->
     <div id="page-ai-explainer">
+
+        <!-- HERO -->
         <section class="carbon-hero">
             <div class="hero-eyebrow">
                 <span class="pulse-dot"></span>
@@ -3120,11 +3249,13 @@
             <div class="hero-rule"><span class="hero-rule-diamond"></span></div>
             <h1>How CarbonIQ <span>Predicts</span> Prices</h1>
             <p class="carbon-sub">An LSTM neural network trained on a decade of EU ETS data, retrained daily, and continuously backtested — turning noisy carbon markets into probable price paths.</p>
+
             <div class="ai-hero-visual">
                 <canvas class="neuro-canvas" id="neuroCanvas"></canvas>
             </div>
         </section>
 
+        <!-- WHAT IS AI FORECASTING -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">The Idea</span>
@@ -3145,6 +3276,7 @@
             </div>
         </div>
 
+        <!-- HOW WE DO IT — PIPELINE -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">How We Do It</span>
@@ -3152,15 +3284,41 @@
             </div>
             <div class="card" style="padding:10px 16px 26px">
                 <div class="pipeline">
-                    <div class="pipe-step"><div class="pipe-node glow">📡</div><div class="pipe-num">01</div><div class="pipe-title">Ingest</div><div class="pipe-desc">Prices, auctions, weather, macro &amp; news feeds — live</div></div>
-                    <div class="pipe-step"><div class="pipe-node glow">🧮</div><div class="pipe-num">02</div><div class="pipe-title">Engineer</div><div class="pipe-desc">Volatility, seasonality &amp; policy-shock features</div></div>
-                    <div class="pipe-step"><div class="pipe-node glow">🧠</div><div class="pipe-num">03</div><div class="pipe-title">Train</div><div class="pipe-desc">LSTM learns sequences across 10y of trading data</div></div>
-                    <div class="pipe-step"><div class="pipe-node glow">✅</div><div class="pipe-num">04</div><div class="pipe-title">Backtest</div><div class="pipe-desc">Validated against unseen history before going live</div></div>
-                    <div class="pipe-step"><div class="pipe-node glow">📈</div><div class="pipe-num">05</div><div class="pipe-title">Forecast</div><div class="pipe-desc">Daily-refreshed price path with confidence bands</div></div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">📡</div>
+                        <div class="pipe-num">01</div>
+                        <div class="pipe-title">Ingest</div>
+                        <div class="pipe-desc">Prices, auctions, weather, macro &amp; news feeds — live</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">🧮</div>
+                        <div class="pipe-num">02</div>
+                        <div class="pipe-title">Engineer</div>
+                        <div class="pipe-desc">Volatility, seasonality &amp; policy-shock features</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">🧠</div>
+                        <div class="pipe-num">03</div>
+                        <div class="pipe-title">Train</div>
+                        <div class="pipe-desc">LSTM learns sequences across 10y of trading data</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">✅</div>
+                        <div class="pipe-num">04</div>
+                        <div class="pipe-title">Backtest</div>
+                        <div class="pipe-desc">Validated against unseen history before going live</div>
+                    </div>
+                    <div class="pipe-step">
+                        <div class="pipe-node glow">📈</div>
+                        <div class="pipe-num">05</div>
+                        <div class="pipe-title">Forecast</div>
+                        <div class="pipe-desc">Daily-refreshed price path with confidence bands</div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- INSIDE THE MODEL — LSTM GATES -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Inside the Model</span>
@@ -3180,6 +3338,7 @@
             </div>
         </div>
 
+        <!-- PERFORMANCE STATS -->
         <div class="section reveal">
             <div class="section-hd">
                 <span class="section-label">Track Record</span>
@@ -3193,6 +3352,7 @@
             </div>
         </div>
 
+        <!-- CTA -->
         <div class="section reveal" style="text-align:center">
             <div class="card" style="padding:36px 24px;max-width:640px;margin:0 auto">
                 <h2 style="font-family:var(--display);font-size:clamp(20px,2.6vw,26px);font-weight:700;margin-bottom:10px">Live forecasts live in your dashboard</h2>
@@ -3204,6 +3364,7 @@
             </div>
         </div>
 
+        <!-- FOOTER (same) -->
         <footer class="footer reveal">
             <div class="footer-diamond"></div>
             <div class="footer-logo">Carbon<span>IQ</span></div>
@@ -3217,6 +3378,7 @@
             </div>
             <div class="footer-copy">© 2025 CarbonIQ Analytics Ltd. · All prices are indicative and for informational purposes only.</div>
         </footer>
+
     </div><!-- /ai-explainer -->
 
     <!-- ═══════════════════════════════════════════════
@@ -3341,23 +3503,11 @@
                 <div class="panel active" id="panel-prices">
                     <div class="panel-title">Live Price Tracking</div>
                     <div class="panel-sub">SparkChange Physical Carbon EUA ETC (CO2.MI) · Live from Yahoo Finance</div>
-
-                    <div id="marketStatusBar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r14);padding:10px 16px;margin-bottom:18px">
-                        <span id="marketStatusDot" class="pulse-ring" style="background:var(--teal)"></span>
-                        <span id="marketStatusLabel" style="font-size:12.5px;font-weight:600;color:var(--teal);font-family:var(--display)">Market Open</span>
-                        <span style="width:1px;height:14px;background:var(--b2)"></span>
-                        <span style="font-size:11.5px;color:var(--t3)">Borsa Italiana · 09:00–17:30 CET/CEST · Mon–Fri</span>
-                        <span style="width:1px;height:14px;background:var(--b2)"></span>
-                        <span style="font-size:11.5px;color:var(--t3)">Milan time now: <span id="marketMilanClock" style="color:var(--t2);font-family:var(--mono)">—</span></span>
-                        <span id="marketNextEvent" style="font-size:11px;color:var(--t4);margin-left:auto"></span>
-                    </div>
-
                     <div class="stat-row">
                         <div class="stat-card"><div class="stat-lbl">Current Price</div><div class="stat-val pos" id="statCurrentPrice">€—</div><div class="stat-chg" id="statChange">Loading...</div></div>
-                        <div class="stat-card"><div class="stat-lbl">Prev. Close</div><div class="stat-val" id="statPrevClose" style="color:var(--t2)">—</div></div>
                         <div class="stat-card"><div class="stat-lbl">Open</div><div class="stat-val" id="statOpen">—</div></div>
-                        <div class="stat-card"><div class="stat-lbl">High</div><div class="stat-val" id="statHigh" style="color:var(--teal)">—</div></div>
-                        <div class="stat-card"><div class="stat-lbl">Low</div><div class="stat-val" id="statLow" style="color:var(--red)">—</div></div>
+                        <div class="stat-card"><div class="stat-lbl">High</div><div class="stat-val" id="statHigh">—</div></div>
+                        <div class="stat-card"><div class="stat-lbl">Low</div><div class="stat-val" id="statLow">—</div></div>
                     </div>
                     <div class="chart-card">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
@@ -3365,9 +3515,10 @@
                                 <div style="font-size:13px;font-weight:600;font-family:var(--display)" id="dashChartTitle">SparkChange Physical Carbon EUA ETC (CO2.MI)</div>
                                 <div style="font-size:11px;color:var(--t3);margin-top:2px" id="dashChartSub">Live price data from Yahoo Finance</div>
                             </div>
-                            <span class="section-badge badge-live" id="dashLiveBadge">● Live</span>
+                            <span class="section-badge badge-live">● Live</span>
                         </div>
 
+                        <!-- Chart type selector -->
                         <div class="chart-type-sel" id="chartTypeSel">
                             <button class="chart-type-btn active" data-type="area" onclick="setChartType('area',this)">Area</button>
                             <button class="chart-type-btn" data-type="line" onclick="setChartType('line',this)">Line</button>
@@ -3490,7 +3641,7 @@
     </div>
 
     <script>
-    // ─── STATE ──────────────────────────────────────────────────────────
+    // ═══ STATE ═══
     let currentUser = null;
     let chartsInit = false;
     let dashChartsInit = false;
@@ -3499,10 +3650,9 @@
     let currentChartType = 'area';
     let currentRange = '1M';
     let currentDataPoints = [];
-    let currentPrevClose = null;
-    let dashRefreshTimer = null;
+    let usingLiveData = true;
 
-    // ─── WAIT FOR CONTAINER WIDTH ────────────────────────────────────
+    // ─── WAIT FOR CONTAINER WIDTH ────────────────────────────────
     function whenContainerReady(id, cb, attempts = 0) {
         const el = document.getElementById(id);
         if (el && el.offsetWidth > 0) {
@@ -3517,7 +3667,7 @@
         requestAnimationFrame(function() { whenContainerReady(id, cb, attempts + 1); });
     }
 
-    // ─── NAVIGATION ──────────────────────────────────────────────────
+    // ═══ NAVIGATION ═══
     function navigateTo(page, el) {
         document.querySelectorAll('.nav-link').forEach(function(x) { x.classList.remove('active'); });
         if (el) el.classList.add('active');
@@ -3542,7 +3692,7 @@
         closeMM();
     }
 
-    // ─── PAGE CONTROL ──────────────────────────────────────────────────
+    // ═══ PAGE CONTROL ═══
     function showPage(page, tab) {
         document.getElementById('page-landing').style.display = 'none';
         document.getElementById('page-auth').style.display = 'none';
@@ -3597,7 +3747,7 @@
         }
     }
 
-    // ─── MOBILE MENU ──────────────────────────────────────────────────
+    // ═══ MOBILE MENU ═══
     function toggleMobileMenu() {
         var menu = document.getElementById('mobileMenu');
         var ham = document.getElementById('navHam');
@@ -3612,7 +3762,7 @@
         if (h) h.classList.remove('open');
     }
 
-    // ─── AUTH ──────────────────────────────────────────────────────────
+    // ═══ AUTH ═══
     function switchAuthTab(tab) {
         document.getElementById('form-signin').style.display = tab === 'signin' ? 'block' : 'none';
         document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
@@ -3680,7 +3830,7 @@
         if (avEl) avEl.textContent = currentUser.initials;
     }
 
-    // ─── PANEL SWITCH ──────────────────────────────────────────────────
+    // ═══ PANEL SWITCH ═══
     function switchPanel(name, el) {
         document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
         document.querySelectorAll('.sb-item').forEach(function(s) { s.classList.remove('active'); });
@@ -3700,7 +3850,7 @@
         }
     }
 
-    // ─── TICKER ──────────────────────────────────────────────────────────
+    // ═══ TICKER ═══
     var TICKS = [
         { n: 'EUA CFI=F', v: '—', c: '—', t: 'neu', key: 'eua' },
         { n: 'FCO2 ETC', v: '—', c: '—', t: 'neu', key: 'fco2' },
@@ -3728,140 +3878,86 @@
         });
     })();
 
-    // ─── REAL DATA FETCH ──────────────────────────────────────────────
-    const CORS_PROXIES = [
-        (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    ];
-
-    let lastKnownGood = null;
-
+    // ─── REAL DATA FETCH WITH FALLBACK ───────────────────────────
     async function fetchYahooFinanceData(range, interval) {
-        const symbol = 'CO2.MI';
+        const symbol = 'CO2.L';
         const yahooUrl =
-            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}&includePrePost=false`;
+            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`;
 
-        for (let i = 0; i < CORS_PROXIES.length; i++) {
-            const proxyUrl = CORS_PROXIES[i](yahooUrl);
-            try {
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Request timed out')), 8000)
-                );
-                const response = await Promise.race([
-                    fetch(proxyUrl, { headers: { 'Accept': 'application/json' } }),
-                    timeoutPromise
-                ]);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const response = await fetch(proxyUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-                const raw = await response.text();
-                let json;
-                try {
-                    const parsedOuter = JSON.parse(raw);
-                    json = (parsedOuter && typeof parsedOuter.contents === 'string') ?
-                        JSON.parse(parsedOuter.contents) : parsedOuter;
-                } catch (parseErr) {
-                    throw new Error('Unparseable proxy response');
-                }
+            const data = await response.json();
+            const json = JSON.parse(data.contents);
+            const result = json.chart.result[0];
+            if (!result) throw new Error('No result in response');
 
-                const result = json && json.chart && json.chart.result && json.chart.result[0];
-                if (!result) throw new Error('No result in response');
-                if (json.chart.error) throw new Error(json.chart.error.description || 'Yahoo returned an error');
+            const timestamps = result.timestamp;
+            const quotes = result.indicators.quote[0];
+            const closePrices = quotes.close;
+            if (!timestamps || !closePrices || closePrices.length === 0) throw new Error('No price data');
 
-                const meta = result.meta || {};
-                const timestamps = result.timestamp || [];
-                const quotes = (result.indicators && result.indicators.quote && result.indicators.quote[0]) || {};
-                const closePrices = quotes.close || [];
-
-                const points = [];
-                let latestOpen = null,
-                    latestHigh = null,
-                    latestLow = null;
-                for (let j = 0; j < timestamps.length; j++) {
-                    const price = closePrices[j];
-                    if (price !== null && price !== undefined && !isNaN(price)) {
-                        const ts = timestamps[j] * 1000;
-                        points.push({
-                            x: ts,
-                            y: price,
-                            open: (quotes.open && quotes.open[j] !== null) ? quotes.open[j] : price,
-                            high: (quotes.high && quotes.high[j] !== null) ? quotes.high[j] : price,
-                            low: (quotes.low && quotes.low[j] !== null) ? quotes.low[j] : price,
-                            close: price
-                        });
-                        if (quotes.high && quotes.high[j] !== null) {
-                            if (latestHigh === null || quotes.high[j] > latestHigh) latestHigh = quotes.high[j];
-                        }
-                        if (quotes.low && quotes.low[j] !== null) {
-                            if (latestLow === null || quotes.low[j] < latestLow) latestLow = quotes.low[j];
-                        }
-                        if (latestOpen === null && quotes.open && quotes.open[j] !== null) latestOpen = quotes.open[j];
-                    }
-                }
-
-                let latestPrice = points.length > 0 ? points[points.length - 1].y : null;
-                if (latestPrice === null || latestPrice === undefined) {
-                    if (meta.regularMarketPrice !== undefined && meta.regularMarketPrice !== null) {
-                        latestPrice = meta.regularMarketPrice;
-                    }
-                }
-                if (latestOpen === null) latestOpen = (meta.regularMarketOpen !== undefined) ? meta.regularMarketOpen : null;
-                if (latestHigh === null) latestHigh = (meta.regularMarketDayHigh !== undefined) ? meta.regularMarketDayHigh : null;
-                if (latestLow === null) latestLow = (meta.regularMarketDayLow !== undefined) ? meta.regularMarketDayLow : null;
-
-                if (latestPrice === null || latestPrice === undefined || isNaN(latestPrice)) {
-                    throw new Error('No price data available');
-                }
-
-                if (points.length === 0) {
+            const points = [];
+            let latestPrice = null;
+            let latestOpen = null,
+                latestHigh = null,
+                latestLow = null;
+            for (let i = 0; i < timestamps.length; i++) {
+                const price = closePrices[i];
+                if (price !== null && price !== undefined && !isNaN(price)) {
+                    const ts = timestamps[i] * 1000;
                     points.push({
-                        x: Date.now(),
-                        y: latestPrice,
-                        open: latestOpen || latestPrice,
-                        high: latestHigh || latestPrice,
-                        low: latestLow || latestPrice,
-                        close: latestPrice
+                        x: ts,
+                        y: price,
+                        open: (quotes.open && quotes.open[i] !== null) ? quotes.open[i] : price,
+                        high: (quotes.high && quotes.high[i] !== null) ? quotes.high[i] : price,
+                        low: (quotes.low && quotes.low[i] !== null) ? quotes.low[i] : price,
+                        close: price
                     });
+                    latestPrice = price;
+                    if (quotes.open && quotes.open[i] !== null) latestOpen = quotes.open[i];
+                    if (quotes.high && quotes.high[i] !== null) latestHigh = quotes.high[i];
+                    if (quotes.low && quotes.low[i] !== null) latestLow = quotes.low[i];
                 }
-
-                lastKnownGood = {
-                    price: latestPrice,
-                    open: latestOpen,
-                    high: latestHigh,
-                    low: latestLow,
-                    previousClose: meta.previousClose || null,
-                    ts: Date.now(),
-                };
-
-                return {
-                    points: points,
-                    latestPrice: latestPrice,
-                    previousClose: meta.previousClose || null,
-                    open: latestOpen,
-                    high: latestHigh,
-                    low: latestLow,
-                    success: true
-                };
-            } catch (err) {
-                console.warn(`CORS proxy ${i + 1}/${CORS_PROXIES.length} failed:`, err.message || err);
             }
-        }
+            if (points.length === 0) throw new Error('No valid points');
 
-        console.warn('All CORS proxies failed — using fallback data.');
-        return generateFallbackData(range);
+            const meta = result.meta || {};
+            return {
+                points: points,
+                latestPrice: latestPrice,
+                previousClose: meta.previousClose || null,
+                open: latestOpen,
+                high: latestHigh,
+                low: latestLow,
+                success: true
+            };
+        } catch (err) {
+            console.warn('Live data fetch failed, using fallback.', err);
+            // Generate fallback data that mimics real price (~€70-75)
+            return generateFallbackData(range);
+        }
     }
 
+    // ─── FALLBACK DATA GENERATOR ────────────────────────────────
     function generateFallbackData(range) {
         const now = Date.now();
+        let numPoints, intervalMs;
+        // match approximate intervals based on range
         const map = {
-            '1d': { points: 60, interval: 60000 },
-            '7d': { points: 100, interval: 3600000 },
-            '1mo': { points: 90, interval: 28800000 },
-            '3mo': { points: 90, interval: 86400000 },
-            '1y': { points: 52, interval: 604800000 },
-            'max': { points: 100, interval: 2592000000 }
+            '1d': { points: 60, interval: 60000 }, // 1 hour
+            '7d': { points: 100, interval: 3600000 }, // 1 hour
+            '1mo': { points: 90, interval: 28800000 }, // 8 hours
+            '3mo': { points: 90, interval: 86400000 }, // daily
+            '1y': { points: 52, interval: 604800000 }, // weekly
+            'max': { points: 100, interval: 2592000000 } // monthly
         };
+        // Determine which range from the string
         let key = '1mo';
         if (range.includes('1d')) key = '1d';
         else if (range.includes('7d') || range.includes('5d')) key = '7d';
@@ -3871,194 +3967,52 @@
         else if (range.includes('max')) key = 'max';
         const cfg = map[key] || map['1mo'];
 
-        const anchor = lastKnownGood ? lastKnownGood.price : (66 + Math.random() * 3);
         const points = [];
-        let price = anchor;
+        let price = 70 + Math.random() * 5; // start around 70-75
         for (let i = 0; i < cfg.points; i++) {
             const ts = now - (cfg.points - i) * cfg.interval;
-            price += (Math.random() - 0.5) * 0.12;
-            price = Math.max(anchor - 2, Math.min(anchor + 2, price));
-            const o = price + (Math.random() - 0.5) * 0.08;
-            const h = Math.max(o, price) + Math.random() * 0.15;
-            const l = Math.min(o, price) - Math.random() * 0.15;
-            points.push({ x: ts, y: price, open: o, high: h, low: l, close: price });
+            price += (Math.random() - 0.48) * 0.6;
+            price = Math.max(60, Math.min(85, price));
+            const o = price + (Math.random() - 0.5) * 0.5;
+            const h = Math.max(o, price) + Math.random() * 0.8;
+            const l = Math.min(o, price) - Math.random() * 0.8;
+            points.push({
+                x: ts,
+                y: price,
+                open: o,
+                high: h,
+                low: l,
+                close: price
+            });
         }
         const latest = points[points.length - 1];
-        const prevCloseFallback = lastKnownGood && lastKnownGood.previousClose ? lastKnownGood.previousClose :
-            (points.length > 1 ? points[0].close : latest.close);
         return {
             points: points,
             latestPrice: latest.close,
-            previousClose: prevCloseFallback,
-            open: points[0] ? points[0].open : latest.open,
-            high: Math.max.apply(null, points.map(p => p.high)),
-            low: Math.min.apply(null, points.map(p => p.low)),
+            previousClose: points.length > 1 ? points[points.length - 2].close : latest.close,
+            open: latest.open,
+            high: latest.high,
+            low: latest.low,
             success: false,
             isFallback: true
         };
     }
 
-    // ─── MARKET HOURS ──────────────────────────────────────────────────
-    var MARKET_OPEN_MIN = 9 * 60;
-    var MARKET_CLOSE_MIN = 17 * 60 + 30;
-    var MARKET_TZ = 'Europe/Rome';
-    var WEEKDAY_ORDER = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    function getMilanNow() {
-        var parts = new Intl.DateTimeFormat('en-GB', {
-            timeZone: MARKET_TZ,
-            weekday: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-        }).formatToParts(new Date());
-        var map = {};
-        parts.forEach(function(p) { map[p.type] = p.value; });
-        return {
-            weekday: map.weekday,
-            hour: parseInt(map.hour, 10),
-            minute: parseInt(map.minute, 10),
-            second: parseInt(map.second, 10),
-        };
-    }
-
-    function getMarketStatus() {
-        var now = getMilanNow();
-        var minutesNow = now.hour * 60 + now.minute;
-        var isWeekend = (now.weekday === 'Sat' || now.weekday === 'Sun');
-        var isOpen = !isWeekend && minutesNow >= MARKET_OPEN_MIN && minutesNow < MARKET_CLOSE_MIN;
-
-        var clockStr = String(now.hour).padStart(2, '0') + ':' + String(now.minute).padStart(2, '0') + ':' + String(now.second).padStart(2, '0');
-
-        var nextEvent = '';
-        if (isOpen) {
-            var minsToClose = MARKET_CLOSE_MIN - minutesNow;
-            var h = Math.floor(minsToClose / 60),
-                m = minsToClose % 60;
-            nextEvent = 'Closes in ' + (h > 0 ? h + 'h ' : '') + m + 'm';
-        } else {
-            var dayIdx = WEEKDAY_ORDER.indexOf(now.weekday);
-            var minutesUntilMidnight = (24 * 60) - minutesNow;
-            var minsToOpenToday = MARKET_OPEN_MIN - minutesNow;
-            if (!isWeekend && minsToOpenToday > 0) {
-                var h2 = Math.floor(minsToOpenToday / 60),
-                    m2 = minsToOpenToday % 60;
-                nextEvent = 'Opens in ' + (h2 > 0 ? h2 + 'h ' : '') + m2 + 'm';
-            } else {
-                var totalMins = minutesUntilMidnight;
-                var candidateIdx = (dayIdx + 1) % 7;
-                while (candidateIdx === 0 || candidateIdx === 6) {
-                    totalMins += 24 * 60;
-                    candidateIdx = (candidateIdx + 1) % 7;
-                }
-                totalMins += MARKET_OPEN_MIN;
-                var hh = Math.floor(totalMins / 60),
-                    mm = totalMins % 60;
-                nextEvent = 'Opens in ' + hh + 'h ' + mm + 'm (' + WEEKDAY_ORDER[candidateIdx] + ')';
-            }
-        }
-
-        return { isOpen: isOpen, clockStr: clockStr, nextEvent: nextEvent, weekday: now.weekday };
-    }
-
-    function updateMarketStatusUI() {
-        var status = getMarketStatus();
-        var dot = document.getElementById('marketStatusDot');
-        var label = document.getElementById('marketStatusLabel');
-        var clock = document.getElementById('marketMilanClock');
-        var next = document.getElementById('marketNextEvent');
-        var liveBadge = document.getElementById('dashLiveBadge');
-
-        if (clock) clock.textContent = status.clockStr + ' CET/CEST';
-        if (next) next.textContent = status.nextEvent;
-
-        if (status.isOpen) {
-            if (dot) { dot.style.background = '';
-                dot.classList.remove('ms-closed'); }
-            if (label) { label.textContent = 'Market Open';
-                label.style.color = 'var(--teal)'; }
-            if (liveBadge) { liveBadge.textContent = '● Live';
-                liveBadge.className = 'section-badge badge-live'; }
-        } else {
-            if (dot) { dot.style.background = '';
-                dot.classList.add('ms-closed'); }
-            if (label) { label.textContent = 'Market Closed';
-                label.style.color = 'var(--amber)'; }
-            if (liveBadge) { liveBadge.textContent = '● Market Closed';
-                liveBadge.className = 'section-badge badge-warn'; }
-        }
-    }
-
-    // ─── STATS HELPERS ──────────────────────────────────────────────────
-    function computeRangeStats(data) {
-        const points = data.points || [];
-        if (points.length === 0) return null;
-        const opens = points.map(p => p.open).filter(v => v !== null && v !== undefined && !isNaN(v));
-        const highs = points.map(p => p.high).filter(v => v !== null && v !== undefined && !isNaN(v));
-        const lows = points.map(p => p.low).filter(v => v !== null && v !== undefined && !isNaN(v));
-        const open = opens.length ? opens[0] : points[0].y;
-        const high = highs.length ? Math.max.apply(null, highs) : Math.max.apply(null, points.map(p => p.y));
-        const low = lows.length ? Math.min.apply(null, lows) : Math.min.apply(null, points.map(p => p.y));
-        const close = data.latestPrice;
-        const prevClose = (data.previousClose !== null && data.previousClose !== undefined) ? data.previousClose : open;
-        return { open: open, high: high, low: low, close: close, prevClose: prevClose };
-    }
-
-    function fmtEur(v) {
-        return (v === null || v === undefined || isNaN(v)) ? '—' : '€' + v.toFixed(2);
-    }
-
-    function updateDashStats(data) {
-        const stats = computeRangeStats(data);
-        if (!stats) return;
-        currentPrevClose = stats.prevClose;
-
-        const change = stats.close - stats.prevClose;
-        const changePct = stats.prevClose ? (change / stats.prevClose) * 100 : 0;
-        const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
-        const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
-        const sign = change > 0 ? '+' : '';
-
-        const curEl = document.getElementById('statCurrentPrice');
-        const chgEl = document.getElementById('statChange');
-        const prevEl = document.getElementById('statPrevClose');
-        const openEl = document.getElementById('statOpen');
-        const highEl = document.getElementById('statHigh');
-        const lowEl = document.getElementById('statLow');
-
-        if (curEl) { curEl.textContent = fmtEur(stats.close);
-            curEl.className = 'stat-val ' + tone; }
-        if (chgEl) { chgEl.textContent = arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + changePct.toFixed(2) + '%)';
-            chgEl.className = 'stat-chg ' + tone; }
-        if (prevEl) prevEl.textContent = fmtEur(stats.prevClose);
-        if (openEl) openEl.textContent = fmtEur(stats.open);
-        if (highEl) highEl.textContent = fmtEur(stats.high);
-        if (lowEl) lowEl.textContent = fmtEur(stats.low);
-
-        const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
-        fco2Ticks.forEach(function(el) {
-            var valEl = el.querySelector('.tick-val');
-            var tchgEl = el.querySelector('.tick-chg');
-            valEl.textContent = fmtEur(stats.close);
-            tchgEl.textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
-            valEl.className = 'tick-val ' + tone;
-            tchgEl.className = 'tick-chg ' + tone;
-        });
-    }
-
-    // ─── TICKER-ONLY REFRESH ──────────────────────────────────────────
-    async function updateTickerOnly() {
+    // ─── UPDATE LIVE TICKER AND STATS ────────────────────────────
+    async function updateLiveData() {
         try {
-            const data = await fetchYahooFinanceData('5d', '15m');
+            const data = await fetchYahooFinanceData('1d', '5m');
             if (!data || !data.points || data.points.length === 0) return;
+
             const latest = data.latestPrice;
             const prevClose = data.previousClose || data.points[data.points.length - 2]?.close || latest;
             const change = latest - prevClose;
-            const changePct = prevClose ? (change / prevClose) * 100 : 0;
+            const changePct = (change / prevClose) * 100;
             const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
             const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
             const sign = change > 0 ? '+' : '';
+
+            // Update ticker
             const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
             fco2Ticks.forEach(function(el) {
                 var valEl = el.querySelector('.tick-val');
@@ -4068,33 +4022,30 @@
                 valEl.className = 'tick-val ' + tone;
                 chgEl.className = 'tick-chg ' + tone;
             });
-        } catch (err) {
-            console.warn('updateTickerOnly error:', err);
-        }
-    }
 
-    async function periodicRefresh() {
-        if (currentRange === '1D') {
-            try {
-                const result = await fetchYahooFinanceData('1d', '5m');
-                currentDataPoints = result.points;
-                renderDashChart(result.points, currentRange, currentChartType);
-                updateDashStats(result);
-                const subEl = document.getElementById('dashChartSub');
-                if (subEl) {
-                    subEl.textContent = result.isFallback ?
-                        '⚠️ Live feed unavailable – showing simulated data' :
-                        'Live price data from Yahoo Finance · ' + new Date().toLocaleTimeString();
-                }
-            } catch (err) {
-                console.warn('periodicRefresh (1D) error:', err);
+            // Update stats
+            document.getElementById('statCurrentPrice').textContent = '€' + latest.toFixed(2);
+            document.getElementById('statCurrentPrice').className = 'stat-val ' + tone;
+            document.getElementById('statChange').textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
+            document.getElementById('statChange').className = 'stat-chg ' + tone;
+            if (data.open) document.getElementById('statOpen').textContent = '€' + data.open.toFixed(2);
+            if (data.high) document.getElementById('statHigh').textContent = '€' + data.high.toFixed(2);
+            if (data.low) document.getElementById('statLow').textContent = '€' + data.low.toFixed(2);
+
+            // Show indicator if using fallback
+            const subEl = document.getElementById('dashChartSub');
+            if (subEl) {
+                subEl.textContent = data.isFallback ?
+                    '⚠️ Live feed unavailable – showing simulated data' :
+                    'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
             }
-        } else {
-            await updateTickerOnly();
+            usingLiveData = !data.isFallback;
+        } catch (err) {
+            console.warn('updateLiveData error:', err);
         }
     }
 
-    // ─── CHART UTILITIES ──────────────────────────────────────────────
+    // ═══ CHART UTILS ═══
     function mkDates(n, future) {
         if (future === undefined) future = 0;
         var a = [];
@@ -4113,93 +4064,97 @@
         return a;
     }
 
-    // ─── LANDING PAGE CHART ────────────────────────────────────────────
+    // ─── BASE_OPTS ─────────────────────────────────────────────────
+    var BASE_OPTS = {
+        chart: {
+            background: 'transparent',
+            toolbar: { show: false },
+            fontFamily: 'DM Sans,sans-serif',
+            animations: { enabled: false },
+            zoom: { enabled: false },
+            parentHeightOffset: 0,
+        },
+        theme: { mode: 'dark' },
+        dataLabels: { enabled: false },
+        grid: {
+            borderColor: 'rgba(20,30,48,0.8)',
+            strokeDashArray: 4,
+            padding: { left: 8, right: 8, top: 4, bottom: 0 },
+            xaxis: { lines: { show: true } },
+            yaxis: { lines: { show: true } },
+        },
+        stroke: { curve: 'smooth', width: 2 },
+        markers: { size: 0, strokeWidth: 0, hover: { size: 6, sizeOffset: 3 } },
+        states: { hover: { filter: { type: 'none' } }, active: { filter: { type: 'none' } } },
+        tooltip: {
+            theme: 'dark',
+            shared: false,
+            intersect: false,
+            style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
+            marker: { show: true },
+            cssClass: 'ciq-tooltip',
+        },
+        xaxis: {
+            labels: {
+                style: { colors: '#4e5f7a', fontSize: '10px' },
+                rotate: 0,
+                hideOverlappingLabels: true,
+                trim: false,
+                offsetY: 2,
+            },
+            tickPlacement: 'on',
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            tooltip: { enabled: false },
+            crosshairs: { show: true, stroke: { color: '#c9a84c', width: 1, dashArray: 4 }, opacity: .7 },
+        },
+        yaxis: {
+            labels: {
+                style: { colors: '#4e5f7a', fontSize: '10px' },
+                offsetX: -4,
+                align: 'left',
+                formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+            },
+        },
+        legend: { show: false },
+        responsive: [{
+            breakpoint: 640,
+            options: {
+                grid: { padding: { left: 2, right: 2, top: 2, bottom: 0 } },
+                xaxis: { labels: { style: { fontSize: '9px' }, rotate: 0 } },
+                yaxis: { labels: { style: { fontSize: '9px' }, offsetX: -2 } },
+            },
+        }, ],
+    };
+
+    // ─── LANDING PAGE CHART (dummy) ═══
     function initLandingCharts() {
         var h = genSeries(22, 60.2, 1.4);
         var f = [].concat(Array(21).fill(null), [h[h.length - 1]]).concat(genSeries(8, h[h.length - 1], .6).slice(1));
         var labels = mkDates(22, 8);
         new ApexCharts(document.getElementById('landingChart'), {
-            chart: {
-                background: 'transparent',
-                toolbar: { show: false },
-                fontFamily: 'DM Sans,sans-serif',
-                animations: { enabled: false },
-                zoom: { enabled: false },
-                parentHeightOffset: 0,
-                type: 'line',
-                height: 210
-            },
-            theme: { mode: 'dark' },
-            dataLabels: { enabled: false },
-            grid: {
-                borderColor: 'rgba(20,30,48,0.8)',
-                strokeDashArray: 4,
-                padding: { left: 8, right: 8, top: 4, bottom: 0 },
-                xaxis: { lines: { show: true } },
-                yaxis: { lines: { show: true } },
-            },
-            stroke: { curve: 'smooth', width: [2, 2], dashArray: [0, 5] },
-            markers: { size: 0, strokeWidth: 0, hover: { size: 6, sizeOffset: 3 } },
-            states: { hover: { filter: { type: 'none' } }, active: { filter: { type: 'none' } } },
-            tooltip: {
-                enabled: true,
-                theme: 'dark',
-                shared: false,
-                intersect: false,
-                followCursor: true,
-                style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
-                marker: { show: true },
-                cssClass: 'ciq-tooltip',
-            },
-            xaxis: {
-                labels: { style: { colors: '#4e5f7a', fontSize: '10px' }, rotate: 0, hideOverlappingLabels: true,
-                    trim: false, offsetY: 2 },
-                axisBorder: { show: false },
-                axisTicks: { show: false },
-                crosshairs: { show: true, stroke: { color: '#c9a84c', width: 1, dashArray: 4 }, opacity: .7 },
-            },
-            yaxis: {
-                labels: {
-                    style: { colors: '#4e5f7a', fontSize: '10px' },
-                    offsetX: -4,
-                    align: 'left',
-                    formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
-                },
-            },
-            legend: { show: false },
+            ...BASE_OPTS,
             series: [
                 { name: 'Historical', data: h.map(function(v, i) { return { x: labels[i], y: v }; }) },
                 { name: 'AI Forecast', data: f.map(function(v, i) { return { x: labels[i], y: v }; }) }
             ],
+            chart: { ...BASE_OPTS.chart, type: 'line', height: 210 },
             colors: ['#00d4aa', '#c9a84c'],
+            stroke: { curve: 'smooth', width: [2, 2], dashArray: [0, 5] },
             fill: { type: ['solid', 'solid'], opacity: [0.05, 0] },
-            responsive: [{
-                breakpoint: 640,
-                options: {
-                    grid: { padding: { left: 2, right: 2, top: 2, bottom: 0 } },
-                    xaxis: { labels: { style: { fontSize: '9px' }, rotate: 0 } },
-                    yaxis: { labels: { style: { fontSize: '9px' }, offsetX: -2 } },
-                },
-            }, ],
         }).render();
     }
 
-    // ─── DASHBOARD CHART ──────────────────────────────────────────────
+    // ─── DASHBOARD CHART ──────────────────────────────────────────
     function renderDashChart(points, rangeKey, chartType) {
         if (!chartType) chartType = currentChartType;
         const isCandle = chartType === 'candlestick';
 
-        // Build series data
         let seriesData;
         if (isCandle) {
             seriesData = points.map(p => ({
                 x: p.x,
-                y: [
-                    Number((p.open ?? p.y).toFixed(4)),
-                    Number((p.high ?? p.y).toFixed(4)),
-                    Number((p.low ?? p.y).toFixed(4)),
-                    Number((p.close ?? p.y).toFixed(4))
-                ]
+                y: [p.open || p.y, p.high || p.y, p.low || p.y, p.close || p.y]
             }));
         } else {
             seriesData = points.map(p => ({ x: p.x, y: p.y }));
@@ -4211,176 +4166,151 @@
             type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line')
         }];
 
-        const prevCloseForChart = currentPrevClose !== null ? currentPrevClose :
-            (isCandle ? seriesData[0]?.y?.[0] : seriesData[0]?.y);
-
-        // ─── Tooltip function ────────────────────────────────────────────
         const tooltipFn = function(opts) {
-            const { seriesIndex, dataPointIndex, w } = opts;
-            const rawPoint = w.config.series[seriesIndex] && w.config.series[seriesIndex].data[dataPointIndex];
-            if (!rawPoint) return '';
+            const seriesIndex = opts.seriesIndex;
+            const dataPointIndex = opts.dataPointIndex;
+            const seriesArr = opts.series;
+            if (!seriesArr || !seriesArr[seriesIndex]) return '';
+            const val = seriesArr[seriesIndex][dataPointIndex];
+            if (val === null || val === undefined) return '';
 
-            let price;
-            if (isCandle && Array.isArray(rawPoint.y)) {
-                price = rawPoint.y[3];
-            } else {
-                price = rawPoint.y;
+            let price = val;
+            let openVal = null;
+            if (isCandle && Array.isArray(val)) {
+                price = val[3];
+                openVal = val[0];
             }
-            if (price === null || price === undefined || isNaN(price)) return '';
-
-            const ts = rawPoint.x;
-            const dateObj = new Date(ts);
-            const dateLabel = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
-                ', ' + dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-            const basis = (prevCloseForChart !== null && prevCloseForChart !== undefined) ? prevCloseForChart : price;
-            const change = price - basis;
-            const changePct = basis ? (change / basis) * 100 : 0;
-            const tone = change > 0 ? '#00d4aa' : change < 0 ? '#ff4f6e' : '#f5a623';
-            const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
-            const sign = change > 0 ? '+' : '';
-
-            let ohlcHtml = '';
-            if (isCandle && Array.isArray(rawPoint.y)) {
-                ohlcHtml =
-                    `<div style="display:flex;gap:10px;margin-top:6px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#9ea8bc">
-                    <span>O <b style="color:#f0eeea">${rawPoint.y[0].toFixed(2)}</b></span>
-                    <span>H <b style="color:#00d4aa">${rawPoint.y[1].toFixed(2)}</b></span>
-                    <span>L <b style="color:#ff4f6e">${rawPoint.y[2].toFixed(2)}</b></span>
-                </div>`;
-            }
-
-            return `<div style="background:#0c1220;border:1px solid rgba(201,168,76,.35);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:170px">
-                <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
-                <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}
-                    <span style="font-size:11px;color:${tone};margin-left:6px">(${arrow} ${sign}${changePct.toFixed(2)}% basis prev close)</span>
-                </div>
-                ${ohlcHtml}
-            </div>`;
-        };
-
-        // ─── Chart options ──────────────────────────────────────────────
-        const sharedOptions = {
-            series: series,
-            chart: {
-                type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line'),
-                height: 280,
-                background: 'transparent',
-                toolbar: { show: false },
-                fontFamily: 'DM Sans,sans-serif',
-                animations: { enabled: false },
-                zoom: { enabled: false },
-                parentHeightOffset: 0,
-            },
-            colors: isCandle ? undefined : ['#c9a84c'],
-            plotOptions: {
-                candlestick: {
-                    colors: { upward: '#00d4aa', downward: '#ff4f6e' },
-                    wick: { useFillColor: true }
-                }
-            },
-            stroke: {
-                curve: 'smooth',
-                width: isCandle ? 1 : 2,
-                dashArray: 0,
-            },
-            markers: {
-                size: isCandle ? 0 : 2,
-                strokeWidth: 0,
-                hover: { size: 5, sizeOffset: 3 },
-            },
-            fill: {
-                type: chartType === 'area' ? 'gradient' : 'solid',
-                gradient: { shadeIntensity: 1, opacityFrom: .45, opacityTo: .04, stops: [0, 100] },
-                opacity: chartType === 'area' ? 1 : (chartType === 'line' ? 1 : 0),
-            },
-            annotations: {
-                yaxis: (prevCloseForChart !== null && prevCloseForChart !== undefined) ? [{
-                    y: prevCloseForChart,
-                    borderColor: '#4e5f7a',
-                    strokeDashArray: 4,
-                    label: {
-                        borderColor: 'transparent',
-                        style: { color: '#9ea8bc', background: 'rgba(12,18,32,.85)', fontSize: '10px',
-                            fontFamily: 'JetBrains Mono,monospace', padding: { left: 6, right: 6, top: 2,
-                                bottom: 2 } },
-                        text: 'Prev. Close  €' + prevCloseForChart.toFixed(2),
-                        position: 'right',
-                        textAnchor: 'end',
-                        offsetX: -2,
-                        offsetY: -6,
+            let prevClose = null;
+            if (dataPointIndex > 0) {
+                const prev = seriesArr[seriesIndex][dataPointIndex - 1];
+                if (prev !== null && prev !== undefined) {
+                    if (isCandle && Array.isArray(prev)) {
+                        prevClose = prev[3];
+                    } else {
+                        prevClose = prev;
                     }
-                }] : []
-            },
-            xaxis: {
-                type: 'datetime',
-                labels: {
-                    style: { colors: '#4e5f7a', fontSize: '10px' },
-                    datetimeUTC: false,
-                    format: 'dd MMM',
-                },
-                tickAmount: 'auto',
-                axisBorder: { show: false },
-                axisTicks: { show: false },
-                crosshairs: { show: true, stroke: { color: '#c9a84c', width: 1, dashArray: 4 }, opacity: .7 },
-            },
-            yaxis: {
-                labels: {
-                    style: { colors: '#4e5f7a', fontSize: '10px' },
-                    offsetX: -4,
-                    align: 'left',
-                    formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
-                },
-            },
-            grid: {
-                borderColor: 'rgba(20,30,48,0.8)',
-                strokeDashArray: 4,
-                padding: { left: 8, right: 8, top: 4, bottom: 0 },
-                xaxis: { lines: { show: true } },
-                yaxis: { lines: { show: true } },
-            },
-            dataLabels: { enabled: false },
-            legend: { show: false },
-            tooltip: {
-                enabled: true,
-                theme: 'dark',
-                shared: false,
-                intersect: false,
-                followCursor: true,
-                style: { fontSize: '12px', fontFamily: 'DM Sans,sans-serif' },
-                marker: { show: true },
-                cssClass: 'ciq-tooltip',
-                custom: tooltipFn,
-            },
-            states: {
-                hover: { filter: { type: 'none' } },
-                active: { filter: { type: 'none' } }
-            },
-            responsive: [{
-                breakpoint: 640,
-                options: {
-                    grid: { padding: { left: 2, right: 2, top: 2, bottom: 0 } },
-                    xaxis: { labels: { style: { fontSize: '9px' }, rotate: 0 } },
-                    yaxis: { labels: { style: { fontSize: '9px' }, offsetX: -2 } },
-                },
-            }],
+                }
+            }
+            if (prevClose === null && openVal !== null) prevClose = openVal;
+
+            let change = null;
+            let changePct = null;
+            if (prevClose !== null && prevClose !== undefined && !isNaN(prevClose)) {
+                change = price - prevClose;
+                changePct = (change / prevClose) * 100;
+            }
+
+            const dateLabel = opts.w.globals.categoryLabels[dataPointIndex] || '';
+            let deltaHtml = '';
+            if (change !== null) {
+                const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
+                const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
+                const sign = change > 0 ? '+' : '';
+                deltaHtml = `<div style="font-size:11px;font-family:'DM Sans',sans-serif;color:var(--${tone});margin-top:4px">
+                            ${arrow} ${sign}${change.toFixed(2)} (${sign}${changePct.toFixed(2)}%)
+                        </div>`;
+            }
+
+            return `<div style="background:#0c1220;border:1px solid rgba(201,168,76,.35);border-radius:10px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.5);min-width:140px">
+                        <div style="font-size:10px;color:#9ea8bc;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:.2px">${dateLabel}</div>
+                        <div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#c9a84c">€${price.toFixed(2)}</div>
+                        ${deltaHtml}
+                    </div>`;
         };
 
-        // ─── Destroy old chart & create fresh ──────────────────────────
         if (dashChart) {
-            dashChart.destroy();
-            dashChart = null;
+            dashChart.updateOptions({
+                series: series,
+                chart: { type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line') },
+                xaxis: {
+                    ...BASE_OPTS.xaxis,
+                    type: 'datetime',
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        datetimeUTC: false,
+                        format: 'dd MMM',
+                    },
+                    tickAmount: 'auto',
+                },
+                yaxis: {
+                    ...BASE_OPTS.yaxis,
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        offsetX: -4,
+                        align: 'left',
+                        formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+                    },
+                },
+                tooltip: {
+                    ...BASE_OPTS.tooltip,
+                    shared: false,
+                    x: { format: 'dd MMM yyyy HH:mm' },
+                    y: {
+                        formatter: function(val) { return '€' + (typeof val === 'number' ? val.toFixed(2) : '—'); },
+                        title: { formatter: function() { return 'Price'; } },
+                    },
+                    custom: tooltipFn,
+                },
+            }, false, true);
+            dashChart.updateSeries(series, true);
+        } else {
+            dashChart = new ApexCharts(document.getElementById('dashPriceChart'), {
+                ...BASE_OPTS,
+                series: series,
+                chart: {
+                    ...BASE_OPTS.chart,
+                    type: isCandle ? 'candlestick' : (chartType === 'area' ? 'area' : 'line'),
+                    height: 280,
+                },
+                colors: ['#c9a84c'],
+                stroke: {
+                    curve: 'smooth',
+                    width: chartType === 'line' ? 2 : 0,
+                    dashArray: 0,
+                },
+                fill: {
+                    type: chartType === 'area' ? 'gradient' : 'solid',
+                    gradient: { shadeIntensity: .5, opacityFrom: .10, opacityTo: .01 },
+                    opacity: chartType === 'area' ? 1 : 0,
+                },
+                xaxis: {
+                    ...BASE_OPTS.xaxis,
+                    type: 'datetime',
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        datetimeUTC: false,
+                        format: 'dd MMM',
+                    },
+                    tickAmount: 'auto',
+                },
+                yaxis: {
+                    ...BASE_OPTS.yaxis,
+                    labels: {
+                        style: { colors: '#4e5f7a', fontSize: '10px' },
+                        offsetX: -4,
+                        align: 'left',
+                        formatter: function(v) { return v == null ? '' : '€' + v.toFixed(2); },
+                    },
+                },
+                tooltip: {
+                    ...BASE_OPTS.tooltip,
+                    shared: false,
+                    x: { format: 'dd MMM yyyy HH:mm' },
+                    y: {
+                        formatter: function(val) { return '€' + (typeof val === 'number' ? val.toFixed(2) : '—'); },
+                        title: { formatter: function() { return 'Price'; } },
+                    },
+                    custom: tooltipFn,
+                },
+            });
+            dashChart.render();
         }
-
-        const container = document.getElementById('dashPriceChart');
-        dashChart = new ApexCharts(container, sharedOptions);
-        dashChart.render();
-
-        const titleEl = document.getElementById('dashChartTitle');
+        // Update title
+        var titleEl = document.getElementById('dashChartTitle');
         if (titleEl) titleEl.textContent = 'SparkChange Physical Carbon EUA ETC (CO2.MI) · ' + rangeKey;
     }
 
-    // ─── CHART TYPE SWITCH ────────────────────────────────────────────
+    // ─── CHART TYPE SWITCH ──────────────────────────────────────
     function setChartType(type, btn) {
         if (type === currentChartType) return;
         currentChartType = type;
@@ -4391,7 +4321,7 @@
         }
     }
 
-    // ─── TIMEFRAME CONTROLLER ──────────────────────────────────────────
+    // ═══ TIMEFRAME CONTROLLER ═══
     async function setDashRange(rangeKey, btn) {
         document.querySelectorAll('#rangeSel .range-btn').forEach(function(b) { b.classList.remove('active'); });
         if (btn) btn.classList.add('active');
@@ -4414,15 +4344,17 @@
         try {
             const result = await fetchYahooFinanceData(config.range, config.interval);
             currentDataPoints = result.points;
-            updateDashStats(result);
             renderDashChart(result.points, rangeKey, currentChartType);
             chartContainer.style.opacity = '1';
+            // Update subtitle with data status
             const subEl = document.getElementById('dashChartSub');
             if (subEl) {
                 subEl.textContent = result.isFallback ?
                     '⚠️ Live feed unavailable – showing simulated data' :
                     'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
             }
+            // Also update stats
+            await updateLiveData();
         } catch (err) {
             console.error('Failed to load data for range', rangeKey, err);
             chartContainer.style.opacity = '1';
@@ -4431,19 +4363,17 @@
         }
     }
 
-    // ─── INIT DASHBOARD ──────────────────────────────────────────────
+    // ═══ INIT DASHBOARD CHARTS ═══
     async function initDashCharts() {
-        updateMarketStatusUI();
-        setInterval(updateMarketStatusUI, 1000);
         await setDashRange('1M', document.querySelector('#rangeSel .range-btn.active'));
-        if (dashRefreshTimer) clearInterval(dashRefreshTimer);
-        dashRefreshTimer = setInterval(periodicRefresh, 60000);
+        await updateLiveData();
+        setInterval(updateLiveData, 60000);
         document.querySelector('.chart-type-btn.active')?.classList.remove('active');
         document.querySelector('.chart-type-btn[data-type="area"]')?.classList.add('active');
         currentChartType = 'area';
     }
 
-    // ─── SCROLL REVEAL ──────────────────────────────────────────────────
+    // ═══ SCROLL REVEAL ═══
     function initReveal() {
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible');
@@ -4455,7 +4385,7 @@
         });
     }
 
-    // ─── CHAT ──────────────────────────────────────────────────────────
+    // ═══ CHAT ═══ (unchanged)
     var chatOpen = { v: false };
 
     function toggleChat() {
@@ -4522,7 +4452,7 @@
     function quickSend(t) { document.getElementById('chatInput').value = t;
         sendMsg(); }
 
-    // ─── CARBON PAGE INIT ──────────────────────────────────────────────
+    // ═══ CARBON PAGE INIT ═══
     function initCarbonPage() {
         var systems = [
             { name: 'EU ETS', region: '🇪🇺 Europe', price: '€63.45', mech: 'increment',
@@ -4610,7 +4540,7 @@
         });
     }
 
-    // ─── AI EXPLAINER PAGE INIT ────────────────────────────────────────
+    // ═══ AI EXPLAINER PAGE INIT ═══
     function initAIExplainer() {
         var counters = [
             { el: 'aiCounterMape', target: 3.8, suffix: '%', decimals: 1 },
@@ -4716,12 +4646,12 @@
         window.addEventListener('resize', function() { layout(); });
     }
 
-    // ─── RESIZE HOOK ────────────────────────────────────────────────────
+    // ═══ RESIZE HOOK ─── keep charts crisp on window resize
     window.addEventListener('resize', function() {
         if (dashChart) dashChart.updateOptions({}, false, true);
     });
 
-    // ─── INIT ──────────────────────────────────────────────────────────
+    // ═══ INIT ═══
     window.addEventListener('DOMContentLoaded', function() {
         showPage('landing');
     });
@@ -4730,6 +4660,6 @@
         document.querySelectorAll('.orb').forEach(function(o) { o.style.animation = 'none'; });
         document.querySelectorAll('.ticker-wrap').forEach(function(t) { t.style.animation = 'none'; });
     }
-    </script>
+</script>
 </body>
 </html>
