@@ -2279,6 +2279,12 @@
             animation: ringPulse 2s ease-out infinite;
             opacity: .4;
         }
+        .pulse-ring.ms-closed {
+            background: var(--amber);
+        }
+        .pulse-ring.ms-closed::after {
+            border-color: var(--amber);
+        }
         @keyframes ringPulse {
             0% {
                 transform: scale(1);
@@ -3503,6 +3509,17 @@
                 <div class="panel active" id="panel-prices">
                     <div class="panel-title">Live Price Tracking</div>
                     <div class="panel-sub">SparkChange Physical Carbon EUA ETC (CO2.MI) · Live from Yahoo Finance</div>
+
+                    <div id="marketStatusBar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r14);padding:10px 16px;margin-bottom:18px">
+                        <span id="marketStatusDot" class="pulse-ring" style="background:var(--teal)"></span>
+                        <span id="marketStatusLabel" style="font-size:12.5px;font-weight:600;color:var(--teal);font-family:var(--display)">Market Open</span>
+                        <span style="width:1px;height:14px;background:var(--b2)"></span>
+                        <span style="font-size:11.5px;color:var(--t3)">Borsa Italiana · 09:00–17:30 CET/CEST · Mon–Fri</span>
+                        <span style="width:1px;height:14px;background:var(--b2)"></span>
+                        <span style="font-size:11.5px;color:var(--t3)">Milan time now: <span id="marketMilanClock" style="color:var(--t2);font-family:var(--mono)">—</span></span>
+                        <span id="marketNextEvent" style="font-size:11px;color:var(--t4);margin-left:auto"></span>
+                    </div>
+
                     <div class="stat-row">
                         <div class="stat-card"><div class="stat-lbl">Current Price</div><div class="stat-val pos" id="statCurrentPrice">€—</div><div class="stat-chg" id="statChange">Loading...</div></div>
                         <div class="stat-card"><div class="stat-lbl">Open</div><div class="stat-val" id="statOpen">—</div></div>
@@ -3515,7 +3532,7 @@
                                 <div style="font-size:13px;font-weight:600;font-family:var(--display)" id="dashChartTitle">SparkChange Physical Carbon EUA ETC (CO2.MI)</div>
                                 <div style="font-size:11px;color:var(--t3);margin-top:2px" id="dashChartSub">Live price data from Yahoo Finance</div>
                             </div>
-                            <span class="section-badge badge-live">● Live</span>
+                            <span class="section-badge badge-live" id="dashLiveBadge">● Live</span>
                         </div>
 
                         <!-- Chart type selector -->
@@ -4088,6 +4105,109 @@
         };
     }
 
+    // ─── MARKET HOURS (Borsa Italiana, where CO2.MI trades) ──────
+    // 09:00–17:30 CET/CEST, Monday–Friday. Computed against real Milan
+    // local time (via Intl timeZone) so it's correct regardless of the
+    // visitor's own timezone or DST offset.
+    var MARKET_OPEN_MIN = 9 * 60; // 09:00
+    var MARKET_CLOSE_MIN = 17 * 60 + 30; // 17:30
+    var MARKET_TZ = 'Europe/Rome';
+    var WEEKDAY_ORDER = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    function getMilanNow() {
+        var parts = new Intl.DateTimeFormat('en-GB', {
+            timeZone: MARKET_TZ,
+            weekday: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+        }).formatToParts(new Date());
+        var map = {};
+        parts.forEach(function(p) { map[p.type] = p.value; });
+        return {
+            weekday: map.weekday, // 'Mon'..'Sun'
+            hour: parseInt(map.hour, 10),
+            minute: parseInt(map.minute, 10),
+            second: parseInt(map.second, 10),
+        };
+    }
+
+    function getMarketStatus() {
+        var now = getMilanNow();
+        var minutesNow = now.hour * 60 + now.minute;
+        var isWeekend = (now.weekday === 'Sat' || now.weekday === 'Sun');
+        var isOpen = !isWeekend && minutesNow >= MARKET_OPEN_MIN && minutesNow < MARKET_CLOSE_MIN;
+
+        var clockStr = String(now.hour).padStart(2, '0') + ':' + String(now.minute).padStart(2, '0') + ':' + String(now.second).padStart(2, '0');
+
+        var nextEvent = '';
+        if (isOpen) {
+            var minsToClose = MARKET_CLOSE_MIN - minutesNow;
+            var h = Math.floor(minsToClose / 60),
+                m = minsToClose % 60;
+            nextEvent = 'Closes in ' + (h > 0 ? h + 'h ' : '') + m + 'm';
+        } else {
+            // Find minutes until next 09:00 on the next open weekday.
+            var dayIdx = WEEKDAY_ORDER.indexOf(now.weekday);
+            var minutesUntilMidnight = (24 * 60) - minutesNow;
+            var daysAhead = 0;
+            var candidateIdx = dayIdx;
+            var minsToOpenToday = MARKET_OPEN_MIN - minutesNow;
+
+            if (!isWeekend && minsToOpenToday > 0) {
+                var h2 = Math.floor(minsToOpenToday / 60),
+                    m2 = minsToOpenToday % 60;
+                nextEvent = 'Opens in ' + (h2 > 0 ? h2 + 'h ' : '') + m2 + 'm';
+            } else {
+                // step forward to the next weekday (Mon-Fri)
+                var totalMins = minutesUntilMidnight;
+                candidateIdx = (dayIdx + 1) % 7;
+                daysAhead = 1;
+                while (candidateIdx === 0 || candidateIdx === 6) { // Sun=0, Sat=6
+                    totalMins += 24 * 60;
+                    candidateIdx = (candidateIdx + 1) % 7;
+                    daysAhead++;
+                }
+                totalMins += MARKET_OPEN_MIN;
+                var hh = Math.floor(totalMins / 60),
+                    mm = totalMins % 60;
+                nextEvent = 'Opens in ' + hh + 'h ' + mm + 'm (' + WEEKDAY_ORDER[candidateIdx] + ')';
+            }
+        }
+
+        return { isOpen: isOpen, clockStr: clockStr, nextEvent: nextEvent, weekday: now.weekday };
+    }
+
+    function updateMarketStatusUI() {
+        var status = getMarketStatus();
+
+        var dot = document.getElementById('marketStatusDot');
+        var label = document.getElementById('marketStatusLabel');
+        var clock = document.getElementById('marketMilanClock');
+        var next = document.getElementById('marketNextEvent');
+        var liveBadge = document.getElementById('dashLiveBadge');
+
+        if (clock) clock.textContent = status.clockStr + ' CET/CEST';
+        if (next) next.textContent = status.nextEvent;
+
+        if (status.isOpen) {
+            if (dot) { dot.style.background = '';
+                dot.classList.remove('ms-closed'); }
+            if (label) { label.textContent = 'Market Open';
+                label.style.color = 'var(--teal)'; }
+            if (liveBadge) { liveBadge.textContent = '● Live';
+                liveBadge.className = 'section-badge badge-live'; }
+        } else {
+            if (dot) { dot.style.background = '';
+                dot.classList.add('ms-closed'); }
+            if (label) { label.textContent = 'Market Closed';
+                label.style.color = 'var(--amber)'; }
+            if (liveBadge) { liveBadge.textContent = '● Market Closed';
+                liveBadge.className = 'section-badge badge-warn'; }
+        }
+    }
+
     // ─── UPDATE LIVE TICKER AND STATS ────────────────────────────
     async function updateLiveData() {
         try {
@@ -4122,12 +4242,17 @@
             if (data.high) document.getElementById('statHigh').textContent = '€' + data.high.toFixed(2);
             if (data.low) document.getElementById('statLow').textContent = '€' + data.low.toFixed(2);
 
-            // Show indicator if using fallback
+            // Show indicator if using fallback, and reflect market status
             const subEl = document.getElementById('dashChartSub');
             if (subEl) {
-                subEl.textContent = data.isFallback ?
-                    '⚠️ Live feed unavailable – showing simulated data' :
-                    'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
+                const mStatus = getMarketStatus();
+                if (data.isFallback) {
+                    subEl.textContent = '⚠️ Live feed unavailable – showing simulated data';
+                } else if (!mStatus.isOpen) {
+                    subEl.textContent = 'Market closed · showing last traded price from Yahoo Finance · ' + new Date().toLocaleString();
+                } else {
+                    subEl.textContent = 'Live price data from Yahoo Finance · ' + new Date().toLocaleString();
+                }
             }
             usingLiveData = !data.isFallback;
         } catch (err) {
@@ -4466,6 +4591,8 @@
 
     // ═══ INIT DASHBOARD CHARTS ═══
     async function initDashCharts() {
+        updateMarketStatusUI();
+        setInterval(updateMarketStatusUI, 1000);
         await setDashRange('1M', document.querySelector('#rangeSel .range-btn.active'));
         await updateLiveData();
         setInterval(updateLiveData, 60000);
