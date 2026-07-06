@@ -2589,6 +2589,53 @@
             color: var(--t4);
             margin-top: 2px;
         }
+        #dashFxSelect {
+            border: 1px solid var(--b1);
+            color: var(--t1);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234e5f7a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+            padding-right: 32px !important;
+        }
+        #dashFxSelect:focus, #dashFxInput:focus {
+            border-color: var(--gold) !important;
+        }
+        .dash-fx-quick-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            padding: 5px 6px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+        .dash-fx-quick-row:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        .dash-fx-quick-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dash-fx-quick-flag {
+            font-size: 14px;
+        }
+        .dash-fx-quick-code {
+            font-weight: 600;
+            color: var(--t2);
+        }
+        .dash-fx-quick-name {
+            font-size: 10px;
+            color: var(--t4);
+        }
+        .dash-fx-quick-val {
+            font-family: var(--mono);
+            font-weight: 600;
+            color: var(--teal);
+        }
         .dash-fx-footer {
             margin-top: 12px;
             padding-top: 10px;
@@ -3649,13 +3696,13 @@
                             </div>
                         </div>
 
-                        <!-- RIGHT: Live Currency Converter -->
+                        <!-- RIGHT: Live Currency Calculator & Dropdown -->
                         <div class="dash-fx-col">
                             <div class="dash-fx-card" id="dashFxCard">
                                 <div class="dash-fx-header">
                                     <div>
-                                        <div class="dash-fx-title">EUA in World Currencies</div>
-                                        <div class="dash-fx-subtitle">Live ECB rates · 1 EUA = <span id="dashFxEurLabel">€—</span></div>
+                                        <div class="dash-fx-title">EUA Currency Calculator</div>
+                                        <div class="dash-fx-subtitle">Live ECB rates &middot; 1 EUA = <span id="dashFxEurLabel">&euro;&mdash;</span></div>
                                     </div>
                                     <div style="display:flex;align-items:center;gap:8px">
                                         <span class="section-badge badge-live">● Live</span>
@@ -3665,11 +3712,38 @@
                                     </div>
                                 </div>
 
-                                <div class="dash-fx-list" id="dashFxList">
-                                    <div class="fx-loading"><div class="fx-spinner"></div>Fetching live rates…</div>
+                                <div id="dashFxForm">
+                                    <!-- Input amount -->
+                                    <div style="margin-bottom:12px">
+                                        <label style="display:block;font-size:10px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">EUA Credits</label>
+                                        <input type="number" id="dashFxInput" value="1" min="0.01" step="any" oninput="onFxInputUpdate()" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--b1);border-radius:6px;color:var(--t1);padding:9px 12px;font-family:var(--mono);font-size:14px;outline:none;transition:border-color .15s" />
+                                    </div>
+
+                                    <!-- Dropdown select -->
+                                    <div style="margin-bottom:14px">
+                                        <label style="display:block;font-size:10px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px">Convert To</label>
+                                        <select id="dashFxSelect" onchange="onFxInputUpdate()" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--b1);border-radius:6px;color:var(--t1);padding:9px 12px;font-family:var(--body);font-size:13px;outline:none;transition:border-color .15s;cursor:pointer">
+                                            <!-- Options populated by JS -->
+                                        </select>
+                                    </div>
+
+                                    <!-- Converted result display -->
+                                    <div style="background:rgba(0,212,170,.04);border:1px solid rgba(0,212,170,.12);border-radius:8px;padding:14px 10px;text-align:center;margin-bottom:14px">
+                                        <div style="font-size:9.5px;color:var(--t3);font-weight:500;margin-bottom:3px">CONVERTED VALUATION</div>
+                                        <div id="dashFxResult" style="font-family:var(--mono);font-size:24px;font-weight:700;color:var(--teal);letter-spacing:-0.5px">&mdash;</div>
+                                        <div id="dashFxRateText" style="font-size:10px;color:var(--t4);margin-top:3px">&mdash;</div>
+                                    </div>
+
+                                    <!-- Quick rates reference list -->
+                                    <div style="margin-top:14px">
+                                        <div style="font-size:9.5px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Quick Reference (per EUA)</div>
+                                        <div id="dashFxQuickRef" style="display:flex;flex-direction:column;gap:5px">
+                                            <div class="fx-loading" style="padding:10px 0"><div class="fx-spinner"></div>Loading rates&hellip;</div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="dash-fx-footer" id="dashFxUpdated">ECB · Fetching…</div>
+                                <div class="dash-fx-footer" id="dashFxUpdated">ECB &middot; Fetching&hellip;</div>
                             </div>
                         </div>
 
@@ -4060,7 +4134,7 @@
                     setTimeout(() => reject(new Error('Request timed out')), 8000)
                 );
                 const response = await Promise.race([
-                    fetch(proxyUrl, { headers: { 'Accept': 'application/json' } }),
+                    fetch(proxyUrl),
                     timeoutPromise
                 ]);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -4355,6 +4429,10 @@
             valEl.className = 'tick-val ' + tone;
             tchgEl.className = 'tick-chg ' + tone;
         });
+        // Update currency conversions dynamically in real-time
+        if (typeof onEuaPriceUpdate === 'function') {
+            onEuaPriceUpdate();
+        }
     }
 
     // ─── TICKER-ONLY REFRESH ──────────────────────────────────────────
@@ -5068,7 +5146,14 @@
     ];
 
     function getEuaPrice() {
-        // Try to read the live EUA price from the page; fall back to 63.45
+        // Try to read dashboard live current price first
+        var dashEl = document.getElementById('statCurrentPrice');
+        if (dashEl) {
+            var raw = dashEl.textContent.replace(/[^\d.]/g, '');
+            var val = parseFloat(raw);
+            if (!isNaN(val) && val > 0) return val;
+        }
+        // Fall back to landing page price
         var el = document.getElementById('geo-eua-price');
         if (el) {
             var raw = el.textContent.replace(/[^\d.]/g, '');
@@ -5083,6 +5168,67 @@
             minimumFractionDigits: decimals,
             maximumFractionDigits: decimals
         });
+    }
+
+    function onFxInputUpdate() {
+        if (!_fxRates) return;
+        var select = document.getElementById('dashFxSelect');
+        var input = document.getElementById('dashFxInput');
+        var resultEl = document.getElementById('dashFxResult');
+        var rateTextEl = document.getElementById('dashFxRateText');
+        var labelEl = document.getElementById('dashFxEurLabel');
+        if (!select || !input || !resultEl) return;
+
+        var amount = parseFloat(input.value);
+        if (isNaN(amount) || amount <= 0) amount = 1;
+
+        var code = select.value;
+        var cur = FX_CURRENCIES.find(function(c) { return c[0] === code; });
+        if (!cur) return;
+
+        var flag = cur[1];
+        var sym = cur[3];
+        var dec = cur[4];
+        var rate = _fxRates[code];
+        if (!rate) return;
+
+        var euaEur = getEuaPrice();
+        if (labelEl) labelEl.textContent = '\u20ac' + fmtNum(euaEur, 2);
+
+        var convertedVal = euaEur * rate * amount;
+        resultEl.textContent = sym + fmtNum(convertedVal, dec);
+        if (rateTextEl) {
+            rateTextEl.textContent = '1 EUR = ' + sym + fmtNum(rate, dec) + ' · 1 EUA = ' + sym + fmtNum(euaEur * rate, dec);
+        }
+
+        // Update Quick Reference List
+        var quickRef = document.getElementById('dashFxQuickRef');
+        if (quickRef) {
+            var qhtml = '';
+            var addedCount = 0;
+            FX_CURRENCIES.forEach(function(c) {
+                var ccode = c[0];
+                if (ccode === code) return; // skip active select
+                var cflag = c[1];
+                var cname = c[2];
+                var csym = c[3];
+                var cdec = c[4];
+                var crate = _fxRates[ccode];
+                if (!crate) return;
+                var csingleVal = euaEur * crate;
+                if (addedCount > 0) qhtml += '<div style="height:1px;background:rgba(255,255,255,0.03);margin:0 6px"></div>';
+                qhtml += '<div class="dash-fx-quick-row">' +
+                    '<div class="dash-fx-quick-left">' +
+                        '<span class="dash-fx-quick-flag">' + cflag + '</span>' +
+                        '<span class="dash-fx-quick-code">' + ccode + '</span>' +
+                        '<span class="dash-fx-quick-name">' + cname + '</span>' +
+                    '</div>' +
+                    '<div class="dash-fx-quick-val">' + csym + fmtNum(csingleVal, cdec) + '</div>' +
+                '</div>';
+                addedCount++;
+            });
+            quickRef.innerHTML = qhtml;
+        }
     }
 
     function renderFXList(rates, euaEur) {
@@ -5113,41 +5259,35 @@
             list.innerHTML = html;
         }
 
-        // ── Dashboard Live Prices panel ──
-        var dashList = document.getElementById('dashFxList');
-        if (dashList) {
-            var labelEl = document.getElementById('dashFxEurLabel');
-            if (labelEl) labelEl.textContent = '\u20ac' + fmtNum(euaEur, 2);
-
-            var dhtml = '';
-            FX_CURRENCIES.forEach(function(cur, i) {
-                var code = cur[0]; var flag = cur[1]; var name = cur[2];
-                var sym  = cur[3]; var dec  = cur[4];
-                var rate = rates[code];
-                if (!rate) return;
-                var euaVal = euaEur * rate;
-                if (i > 0) dhtml += '<div class="dash-fx-divider"></div>';
-                dhtml += '<div class="dash-fx-row">' +
-                    '<span class="dash-fx-flag">' + flag + '</span>' +
-                    '<div class="dash-fx-info">' +
-                        '<div class="dash-fx-name">' + name + ' (' + code + ')</div>' +
-                        '<div class="dash-fx-rate">1 EUR = ' + sym + fmtNum(rate, dec) + '</div>' +
-                    '</div>' +
-                    '<div class="dash-fx-value">' +
-                        '<div class="dash-fx-amount">' + sym + fmtNum(euaVal, dec) + '</div>' +
-                        '<div class="dash-fx-per">per EUA</div>' +
-                    '</div>' +
-                '</div>';
-            });
-            dashList.innerHTML = dhtml;
-
-            var updEl = document.getElementById('dashFxUpdated');
-            var now = new Date();
-            if (updEl) updEl.textContent = 'ECB rates \u00b7 Updated ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+        // ── Dashboard Calculator ──
+        var select = document.getElementById('dashFxSelect');
+        if (select) {
+            var curVal = select.value;
+            if (select.options.length === 0) {
+                // Populate dropdown option elements
+                var optionsHtml = '';
+                FX_CURRENCIES.forEach(function(cur) {
+                    optionsHtml += '<option value="' + cur[0] + '">' + cur[1] + ' ' + cur[2] + ' (' + cur[0] + ')</option>';
+                });
+                select.innerHTML = optionsHtml;
+                select.value = 'USD'; // default to USD
+            } else if (curVal) {
+                select.value = curVal; // preserve choice
+            }
+            onFxInputUpdate();
         }
     }
 
-    function fetchFXRates() {
+    // FX proxy list - try direct first, then fallback to Cloudflare-cached allorigins get endpoint
+    var FX_PROXIES = [
+        function(u) { return u; },  // direct fetch (fast & supports CORS)
+        // allorigins JSON wrap (Cloudflare cached, extremely fast and reliable)
+        function(u) { return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); },
+        // allorigins raw (uncached backup)
+        function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }
+    ];
+
+    async function fetchFXRates() {
         var btn = document.getElementById('fxRefreshBtn');
         var updEl = document.getElementById('fxUpdated');
         if (btn) btn.classList.add('spinning');
@@ -5155,39 +5295,71 @@
         if (dashBtn2) dashBtn2.classList.add('spinning');
 
         var codes = FX_CURRENCIES.map(function(c) { return c[0]; }).join(',');
-        var url = 'https://api.frankfurter.app/latest?from=EUR&to=' + codes;
+        var fxUrl = 'https://open.er-api.com/v6/latest/EUR';
 
-        fetch(url)
-            .then(function(r) {
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.json();
-            })
-            .then(function(data) {
+        var lastErr = null;
+        for (var i = 0; i < FX_PROXIES.length; i++) {
+            var proxyUrl = FX_PROXIES[i](fxUrl);
+            try {
+                var timeoutP = new Promise(function(_, rej) {
+                    setTimeout(function() { rej(new Error('Timeout')); }, 12000);
+                });
+                var response = await Promise.race([
+                    fetch(proxyUrl, { headers: { 'Accept': 'application/json' } }),
+                    timeoutP
+                ]);
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+
+                var raw = await response.text();
+                var data;
+                try {
+                    var parsed = JSON.parse(raw);
+                    // allorigins wraps JSON in {contents: "..."}
+                    data = (parsed && typeof parsed.contents === 'string')
+                        ? JSON.parse(parsed.contents)
+                        : parsed;
+                } catch(e) {
+                    throw new Error('Bad JSON from proxy');
+                }
+
+                if (!data || !data.rates) throw new Error('No rates in response');
+
+                // SUCCESS
                 _fxRates = data.rates;
                 _fxLastFetch = Date.now();
                 var euaEur = getEuaPrice();
                 renderFXList(_fxRates, euaEur);
                 if (updEl) {
                     var now = new Date();
-                    updEl.textContent = 'ECB rates \u00b7 Updated ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+                    updEl.textContent = 'ECB rates · Updated ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
                 }
-                // Schedule next auto-refresh in 60s
                 if (_fxRefreshTimer) clearTimeout(_fxRefreshTimer);
                 _fxRefreshTimer = setTimeout(fetchFXRates, 60000);
-            })
-            .catch(function(err) {
-                var list = document.getElementById('fxList');
-                if (list) list.innerHTML = '<div class="fx-error">Could not load live rates. Check connection.<br><small>' + err.message + '</small></div>';
-                if (updEl) updEl.textContent = 'Live rates unavailable';
-                // Retry in 30s on error
-                if (_fxRefreshTimer) clearTimeout(_fxRefreshTimer);
-                _fxRefreshTimer = setTimeout(fetchFXRates, 30000);
-            })
-            .finally(function() {
-                if (btn) btn.classList.remove('spinning');
-                var dashBtn = document.getElementById('dashFxRefBtn');
-                if (dashBtn) dashBtn.classList.remove('spinning');
-            });
+                // stop trying proxies
+                break;
+
+            } catch(err) {
+                lastErr = err;
+                console.warn('FX proxy ' + (i+1) + '/' + FX_PROXIES.length + ' failed:', err.message);
+            }
+        }
+
+        if (!_fxRates) {
+            // All proxies failed
+            var showErr = function(id) {
+                var el = document.getElementById(id);
+                if (el) el.innerHTML = '<div class="fx-error">Could not load live rates.<br><small>Check internet connection</small></div>';
+            };
+            showErr('fxList');
+            showErr('dashFxList');
+            if (updEl) updEl.textContent = 'Rates unavailable';
+            if (_fxRefreshTimer) clearTimeout(_fxRefreshTimer);
+            _fxRefreshTimer = setTimeout(fetchFXRates, 30000);
+        }
+
+        if (btn) btn.classList.remove('spinning');
+        var dashBtn3 = document.getElementById('dashFxRefBtn');
+        if (dashBtn3) dashBtn3.classList.remove('spinning');
     }
 
     // Called whenever EUA price updates (hooked into live price feed)
