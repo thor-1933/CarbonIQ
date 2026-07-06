@@ -4114,10 +4114,25 @@
 
     // ─── REAL DATA FETCH ──────────────────────────────────────────────
     const CORS_PROXIES = [
+        // Vercel Serverless Proxy - bypassed CORS and is extremely fast on deployment
+        (url) => {
+            try {
+                const u = new URL(url);
+                const parts = u.pathname.split('/');
+                const sym = parts[parts.length - 1] || 'CO2.MI';
+                const r = u.searchParams.get('range') || '1d';
+                const iv = u.searchParams.get('interval') || '5m';
+                return `/api/yahoo?symbol=${sym}&range=${r}&interval=${iv}`;
+            } catch(e) {
+                return '/api/yahoo?symbol=CO2.MI&range=1d&interval=5m';
+            }
+        },
+        // Cloudflare-cached allorigins JSON wrap (backup)
         (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        // allorigins raw (backup)
         (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        // codetabs (backup)
+        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
     ];
 
     let lastKnownGood = null;
