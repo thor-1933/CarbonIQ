@@ -4084,35 +4084,184 @@
         }
     }
 
-    // ─── TICKER ──────────────────────────────────────────────────────────
-    var TICKS = [
-        { n: 'EUA CFI=F', v: '—', c: '—', t: 'neu', key: 'eua' },
-        { n: 'FCO2 ETC', v: '—', c: '—', t: 'neu', key: 'fco2' },
-        { n: 'Dec-25 Futures', v: '—', c: '—', t: 'neu' },
-        { n: 'UK ETS UKA', v: '—', c: '—', t: 'neu' },
-        { n: 'Global Carbon (KRBN)', v: '—', c: '—', t: 'neu', key: 'krbn' },
-        { n: 'California/RGGI (KCCA)', v: '—', c: '—', t: 'neu', key: 'kcca' },
-        { n: '24h Volume', v: '—', c: '—', t: 'neu' },
-        { n: 'Open Interest', v: '—', c: '—', t: 'neu' },
-        { n: 'AI 7d Target', v: '—', c: '—', t: 'neu' },
-        { n: 'Sharpe', v: '—', c: '—', t: 'neu' },
-        { n: 'MAPE 30d', v: '—', c: '—', t: 'neu' },
+    // ─── TICKER CONFIG & LOGIC ──────────────────────────────────────────
+    const targetTickers = [
+      "^NSEI", "ES=F", "BTC-USD", "ETH-USD", "NVDA", 
+      "AAPL", "GOOG", "META", "SPCX", "NFLX", "TMCV.NS"
     ];
 
-    (function buildTicker() {
+    const TICKER_NAMES = {
+      "^NSEI": "NIFTY 50",
+      "ES=F": "S&P 500 Futures",
+      "BTC-USD": "Bitcoin",
+      "ETH-USD": "Ethereum",
+      "NVDA": "NVIDIA",
+      "AAPL": "Apple",
+      "GOOG": "Alphabet",
+      "META": "Meta",
+      "SPCX": "SPAC ETF",
+      "NFLX": "Netflix",
+      "TMCV.NS": "TMCV"
+    };
+
+    function formatTickerCurrency(symbol, value, isChange = false) {
+        if (value === null || value === undefined || isNaN(value)) return '—';
+        const isINR = symbol.endsWith('.NS') || symbol === '^NSEI';
+        const prefix = isINR ? '₹' : '$';
+        const absVal = Math.abs(value);
+        
+        let formattedNum = '';
+        if ((symbol === 'BTC-USD' || symbol === 'ETH-USD') && !isChange && absVal >= 1000) {
+            formattedNum = Math.round(absVal).toLocaleString('en-US');
+        } else {
+            formattedNum = absVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        
+        if (isChange) {
+            return prefix + formattedNum;
+        }
+        return (value < 0 ? '-' : '') + prefix + formattedNum;
+    }
+
+    function buildTicker() {
         var wrap = document.getElementById('tickerWrap');
-        TICKS.concat(TICKS).forEach(function(t) {
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        const doubleTickers = targetTickers.concat(targetTickers);
+        doubleTickers.forEach(function(sym, index) {
             var d = document.createElement('div');
             d.className = 'tick';
-            if (t.key) d.dataset.key = t.key;
+            d.dataset.symbol = sym;
+            d.dataset.index = index;
+            const displayName = TICKER_NAMES[sym] || sym;
             d.innerHTML =
-                '<span class="tick-name">' + t.n + '</span><span class="tick-val ' + t.t + '">' + t.v +
-                '</span><span class="tick-chg ' + t.t + '">' + t.c + '</span>';
+                '<span class="tick-name">' + displayName + '</span>' +
+                '<span class="tick-val neu">—</span>' +
+                '<span class="tick-chg neu">—</span>';
             wrap.appendChild(d);
         });
+    }
+
+    async function fetchSingleTicker(symbol) {
+        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=5m&includePrePost=false`;
+        for (let i = 0; i < CORS_PROXIES.length; i++) {
+            const proxyUrl = CORS_PROXIES[i](yahooUrl);
+            try {
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timed out')), 5000)
+                );
+                const response = await Promise.race([
+                    fetch(proxyUrl),
+                    timeoutPromise
+                ]);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const raw = await response.text();
+                let json;
+                try {
+                    const parsedOuter = JSON.parse(raw);
+                    json = (parsedOuter && typeof parsedOuter.contents === 'string') ?
+                        JSON.parse(parsedOuter.contents) : parsedOuter;
+                } catch (parseErr) {
+                    throw new Error('Unparseable proxy response');
+                }
+                
+                const result = json && json.chart && json.chart.result && json.chart.result[0];
+                if (!result) throw new Error('No result in response');
+                
+                const meta = result.meta || {};
+                const timestamps = result.timestamp || [];
+                const quotes = (result.indicators && result.indicators.quote && result.indicators.quote[0]) || {};
+                const closePrices = quotes.close || [];
+                
+                let latestPrice = closePrices.length > 0 ? closePrices[closePrices.length - 1] : null;
+                if (latestPrice === null || latestPrice === undefined || isNaN(latestPrice)) {
+                    latestPrice = meta.regularMarketPrice;
+                }
+                
+                const prevClose = meta.previousClose || (closePrices.length > 1 ? closePrices[closePrices.length - 2] : latestPrice);
+                
+                if (latestPrice === null || latestPrice === undefined || isNaN(latestPrice)) {
+                    throw new Error('No price data available');
+                }
+                
+                const change = latestPrice - prevClose;
+                const changePct = prevClose ? (change / prevClose) * 100 : 0;
+                
+                return {
+                    symbol: symbol,
+                    name: meta.shortName || TICKER_NAMES[symbol] || symbol,
+                    price: latestPrice,
+                    change: change,
+                    changePct: changePct,
+                    success: true
+                };
+            } catch (err) {
+                console.warn(`[Ticker] Proxy ${i + 1} failed for ${symbol}:`, err.message);
+            }
+        }
+        throw new Error(`All proxies failed for ${symbol}`);
+    }
+
+    async function updateTickerData() {
+        const fetchPromises = targetTickers.map(async (symbol) => {
+            try {
+                return await fetchSingleTicker(symbol);
+            } catch (err) {
+                console.warn(`Failed to fetch ticker ${symbol}:`, err);
+                return {
+                    symbol: symbol,
+                    name: TICKER_NAMES[symbol] || symbol,
+                    price: null,
+                    change: null,
+                    changePct: null,
+                    success: false
+                };
+            }
+        });
+        
+        const results = await Promise.all(fetchPromises);
+        results.forEach((res) => {
+            const ticks = document.querySelectorAll(`.tick[data-symbol="${res.symbol}"]`);
+            ticks.forEach((el) => {
+                const nameEl = el.querySelector('.tick-name');
+                const valEl = el.querySelector('.tick-val');
+                const chgEl = el.querySelector('.tick-chg');
+                
+                if (res.name && nameEl) nameEl.textContent = res.name;
+                
+                if (!res.success || res.price === null) {
+                    if (valEl) { valEl.textContent = '—'; valEl.className = 'tick-val neu'; }
+                    if (chgEl) { chgEl.textContent = 'Offline'; chgEl.className = 'tick-chg neu'; }
+                    return;
+                }
+                
+                const tone = res.change > 0 ? 'pos' : res.change < 0 ? 'neg' : 'neu';
+                const arrow = res.change > 0 ? '▲' : res.change < 0 ? '▼' : '•';
+                
+                if (valEl) {
+                    valEl.textContent = formatTickerCurrency(res.symbol, res.price);
+                    valEl.className = 'tick-val ' + tone;
+                }
+                
+                if (chgEl) {
+                    const fmtChg = formatTickerCurrency(res.symbol, res.change, true);
+                    const fmtPct = Math.abs(res.changePct).toFixed(2) + '%';
+                    chgEl.textContent = `${arrow} ${fmtChg} (${fmtPct})`;
+                    chgEl.className = 'tick-chg ' + tone;
+                }
+            });
+        });
+    }
+
+    // Call init and start update ticker loop
+    (async function initTicker() {
+        buildTicker();
+        await updateTickerData();
+        setInterval(updateTickerData, 30000);
     })();
 
-    // ─── REAL DATA FETCH ──────────────────────────────────────────────
+    // ─── CORS PROXIES ───────────────────────────────────────────────────
     const CORS_PROXIES = [
         // Vercel Serverless Proxy - bypassed CORS and is extremely fast on deployment
         (url) => {
@@ -4137,8 +4286,7 @@
 
     let lastKnownGood = null;
 
-    async function fetchYahooFinanceData(range, interval) {
-        const symbol = 'CO2.MI';
+    async function fetchYahooFinanceData(range, interval, symbol = 'CO2.MI') {
         const yahooUrl =
             `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}&includePrePost=false`;
 
@@ -4453,24 +4601,7 @@
     // ─── TICKER-ONLY REFRESH ──────────────────────────────────────────
     async function updateTickerOnly() {
         try {
-            const data = await fetchYahooFinanceData('5d', '15m');
-            if (!data || !data.points || data.points.length === 0) return;
-            const latest = data.latestPrice;
-            const prevClose = data.previousClose || data.points[data.points.length - 2]?.close || latest;
-            const change = latest - prevClose;
-            const changePct = prevClose ? (change / prevClose) * 100 : 0;
-            const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
-            const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
-            const sign = change > 0 ? '+' : '';
-            const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
-            fco2Ticks.forEach(function(el) {
-                var valEl = el.querySelector('.tick-val');
-                var chgEl = el.querySelector('.tick-chg');
-                valEl.textContent = '€' + latest.toFixed(2);
-                chgEl.textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
-                valEl.className = 'tick-val ' + tone;
-                chgEl.className = 'tick-chg ' + tone;
-            });
+            await updateTickerData();
         } catch (err) {
             console.warn('updateTickerOnly error:', err);
         }
