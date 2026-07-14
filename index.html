@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>CarbonIQ — EU ETS Intelligence Platform</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -3972,6 +3972,8 @@
             .dash-content { min-height: unset !important; padding: 16px 12px !important; }
             .dash-prices-layout, .dash-row { flex-direction: column !important; }
             .dash-chart-col, .dash-fx-col { width: 100% !important; min-width: 0 !important; }
+            .g2, .g3, .g4 { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .g2 > *, .g3 > *, .g4 > * { min-width: 0 !important; }
             .mkt-overview-strip { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; padding: 16px !important; }
             .mkt-overview-strip > div:not(.dash-ham) { width: 100% !important; justify-content: space-between !important; }
             .dash-ham { display: flex !important; margin-bottom: 12px; }
