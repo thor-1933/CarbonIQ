@@ -3962,6 +3962,29 @@
             margin-top: 8px;
         }
 
+        
+        /* --- DASHBOARD MOBILE FIXES --- */
+        @media(max-width:900px) {
+            body, html { max-width: 100vw; overflow-x: hidden; }
+            #page-dashboard .dash-wrap { height: 100dvh; display: flex; flex-direction: column; }
+            .dash-content { min-height: unset !important; padding: 16px 12px !important; }
+            .dash-prices-layout, .dash-row { flex-direction: column !important; }
+            .dash-chart-col, .dash-fx-col { width: 100% !important; min-width: 0 !important; }
+            .mkt-overview-strip { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; padding: 16px !important; }
+            .mkt-overview-strip > div:not(.dash-ham) { width: 100% !important; justify-content: space-between !important; }
+            .dash-ham { display: flex !important; margin-bottom: 12px; }
+            .dash-mobile-header { display: flex !important; width: 100%; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+            
+            /* Sidebar Overlay */
+            .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; backdrop-filter: blur(4px); }
+            .sidebar-overlay.mob-open { display: block; }
+        }
+        .dash-ham { display: none; background: transparent; border: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+        .dash-ham span { display: block; width: 24px; height: 2px; background: var(--t1); transition: 0.3s; }
+        .dash-ham.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .dash-ham.open span:nth-child(2) { opacity: 0; }
+        .dash-ham.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
         /* ─── RESPONSIVE ─── */
         @media(max-width:900px) {
             .g4 { grid-template-columns: 1fr 1fr }
@@ -5164,9 +5187,20 @@
                 
                 <div class="panel active" id="panel-prices" style="display:flex; flex-direction:column; gap:24px;">
                     
+                    <!-- Sidebar Mobile Overlay -->
+                    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleDashMenu()"></div>
+                    
                     <!-- HUD Market Overview Strip -->
                     <div class="mkt-overview-strip card" style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:linear-gradient(90deg, rgba(20,24,32,0.6) 0%, rgba(20,24,32,0.4) 100%); backdrop-filter:blur(20px); box-shadow:0 8px 32px rgba(0,0,0,0.2);">
-                        <div style="display:flex; align-items:center; gap:32px; flex-wrap:wrap;">
+                        
+                        <div class="dash-mobile-header" style="display:none;">
+                            <div style="font-family:var(--display); font-size:18px; font-weight:800;">Carbon<span style="color:var(--teal);">IQ</span> Dashboard</div>
+                            <button class="dash-ham" id="dashHam" onclick="toggleDashMenu()" aria-label="Menu">
+                                <span></span><span></span><span></span>
+                            </button>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:32px; flex-wrap:wrap; width: 100%;">
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <span class="pulse-dot" id="liveSyncDot" style="width:8px; height:8px; background:var(--signal); box-shadow:0 0 12px var(--signal);"></span>
                                 <span style="font-family:var(--mono); font-size:11px; color:var(--t3); text-transform:uppercase; letter-spacing:1px; font-weight:600;">
@@ -6209,6 +6243,15 @@
     }
 
     // ─── MOBILE MENU ──────────────────────────────────────────────────
+    function toggleDashMenu() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        var ham = document.getElementById('dashHam');
+        if (sidebar) sidebar.classList.toggle('mob-open');
+        if (overlay) overlay.classList.toggle('mob-open');
+        if (ham) ham.classList.toggle('open');
+    }
+
     function toggleMobileMenu() {
         var menu = document.getElementById('mobileMenu');
         var ham = document.getElementById('navHam');
@@ -7127,6 +7170,15 @@
                 const points = s.data.filter(pt => pt.y !== null && pt.y !== undefined);
                 if (points.length === 0) return;
 
+                let sColor = this.colors[sIdx] || 'var(--signal)';
+                if (sIdx === 0 && !this.dashArray[sIdx]) {
+                    const isPos = points[points.length-1].y >= points[0].y;
+                    sColor = isPos ? 'var(--signal)' : 'var(--crimson)';
+                    this.dynamicSColor = sColor;
+                } else if (sIdx === 0) {
+                    this.dynamicSColor = sColor;
+                }
+
                 let pathD = '';
                 points.forEach((pt, ptIdx) => {
                     const x = paddingLeft + (this.chartWidth * ((pt.x - minX) / (maxX - minX)));
@@ -7141,7 +7193,7 @@
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('d', pathD);
                 path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', this.colors[sIdx] || 'var(--signal)');
+                path.setAttribute('stroke', sColor);
                 
                 let strokeWidth = '1.75';
                 let opacity = '1';
@@ -7187,12 +7239,12 @@
                     
                     const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
                     stop1.setAttribute('offset', '0%');
-                    stop1.setAttribute('stop-color', this.colors[sIdx]);
+                    stop1.setAttribute('stop-color', sColor);
                     stop1.setAttribute('stop-opacity', '0.12');
 
                     const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
                     stop2.setAttribute('offset', '100%');
-                    stop2.setAttribute('stop-color', this.colors[sIdx]);
+                    stop2.setAttribute('stop-color', sColor);
                     stop2.setAttribute('stop-opacity', '0');
 
                     grad.appendChild(stop1);
@@ -7215,7 +7267,7 @@
                     pulseRing.setAttribute('cy', ly);
                     pulseRing.setAttribute('r', '5');
                     pulseRing.setAttribute('fill', 'none');
-                    pulseRing.setAttribute('stroke', this.colors[sIdx]);
+                    pulseRing.setAttribute('stroke', sColor);
                     pulseRing.setAttribute('stroke-width', '1.5');
                     pulseRing.style.transformOrigin = `${lx}px ${ly}px`;
                     pulseRing.style.animation = 'pulseRing 1.8s infinite';
@@ -7225,7 +7277,7 @@
                     pulseCore.setAttribute('cx', lx);
                     pulseCore.setAttribute('cy', ly);
                     pulseCore.setAttribute('r', '2.5');
-                    pulseCore.setAttribute('fill', this.colors[sIdx]);
+                    pulseCore.setAttribute('fill', sColor);
                     svg.appendChild(pulseCore);
                 }
             });
@@ -7306,11 +7358,24 @@
                 self.tooltip.style.top = `${cy - 20}px`;
 
                 const date = new Date(closest.x);
-                const dateStr = date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                const dateStr = date.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                
+                const firstY = pts[0].y;
+                const diff = closest.y - firstY;
+                const pctChg = (firstY !== 0) ? (diff / firstY) * 100 : 0;
+                const sign = pctChg >= 0 ? '+' : '';
+                const pctColor = pctChg >= 0 ? 'var(--signal)' : 'var(--crimson)';
+                const priceColor = self.dynamicSColor || 'var(--signal)';
+
                 self.tooltip.innerHTML = `
-                    <div style="color:var(--t4); margin-bottom: 2px;">${dateStr}</div>
-                    <div style="font-weight: 700; color:var(--signal); font-size: 11px;">
-                        ${self.options.yPrefix || ''}${closest.y.toFixed(2)}
+                    <div style="color:var(--t2); margin-bottom: 4px;">${dateStr}</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-weight: 700; color:${priceColor}; font-size: 13px;">
+                            ${self.options.yPrefix || ''}${closest.y.toFixed(2)}
+                        </span>
+                        <span style="color:${pctColor}; font-size: 11px; background: rgba(255,255,255,0.05); padding: 2px 4px; border-radius: 3px;">
+                            ${sign}${pctChg.toFixed(2)}%
+                        </span>
                     </div>
                 `;
             });
