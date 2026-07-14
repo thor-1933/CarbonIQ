@@ -5767,7 +5767,6 @@
     function generateSparklineSVG(history, isPositive) {
         if (!history || history.length < 2) return '';
         var min = Math.min.apply(null, history);
-        var max = Math.max.apply(null, history);
         var range = max - min || 1;
         var width = 60;
         var height = 18;
@@ -5805,9 +5804,9 @@
 
     // Full name and custom exchange listing for each ticker
     const ASSET_METADATA = {
-        'CO2.MI': { name: 'EUA Futures (EU ETS)', volume: '2.41M lots' },
-        'KCCA': { name: 'California CCA ETF', volume: '0.45M lots' },
-        '3060.HK': { name: 'CICC Carbon Futures (China)', volume: '1.18M lots' }
+        'CO2.MI': { name: 'EUA Futures (EU ETS)', volume: '2.41M lots', regionTitle: 'Europe Carbon Permit Price (EUA)' },
+        'KCCA': { name: 'California CCA ETF', volume: '0.45M lots', regionTitle: 'California Carbon Allowance Price (CCA)' },
+        '3060.HK': { name: 'CICC Carbon Futures (China)', volume: '1.18M lots', regionTitle: 'China Carbon Emissions Price (CETS)' }
     };
 
     const ASSET_NUMERIC_VOLUMES = {
@@ -7754,6 +7753,16 @@
         const titleEl = document.getElementById('dashChartTitle');
         if (titleEl) {
             titleEl.textContent = ticker.sym + ' ' + metadata.name + ' Spot Terminal';
+        }
+        
+        const regionTitleEl = document.getElementById('dashMainRegionTitle');
+        if (regionTitleEl) {
+            regionTitleEl.textContent = metadata.regionTitle || (ticker.sym + ' Price');
+        }
+
+        const regionTitleEl = document.getElementById('dashMainRegionTitle');
+        if (regionTitleEl) {
+            regionTitleEl.textContent = metadata.regionTitle || (ticker.sym + ' Price');
         }
         
         const orderActiveSym = document.getElementById('orderActiveSym');
