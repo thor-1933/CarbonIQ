@@ -54,9 +54,9 @@
             --blue:      #00D4FF;
             /* ── Text Scale ── */
             --t1:  #E8EEF4;
-            --t2:  #9EB4C8;
-            --t3:  #5A7590;
-            --t4:  #334455;
+            --t2:  #B5C8DD;
+            --t3:  #8EABC6;
+            --t4:  #6D8Baa;
             /* ── Border Scale ── */
             --b1:  #182430;
             --b2:  #1E2E40;
@@ -3967,9 +3967,19 @@
         /* --- DASHBOARD MOBILE FIXES --- */
         @media(max-width:900px) {
             /* Dropdown options visibility fix */
+            select#marketSystemDropdown {
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+                background-repeat: no-repeat !important;
+                background-position: right 12px center !important;
+                background-size: 16px !important;
+            }
             select option { background-color: #1a1a2e !important; color: #ffffff !important; }
             
             /* Chart Buttons visibility fix */
+            .chart-controls-wrapper {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
             .chart-type-sel, .range-sel {
                 display: flex !important;
                 flex-wrap: wrap !important;
@@ -5178,6 +5188,10 @@
                         <svg class="sb-icon" viewBox="0 0 16 16" fill="none" width="18" height="18"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="7" r=".8" fill="currentColor"/><circle cx="10" cy="7" r=".8" fill="currentColor"/><path d="M5.5 10C6 11 7 11.5 8 11.5S10 11 10.5 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
                         <span>AI Predictions</span>
                     </div>
+                    <div class="sb-item" onclick="switchPanel('relperf',this)">
+                        <svg class="sb-icon" viewBox="0 0 16 16" fill="none" width="18" height="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        <span>Relative Performance</span>
+                    </div>
                     <div class="sb-item" onclick="switchPanel('policy',this)">
                         <svg class="sb-icon" viewBox="0 0 16 16" fill="none" width="18" height="18"><path d="M3 3h10v2H3zM3 7h8v2H3zM3 11h6v2H3z" fill="currentColor" opacity=".7"/></svg>
                         <span>Policy Feed</span>
@@ -5209,13 +5223,11 @@
             
             <main class="dash-content" style="padding:24px 32px; background:radial-gradient(circle at top right, rgba(0,212,170,0.02) 0%, transparent 40%), radial-gradient(circle at bottom left, rgba(68,200,255,0.02) 0%, transparent 40%); flex:1; min-height:100vh; overflow-y:auto;">
                 
-                <div class="panel active" id="panel-prices" style="display:flex; flex-direction:column; gap:24px;">
-                    
-                    <!-- Sidebar Mobile Overlay -->
+                                    <!-- Sidebar Mobile Overlay -->
                     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleDashMenu()"></div>
                     
                     <!-- HUD Market Overview Strip -->
-                    <div class="mkt-overview-strip card" style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:linear-gradient(90deg, rgba(20,24,32,0.6) 0%, rgba(20,24,32,0.4) 100%); backdrop-filter:blur(20px); box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+                    <div class="mkt-overview-strip card" style="display:flex; margin-bottom:24px; align-items:center; justify-content:space-between; padding:16px 24px; border-radius:12px; border:1px solid rgba(255,255,255,0.08); background:linear-gradient(90deg, rgba(20,24,32,0.6) 0%, rgba(20,24,32,0.4) 100%); backdrop-filter:blur(20px); box-shadow:0 8px 32px rgba(0,0,0,0.2);">
                         
                         <div class="dash-mobile-header" style="display:none;">
                             <div style="font-family:var(--display); font-size:18px; font-weight:800;">Carbon<span style="color:var(--teal);">IQ</span> Dashboard</div>
@@ -5248,6 +5260,10 @@
                         </div>
                     </div>
 
+
+                <div class="panel active" id="panel-prices">
+                    <div style="display:flex; flex-direction:column; gap:24px;">
+                    
                     <!-- Redesigned Grid layout -->
                     <div class="terminal-grid" style="display:grid; grid-template-columns: 1fr 340px; gap:24px; align-items:start;">
                         
@@ -5259,69 +5275,103 @@
                                 
                                 <div class="chart-watermark" style="font-size:8vw; opacity:0.02; top:50%; transform:translateY(-50%); letter-spacing:10px;">CARBONIQ</div>
                                 
-                                <!-- Chart Title & Dropdown Header Row -->
-                                <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:16px; position:relative; z-index:1;">
-                                    <div style="display:flex; flex-direction:column; gap:8px;">
-                                        <select id="marketSystemDropdown" onchange="onMarketAssetChange(this.value)" style="appearance:none; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:var(--t1); font-family:var(--display); font-size:18px; font-weight:700; padding:8px 36px 8px 16px; border-radius:8px; outline:none; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
-                                            <option value="CO2.MI">EU ETS (EUA Futures)</option>
-                                            <option value="KCCA">California Carbon Allowance (CCA)</option>
-                                            <option value="3060.HK">China CETS (CICC Carbon)</option>
-                                        </select>
-                                        <!-- Custom dropdown arrow via CSS -->
-                                        <div style="font-size:13px; font-weight:700; font-family:var(--mono); display:none;" id="dashChartTitle">--</div>
+                                <!-- Chart Header Section (Premium Redesign) -->
+                                <div style="position:relative; z-index:1; display:flex; flex-direction:column; gap:20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom:20px;">
+                                    
+                                    <!-- Top Row: Main Header & Dropdown -->
+                                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                                        <h1 style="font-size:24px; font-weight:800; font-family:var(--display); margin:0; color:var(--t1);">
+                                            <span style="color:var(--t1)">Live</span> Price Tracking
+                                        </h1>
                                         
-                                        <!-- Dynamic Market Hours, Timezone Clock -->
-                                        <div style="display:flex; align-items:center; gap:12px; font-family:var(--mono); font-size:11px; color:var(--t3); background:rgba(0,0,0,0.2); padding:6px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.03);">
+                                        <!-- Premium Dropdown -->
+                                        <div style="position:relative; min-width: 260px; max-width:100%; flex: 1 1 auto;">
+                                            <select id="marketSystemDropdown" onchange="onMarketAssetChange(this.value)" style="appearance:none; width: 100%; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); color:var(--t1); font-family:var(--display); font-size:15px; font-weight:700; padding:12px 40px 12px 16px; border-radius:8px; outline:none; cursor:pointer; transition:border 0.2s; box-shadow:inset 0 2px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);">
+                                                <option value="CO2.MI">EU ETS (EUA Futures)</option>
+                                                <option value="KCCA">California Carbon Allowance (CCA)</option>
+                                                <option value="3060.HK">China CETS (CICC Carbon)</option>
+                                            </select>
+                                            <!-- Absolute SVG Arrow -->
+                                            <div style="position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--t3); display:flex; align-items:center; justify-content:center;">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Second Row: Region Headings and Clock -->
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+                                        
+                                        <!-- Left: Titles -->
+                                        <div style="display:flex; flex-direction:column; gap:4px;">
+                                            <div style="font-size:22px; font-weight:800; font-family:var(--display); color:var(--t1); letter-spacing: -0.5px;" id="dashMainRegionTitle">Europe Carbon Permit Price (EUA)</div>
+                                            <div style="font-size:12px; font-weight:600; font-family:var(--mono); color:var(--t4);" id="dashChartTitle">SparkChange Physical Carbon EUA ETC (CO2.MI)</div>
+                                        </div>
+
+                                        <!-- Right: Market Clock Strip -->
+                                        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:12px; font-family:var(--mono); font-size:11px; color:var(--t3); background:rgba(0,0,0,0.3); padding:8px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.05); box-shadow:inset 0 1px 4px rgba(0,0,0,0.5);">
                                             <div><span style="color:var(--t4);">EXCH:</span> <span id="marketExchangeLabel" style="color:var(--t1); font-weight:600;">--</span></div>
-                                            <div style="width:1px; height:10px; background:rgba(255,255,255,0.1);"></div>
-                                            <div style="display:flex; align-items:center; gap:4px;">
+                                            <div style="width:1px; height:12px; background:rgba(255,255,255,0.1);"></div>
+                                            <div style="display:flex; align-items:center; gap:6px;">
                                                 <span style="color:var(--t4); text-transform:uppercase;" id="marketClockLabel">Local:</span>
                                                 <span id="marketMilanClock" style="color:var(--teal); font-weight:700; text-shadow:0 0 8px rgba(0,212,170,0.4);">--</span>
                                             </div>
-                                            <div style="width:1px; height:10px; background:rgba(255,255,255,0.1);"></div>
+                                            <div style="width:1px; height:12px; background:rgba(255,255,255,0.1);"></div>
                                             <div><span style="color:var(--t4);">STATUS:</span> <span id="marketNextEvent" style="color:var(--t1); font-weight:600;">--</span></div>
                                         </div>
                                     </div>
-                                    
-                                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                                        <div style="display:flex; align-items:center; gap:12px;">
-                                            <div id="dashPriceHeaderVal" style="font-family:var(--mono); font-size:32px; font-weight:700; color:var(--t1); text-shadow:0 0 20px rgba(255,255,255,0.2); line-height:1;">--</div>
-                                            <span class="section-badge badge-live" id="dashLiveBadge" style="background:rgba(0,255,135,0.15); border-color:rgba(0,255,135,0.3); padding:4px 8px;">
-                                                <span class="pulse-dot" id="marketStatusDot" style="width:6px; height:6px; flex-shrink:0; background:var(--signal); box-shadow:0 0 8px var(--signal);"></span>
-                                                <span id="marketStatusLabel" style="color:var(--signal); font-weight:800; letter-spacing:0.5px;">Live Price</span>
-                                            </span>
+
+                                    <!-- Consolidated Price & Controls Section -->
+                                    <div style="display:flex; flex-direction:column; gap:24px; padding: 12px 0; margin-top: 8px;">
+                                        
+                                        <!-- Top Row: Price and OHLC -->
+                                        <div style="display:flex; flex-direction:column; gap:8px;">
+                                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                                                    <div id="dashPriceHeaderVal" style="font-family:var(--mono); font-size:48px; font-weight:800; color:var(--t1); text-shadow:0 0 20px rgba(255,255,255,0.1); line-height:1; letter-spacing:-1px;">--</div>
+                                                    
+                                                    <span class="section-badge badge-live" id="dashLiveBadge" style="background:transparent; border:1px solid rgba(255,255,255,0.1); padding:4px 10px; border-radius:12px; display:flex; align-items:center; gap:6px;">
+                                                        <span class="pulse-dot" id="marketStatusDot" style="width:6px; height:6px; flex-shrink:0; background:var(--signal); box-shadow:0 0 8px var(--signal); border-radius:50%;"></span>
+                                                        <span id="marketStatusLabel" style="color:var(--t2); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Live</span>
+                                                    </span>
+                                                </div>
+                                                <div id="dashChartSub" style="font-family:var(--mono); font-size:11px; color:var(--t2);">Loading price feed status...</div>
+                                            </div>
+                                            
+                                            <!-- Compact OHLC Row -->
+                                            <div style="display:flex; gap:16px; font-family:var(--mono); font-size:12px; color:var(--t2); padding-top:4px;">
+                                                <div style="display:flex; gap:6px;">OPEN <span id="dashOHLCOpen" style="color:var(--t1); font-weight:700;">—</span></div>
+                                                <div style="display:flex; gap:6px;">HIGH <span id="dashOHLCHigh" style="color:var(--t1); font-weight:700;">—</span></div>
+                                                <div style="display:flex; gap:6px;">LOW <span id="dashOHLCLow" style="color:var(--t1); font-weight:700;">—</span></div>
+                                            </div>
                                         </div>
-                                        <div id="dashChartSub" style="font-family:var(--mono); font-size:11px; color:var(--t3);">Loading price feed status...</div>
+
+                                        <!-- Bottom Row: Chart Controls (Side-by-side) -->
+                                        <div class="chart-controls-wrapper" style="display:flex; justify-content:flex-start; align-items:center; flex-wrap:wrap; gap:48px; width:100%; position:relative; z-index:1;">
+                                            <style>
+                                                .chart-type-sel button, .range-sel button { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:var(--t3); border-radius:6px; padding:6px 12px; font-size:11px; font-weight:600; font-family:var(--mono); transition:all 0.2s ease; margin-right:4px;}
+                                                .chart-type-sel button:hover, .range-sel button:hover { background:rgba(255,255,255,0.08); color:var(--t1); }
+                                                .chart-type-sel button.active, .range-sel button.active { background:rgba(0,212,170,0.15); border-color:var(--teal); color:var(--teal); box-shadow:0 0 12px rgba(0,212,170,0.2); }
+                                            </style>
+                                            
+                                            <!-- Chart Types (Area/Line/Candle) -->
+                                            <div class="chart-type-sel" id="chartTypeSel" style="margin-bottom:0; display:flex; flex-wrap:wrap; gap:4px;">
+                                                <button class="chart-type-btn active" data-type="area" onclick="setChartType('area',this)">Area</button>
+                                                <button class="chart-type-btn" data-type="line" onclick="setChartType('line',this)">Line</button>
+                                                <button class="chart-type-btn" data-type="candlestick" onclick="setChartType('candlestick',this)">Candle</button>
+                                            </div>
+
+                                            <!-- Time Ranges (1D/1W...) -->
+                                            <div class="range-sel" id="rangeSel" style="margin-bottom:0; display:flex; flex-wrap:wrap; gap:4px;">
+                                                <button class="range-btn" data-range="1D" onclick="setDashRange('1D',this)">1D</button>
+                                                <button class="range-btn" data-range="1W" onclick="setDashRange('1W',this)">1W</button>
+                                                <button class="range-btn active" data-range="1M" onclick="setDashRange('1M',this)">1M</button>
+                                                <button class="range-btn" data-range="3M" onclick="setDashRange('3M',this)">3M</button>
+                                                <button class="range-btn" data-range="1Y" onclick="setDashRange('1Y',this)">1Y</button>
+                                                
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                
-                                <!-- OHLC details row -->
-                                <div style="display:flex; gap:24px; margin-bottom:20px; font-family:var(--mono); font-size:12px; color:var(--t4); border-top:1px solid rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); padding:12px 0; position:relative; z-index:1;">
-                                    <div style="display:flex; gap:8px;">OPEN <span id="dashOHLCOpen" style="color:var(--t1); font-weight:700;">—</span></div>
-                                    <div style="display:flex; gap:8px;">HIGH <span id="dashOHLCHigh" style="color:var(--teal); font-weight:700;">—</span></div>
-                                    <div style="display:flex; gap:8px;">LOW <span id="dashOHLCLow" style="color:var(--crimson); font-weight:700;">—</span></div>
-                                </div>
-                                
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:10px; flex-wrap:wrap; position:relative; z-index:1;">
-                                    <style>
-                                        .chart-type-sel button, .range-sel button { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:var(--t3); border-radius:6px; padding:6px 12px; font-size:11px; font-weight:600; font-family:var(--mono); transition:all 0.2s ease; margin-right:4px;}
-                                        .chart-type-sel button:hover, .range-sel button:hover { background:rgba(255,255,255,0.08); color:var(--t1); }
-                                        .chart-type-sel button.active, .range-sel button.active { background:rgba(0,212,170,0.15); border-color:var(--teal); color:var(--teal); box-shadow:0 0 12px rgba(0,212,170,0.2); }
-                                    </style>
-                                    <div class="chart-type-sel" id="chartTypeSel" style="margin-bottom:0;">
-                                        <button class="chart-type-btn active" data-type="area" onclick="setChartType('area',this)">Area</button>
-                                        <button class="chart-type-btn" data-type="line" onclick="setChartType('line',this)">Line</button>
-                                        <button class="chart-type-btn" data-type="candlestick" onclick="setChartType('candlestick',this)">Candle</button>
-                                    </div>
-                                    <div class="range-sel" id="rangeSel" style="margin-bottom:0;">
-                                        <button class="range-btn" data-range="1D" onclick="setDashRange('1D',this)">1D</button>
-                                        <button class="range-btn" data-range="1W" onclick="setDashRange('1W',this)">1W</button>
-                                        <button class="range-btn active" data-range="1M" onclick="setDashRange('1M',this)">1M</button>
-                                        <button class="range-btn" data-range="3M" onclick="setDashRange('3M',this)">3M</button>
-                                        <button class="range-btn" data-range="1Y" onclick="setDashRange('1Y',this)">1Y</button>
-                                        <button class="range-btn" data-range="ALL" onclick="setDashRange('ALL',this)">ALL</button>
-                                    </div>
-                                </div>
+                                </div> <!-- Close the Header Row -->
                                 
                                 <div id="dashPriceChart" style="min-height:300px; position:relative; z-index:1;"></div>
                                 <div class="chart-legend" id="dashChartLegend" style="position:relative; z-index:1; margin-top:16px;"></div>
@@ -5383,6 +5433,13 @@
                         </div>
                     </div>
 
+                    
+                </div></div>
+
+<div class="panel" id="panel-relperf">
+                    <div style="display:flex; flex-direction:column; gap:24px;">
+                    <div style="font-size:24px; font-weight:700; font-family:var(--display); letter-spacing:-0.5px; color:var(--t1);">Global Carbon Performance</div>
+                    <div style="font-size:13px; color:var(--t4); margin-top:-20px; margin-bottom:16px;">Compare pricing action across major global carbon allowances</div>
                     <!-- Comparison: Relative Performance Overlay (Full Width Below) -->
                     <div class="card" style="padding:24px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); background:rgba(15,18,25,0.7); backdrop-filter:blur(24px); position:relative; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.4);">
                         <!-- Grid overlay -->
@@ -5408,6 +5465,7 @@
                         </div>
                         <div id="relativePerformanceChart" style="min-height:280px; position:relative; z-index:1;"></div>
                     </div>
+                </div>
                 </div>
 
 <div class="panel" id="panel-ai">
@@ -5475,9 +5533,13 @@
                             <div><div class="pi-title">New embedded carbon calculation methodology published for electricity sector imports effective Q3 2025</div><div class="pi-meta">European Commission · February 2025 · Impact: MEDIUM</div></div>
                         </div>
                     </div>
-                </div>
+                
 
-<div class="panel" id="panel-spread">
+
+                
+                
+                </div>
+                <div class="panel" id="panel-spread">
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:18px">
                         <div>
                             <h2 class="panel-title" style="margin-bottom:0; font-size:24px; font-weight:700;">Market Spread &amp; Correlation Analytics</h2>
@@ -5491,7 +5553,7 @@
                             <button class="range-btn active" data-range="1M" onclick="setSpreadRange('1M',this)">1M</button>
                             <button class="range-btn" data-range="3M" onclick="setSpreadRange('3M',this)">3M</button>
                             <button class="range-btn" data-range="1Y" onclick="setSpreadRange('1Y',this)">1Y</button>
-                            <button class="range-btn" data-range="ALL" onclick="setSpreadRange('ALL',this)">ALL</button>
+                            
                         </div>
                     </div>
 
