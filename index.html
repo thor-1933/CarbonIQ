@@ -4164,8 +4164,8 @@
             <button class="nav-link" data-page="dashboard-policy" onclick="navigateTo('dashboard-policy',this)">Policy</button>
         </div>
         <div class="nav-actions">
-            <button class="btn-ghost" onclick="showPage('auth','signin')">Sign In</button>
-            <button class="btn-gold" onclick="showPage('auth','signup')">Get Started</button>
+            <button class="btn-ghost" onclick="showPage(\'auth\',\'signin\')">Sign In</button>
+            <button class="btn-gold" onclick="showPage(\'auth\',\'signup\')">Get Started</button>
             <button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
@@ -4180,8 +4180,8 @@
         <button class="mob-link" onclick="navigateTo('dashboard-policy');closeMM()">Policy</button>
         <div class="mob-divider"></div>
         <div class="mob-actions">
-            <button class="btn-ghost" style="width:100%;padding:13px;font-size:14px" onclick="showPage('auth','signin');closeMM()">Sign In</button>
-            <button class="btn-gold" style="width:100%;padding:13px;font-size:14px" onclick="showPage('auth','signup');closeMM()">Get Started Free</button>
+            <button class="btn-ghost" style="width:100%;padding:13px;font-size:14px" onclick="showPage(\'auth\',\'signin\');closeMM()">Sign In</button>
+            <button class="btn-gold" style="width:100%;padding:13px;font-size:14px" onclick="showPage(\'auth\',\'signup\');closeMM()">Get Started Free</button>
         </div>
     </div>
 
@@ -4206,7 +4206,7 @@
                 </h1>
                 <p class="hero-sub">Real-time EUA price tracking fused with LSTM neural forecasting, RAG policy intelligence, and institutional-grade analytics — for ESG funds, compliance managers, and sophisticated investors.</p>
                 <div class="hero-ctas">
-                    <button class="cta-main" onclick="showPage('dashboard')">Open Live Dashboard →</button>
+                    <button class="cta-main" onclick="showPage(\'auth\',\'signup\')">Open Live Dashboard →</button>
                     <button class="cta-alt" onclick="document.getElementById('section-markets').scrollIntoView({behavior:'smooth'})">Explore Markets</button>
                 </div>
                 
@@ -5055,8 +5055,8 @@
                     <h2 style="font-family:var(--display);font-size:clamp(18px,2.4vw,24px);font-weight:700;margin-bottom:10px;">Live forecasts. Every day.</h2>
                     <p style="font-size:13.5px;color:var(--t3);line-height:1.7;margin-bottom:24px;">Today's LSTM price path, confidence intervals, and full model diagnostics — updated every morning in your dashboard.</p>
                     <div class="ai-cta" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                        <button class="btn-gold" onclick="showPage('auth','signin')" style="padding:12px 28px;font-size:13px;">Sign In</button>
-                        <button class="btn-ghost" onclick="showPage('auth','signup')" style="padding:12px 28px;font-size:13px;">Create Free Account</button>
+                        <button class="btn-gold" onclick="showPage(\'auth\',\'signin\')" style="padding:12px 28px;font-size:13px;">Sign In</button>
+                        <button class="btn-ghost" onclick="showPage(\'auth\',\'signup\')" style="padding:12px 28px;font-size:13px;">Create Free Account</button>
                     </div>
                 </div>
             </div>
@@ -5082,8 +5082,8 @@
             </div>
 
             <div class="auth-tabs">
-                <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
-                <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+                <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab(\'signin\')">Sign In</button>
+                <button class="auth-tab" id="tab-signup" onclick="switchAuthTab(\'signup\')">Create Account</button>
             </div>
 
             <div id="form-signin" class="auth-form-content">
@@ -5152,7 +5152,7 @@
             </div>
 
             <div class="auth-footer">
-                <span id="auth-toggle-link">Don't have an account? <a onclick="switchAuthTab('signup')">Create one</a></span>
+                <span id="auth-toggle-link">Don\'t have an account? <a onclick="switchAuthTab(\'signup\')">Create one</a></span>
             </div>
         </div>
     </div>
@@ -6310,7 +6310,7 @@
                     '<button class="btn-gold" onclick="showPage(\'dashboard\')">Open Dashboard</button><button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>';
             } else {
                 ra.innerHTML =
-                    '<button class="btn-ghost" onclick="showPage(\'auth\',\'signin')">Sign In</button><button class="btn-gold" onclick="showPage(\'auth\',\'signup')">Get Started</button><button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>';
+                    '<button class="btn-ghost" onclick="showPage(\'auth\',\'signin\')">Sign In</button><button class="btn-gold" onclick="showPage(\'auth\',\'signup\')">Get Started</button><button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>';
             }
         }
         // Update mobile menu auth actions
@@ -6321,8 +6321,8 @@
                     '<button class="btn-gold" style="width:100%;padding:13px;font-size:14px" onclick="showPage(\'dashboard\');closeMM()">Open Dashboard</button>';
             } else {
                 ma.innerHTML =
-                    '<button class="btn-ghost" style="width:100%;padding:13px;font-size:14px" onclick="showPage(\'auth\',\'signin');closeMM()">Sign In</button>' +
-                    '<button class="btn-gold" style="width:100%;padding:13px;font-size:14px" onclick="showPage(\'auth\',\'signup');closeMM()">Get Started Free</button>';
+                    '<button class="btn-ghost" style="width:100%;padding:13px;font-size:14px" onclick="showPage(\'auth\',\'signin\');closeMM()">Sign In</button>' +
+                    '<button class="btn-gold" style="width:100%;padding:13px;font-size:14px" onclick="showPage(\'auth\',\'signup\');closeMM()">Get Started Free</button>';
             }
         }
     }
@@ -6359,8 +6359,8 @@
         document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
         var link = document.getElementById('auth-toggle-link');
         link.innerHTML = tab === 'signin' ?
-            'Don\'t have an account? <a onclick="switchAuthTab(\'signup')">Create one</a>' :
-            'Already have an account? <a onclick="switchAuthTab(\'signin')">Sign in</a>';
+            'Don\'t have an account? <a onclick="switchAuthTab(\'signup\')">Create one</a>' :
+            'Already have an account? <a onclick="switchAuthTab(\'signin\')">Sign in</a>';
     }
 
     function togglePass(id, btn) {
