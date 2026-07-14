@@ -3966,7 +3966,9 @@
         /* --- DASHBOARD MOBILE FIXES --- */
         @media(max-width:900px) {
             body, html { max-width: 100vw; overflow-x: hidden; }
-            #page-dashboard .dash-wrap { height: 100dvh; display: flex; flex-direction: column; }
+            #page-dashboard .dash-wrap { height: 100dvh; display: flex; flex-direction: row; }
+            .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; transform: translateX(-100%); width: 240px !important; transition: .3s; }
+            .sidebar.mob-open { transform: translateX(0); }
             .dash-content { min-height: unset !important; padding: 16px 12px !important; }
             .dash-prices-layout, .dash-row { flex-direction: column !important; }
             .dash-chart-col, .dash-fx-col { width: 100% !important; min-width: 0 !important; }
@@ -7097,6 +7099,10 @@
                         if (pt.y < minY) minY = pt.y;
                         if (pt.y > maxY) maxY = pt.y;
                     }
+                    if (this.options.type === 'candlestick' && pt.low !== undefined && pt.high !== undefined) {
+                        if (pt.low < minY) minY = pt.low;
+                        if (pt.high > maxY) maxY = pt.high;
+                    }
                 });
             });
 
@@ -7177,6 +7183,38 @@
                     this.dynamicSColor = sColor;
                 } else if (sIdx === 0) {
                     this.dynamicSColor = sColor;
+                }
+
+                if (this.options.type === 'candlestick') {
+                    const candleW = Math.max(1, (this.chartWidth / points.length) * 0.6);
+                    points.forEach(pt => {
+                        if (pt.open === undefined || pt.close === undefined) return;
+                        const px = paddingLeft + (this.chartWidth * ((pt.x - minX) / (maxX - minX)));
+                        const yO = height - paddingBottom - (this.chartHeight * ((pt.open - minY) / (maxY - minY)));
+                        const yC = height - paddingBottom - (this.chartHeight * ((pt.close - minY) / (maxY - minY)));
+                        const yH = height - paddingBottom - (this.chartHeight * ((pt.high - minY) / (maxY - minY)));
+                        const yL = height - paddingBottom - (this.chartHeight * ((pt.low - minY) / (maxY - minY)));
+                        
+                        const cColor = pt.close >= pt.open ? 'var(--signal)' : 'var(--crimson)';
+                        
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', px);
+                        line.setAttribute('y1', yH);
+                        line.setAttribute('x2', px);
+                        line.setAttribute('y2', yL);
+                        line.setAttribute('stroke', cColor);
+                        line.setAttribute('stroke-width', '1');
+                        svg.appendChild(line);
+
+                        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        rect.setAttribute('x', px - candleW/2);
+                        rect.setAttribute('y', Math.min(yO, yC));
+                        rect.setAttribute('width', candleW);
+                        rect.setAttribute('height', Math.max(1, Math.abs(yO - yC)));
+                        rect.setAttribute('fill', cColor);
+                        svg.appendChild(rect);
+                    });
+                    return; // Skip line/area drawing for candlestick
                 }
 
                 let pathD = '';
@@ -7425,11 +7463,11 @@
 
         dashChart = new CustomSVGChart('dashPriceChart', {
             height: 280,
-            type: chartType === 'candlestick' ? 'line' : chartType,
+            type: chartType,
             yPrefix: baseSym,
             series: [{
                 name: currentDashboardSymbol,
-                data: points.map(function(p) { return { x: p.x, y: p.y }; })
+                data: points.map(function(p) { return { x: p.x, y: p.y, open: p.open, high: p.high, low: p.low, close: p.close }; })
             }],
             colors: [activeColor],
             dashArray: [0]
