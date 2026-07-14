@@ -4164,8 +4164,8 @@
             <button class="nav-link" data-page="dashboard-policy" onclick="navigateTo('dashboard-policy',this)">Policy</button>
         </div>
         <div class="nav-actions">
-            <button class="btn-ghost" onclick="showPage(\'auth\',\'signin\')">Sign In</button>
-            <button class="btn-gold" onclick="showPage(\'auth\',\'signup\')">Get Started</button>
+            <button class="btn-ghost" onclick="showPage('auth','signin')">Sign In</button>
+            <button class="btn-gold" onclick="showPage('auth','signup')">Get Started</button>
             <button class="nav-ham" id="navHam" onclick="toggleMobileMenu()" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
@@ -4206,7 +4206,7 @@
                 </h1>
                 <p class="hero-sub">Real-time EUA price tracking fused with LSTM neural forecasting, RAG policy intelligence, and institutional-grade analytics — for ESG funds, compliance managers, and sophisticated investors.</p>
                 <div class="hero-ctas">
-                    <button class="cta-main" onclick="showPage(\'auth\',\'signup\')">Open Live Dashboard →</button>
+                    <button class="cta-main" onclick="showPage('auth','signin')">Open Live Dashboard →</button>
                     <button class="cta-alt" onclick="document.getElementById('section-markets').scrollIntoView({behavior:'smooth'})">Explore Markets</button>
                 </div>
                 
@@ -5082,8 +5082,8 @@
             </div>
 
             <div class="auth-tabs">
-                <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab(\'signin\')">Sign In</button>
-                <button class="auth-tab" id="tab-signup" onclick="switchAuthTab(\'signup\')">Create Account</button>
+                <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+                <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
             </div>
 
             <div id="form-signin" class="auth-form-content">
@@ -5765,9 +5765,10 @@
     };
 
     function generateSparklineSVG(history, isPositive) {
-        if (!history || history.length < 2) return '';
-        var min = Math.min.apply(null, history);
-        var range = max - min || 1;
+    if (!history || history.length < 2) return '';
+    var min = Math.min.apply(null, history);
+    var max = Math.max.apply(null, history);   // ✅ add this
+    var range = max - min || 1;
         var width = 60;
         var height = 18;
         var points = history.map(function(val, idx) {
