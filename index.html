@@ -5407,7 +5407,7 @@
                                     <!-- Lot quantity input -->
                                     <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--mono); font-size:12px;">
                                         <span style="color:var(--t4);">QTY (LOTS):</span>
-                                        <input type="number" id="orderQtyInput" value="5" min="1" step="1" oninput="updateOrderTicketEstimation()" style="width:80px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:var(--t1); font-family:var(--mono); font-size:14px; font-weight:700; padding:6px 10px; border-radius:4px; text-align:right; outline:none; transition:border 0.2s;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                                        <input type="number" id="orderQtyInput" value="1" min="1" step="1" oninput="updateOrderTicketEstimation()" style="width:80px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:var(--t1); font-family:var(--mono); font-size:14px; font-weight:700; padding:6px 10px; border-radius:4px; text-align:right; outline:none; transition:border 0.2s;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
                                     </div>
 
                                     <!-- Est Value -->
@@ -5877,10 +5877,7 @@
             if (!ticker) continue;
             const priceUSD = getPriceInUSD(price, ticker.baseCurrency);
             
-            let multiplier = 100;
-            if (symbol === 'CO2.MI' || symbol === 'KCCA') {
-                multiplier = 1000;
-            }
+            let multiplier = 1000;
             totalCapUSD += priceUSD * vol * multiplier;
             totalVolLots += vol;
             
@@ -6559,6 +6556,9 @@
     }
 
     const TICKER_FALLBACKS = {
+        "CO2.MI": { price: 63.45, change: 2.06, changePct: 3.35 },
+        "KCCA": { price: 45.12, change: -0.27, changePct: -0.60 },
+        "3060.HK": { price: 54.30, change: 1.74, changePct: 3.31 },
         "^NSEI": { price: 24250, change: 120.5, changePct: 0.50 },
         "ES=F": { price: 5480.25, change: -12.75, changePct: -0.23 },
         "BTC-USD": { price: 95420.00, change: 1450.00, changePct: 1.54 },
@@ -6574,10 +6574,9 @@
 
     function getFallbackTickerData(symbol) {
         const base = TICKER_FALLBACKS[symbol] || { price: 100, change: 0, changePct: 0 };
-        const fluctuationPercent = (Math.random() - 0.5) * 0.002;
-        const price = base.price * (1 + fluctuationPercent);
-        const change = base.change + (price - base.price);
-        const changePct = (change / (price - change)) * 100;
+        const price = base.price;
+        const change = base.change;
+        const changePct = base.changePct;
         return {
             symbol: symbol,
             name: TICKER_NAMES[symbol] || symbol,
@@ -6838,11 +6837,10 @@
         for (let i = 0; i < cfg.points; i++) {
             const ts = now - (cfg.points - i) * cfg.interval;
             const drift = (symbol === 'CO2.MI' ? 0.01 : (symbol === 'KCCA' ? -0.005 : 0.003));
-            price += (Math.random() - 0.5) * noiseFactor + drift;
-            price = Math.max(anchor - 4, Math.min(anchor + 4, price));
-            const o = price + (Math.random() - 0.5) * 0.08;
-            const h = Math.max(o, price) + Math.random() * 0.15;
-            const l = Math.min(o, price) - Math.random() * 0.15;
+            price = anchor;
+            const o = price;
+            const h = price;
+            const l = price;
             points.push({ x: ts, y: price, open: o, high: h, low: l, close: price });
         }
         const latest = points[points.length - 1];
@@ -7799,10 +7797,7 @@
         if (!qtyInput) return;
         const qty = parseFloat(qtyInput.value) || 0;
         
-        let multiplier = 100;
-        if (symbol === 'CO2.MI' || symbol === 'KCCA') {
-            multiplier = 1000;
-        }
+        let multiplier = 1000;
         
         const displayPrice = getPriceInDisplayCurrency(price, symbol);
         const estValue = displayPrice * qty * multiplier;
@@ -7831,10 +7826,7 @@
         
         if (qty <= 0) return;
         
-        let multiplier = 100;
-        if (symbol === 'CO2.MI' || symbol === 'KCCA') {
-            multiplier = 1000;
-        }
+        let multiplier = 1000;
         
         const displayPrice = getPriceInDisplayCurrency(price, symbol);
         const totalCost = displayPrice * qty * multiplier;
@@ -8355,8 +8347,8 @@
             for (const key of chosen) {
                 const asset = heroPrices[key];
                 const isUp  = Math.random() > 0.45;
-                asset.price  = Math.max(0.01, asset.price+(Math.random()*0.06+0.01)*(isUp?1:-1));
-                asset.change += (Math.random()*0.12+0.02)*(isUp?1:-1);
+                // asset.price remains live, no random drift
+                // asset.change remains live, no random drift
                 const priceEl = document.getElementById(`heroprice-${key}`);
                 const chgEl   = document.getElementById(`herochg-${key}`);
                 const rowEl   = document.getElementById(`herorow-${key}`);
