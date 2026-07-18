@@ -7730,17 +7730,27 @@
                         callbacks: {
                             label: function(context) {
                                 const idx = context.dataIndex;
-                                const currentPrice = context.parsed.y;
-                                let diffText = '';
+                                const raw = context.raw;
+                                const currentPrice = typeof raw === 'object' ? raw.c : context.parsed.y;
                                 
+                                if (currentPrice === undefined) return '';
+
+                                let diffText = '';
                                 if (idx > 0) {
-                                    const prevPrice = dataVals[idx - 1];
+                                    const prevRaw = dataVals[idx - 1];
+                                    const prevPrice = typeof prevRaw === 'object' ? prevRaw.c : prevRaw;
                                     const diff = currentPrice - prevPrice;
                                     const perc = (diff / prevPrice) * 100;
                                     const sign = diff >= 0 ? '+' : '';
                                     diffText = ` (${sign}${perc.toFixed(2)}%)`;
                                 }
                                 
+                                if (chartType === 'candlestick' && typeof raw === 'object') {
+                                    return [
+                                        `O: ${baseSym}${raw.o.toFixed(2)}  H: ${baseSym}${raw.h.toFixed(2)}`,
+                                        `L: ${baseSym}${raw.l.toFixed(2)}  C: ${baseSym}${currentPrice.toFixed(2)}${diffText}`
+                                    ];
+                                }
                                 return baseSym + currentPrice.toFixed(2) + diffText;
                             },
                             labelColor: function(context) {
@@ -7752,10 +7762,12 @@
                             labelTextColor: function(context) {
                                 const idx = context.dataIndex;
                                 if (idx > 0) {
-                                    const currentPrice = context.parsed.y;
-                                    const prevPrice = dataVals[idx - 1];
-                                    if (currentPrice > prevPrice) return '#00FF87';
-                                    if (currentPrice < prevPrice) return '#FF3D57';
+                                    const raw = context.raw;
+                                    const currentPrice = typeof raw === 'object' ? raw.c : context.parsed.y;
+                                    const prevRaw = dataVals[idx - 1];
+                                    const prevPrice = typeof prevRaw === 'object' ? prevRaw.c : prevRaw;
+                                    if (currentPrice > prevPrice) return isLight ? '#059669' : '#00FF87';
+                                    if (currentPrice < prevPrice) return isLight ? '#EF4444' : '#FF3D57';
                                 }
                                 return isLight ? '#0F172A' : '#fff';
                             }
