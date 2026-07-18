@@ -9118,28 +9118,105 @@
                     container.innerHTML = '<div style="padding:20px; color:var(--t3);">No news found.</div>';
                 }
                 
-                data.articles.forEach(article => {
+                let styleAdded = false;
+                data.articles.forEach((article, index) => {
                     try {
-                        const date = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Unknown date';
-                        const item = document.createElement('div');
-                        item.className = 'policy-item'; // Reuse existing styling
-                        item.style.display = 'block';
-                        item.style.padding = '12px 0';
+                        const date = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}) : 'Unknown date';
                         
+                        if (!styleAdded) {
+                            const style = document.createElement('style');
+                            style.textContent = `
+                                .news-card {
+                                    display: flex;
+                                    gap: 16px;
+                                    padding: 16px;
+                                    margin-bottom: 12px;
+                                    background: rgba(255, 255, 255, 0.02);
+                                    border: 1px solid rgba(255, 255, 255, 0.04);
+                                    border-radius: 8px;
+                                    transition: all 0.2s ease;
+                                    text-decoration: none;
+                                    color: inherit;
+                                }
+                                .news-card:hover {
+                                    background: rgba(255, 255, 255, 0.05);
+                                    border-color: rgba(0, 212, 170, 0.3);
+                                    transform: translateY(-2px);
+                                }
+                                .news-num {
+                                    flex-shrink: 0;
+                                    width: 28px;
+                                    height: 28px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    background: rgba(0, 212, 170, 0.1);
+                                    color: var(--teal, #00d4aa);
+                                    border-radius: 50%;
+                                    font-size: 13px;
+                                    font-weight: 600;
+                                    font-family: 'IBM Plex Mono', monospace;
+                                }
+                                .news-content {
+                                    flex: 1;
+                                    min-width: 0;
+                                }
+                                .news-title {
+                                    color: var(--teal, #00d4aa);
+                                    font-size: 15px;
+                                    font-weight: 600;
+                                    margin-bottom: 6px;
+                                    line-height: 1.4;
+                                    transition: color 0.2s;
+                                }
+                                .news-card:hover .news-title {
+                                    color: #fff;
+                                }
+                                .news-desc {
+                                    font-size: 13.5px;
+                                    color: var(--t3, #a0aec0);
+                                    margin-bottom: 10px;
+                                    line-height: 1.5;
+                                    display: -webkit-box;
+                                    -webkit-line-clamp: 2;
+                                    -webkit-box-orient: vertical;
+                                    overflow: hidden;
+                                }
+                                .news-meta {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    font-size: 11.5px;
+                                    color: var(--t4, #718096);
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                    font-weight: 500;
+                                }
+                            `;
+                            container.appendChild(style);
+                            styleAdded = true;
+                        }
+
                         const title = article.title || 'Untitled';
                         const link = article.url || '#';
                         const desc = article.description || 'No description available.';
                         const sourceName = (article.source && article.source.name) ? article.source.name : 'Unknown Source';
+
+                        const item = document.createElement('a');
+                        item.href = link;
+                        item.target = '_blank';
+                        item.className = 'news-card';
                         
                         item.innerHTML = `
-                            <div style="margin-bottom:6px;">
-                                <a href="${link}" target="_blank" class="pi-title" style="color:var(--teal); text-decoration:none; font-size:14px; font-weight:600;">${title}</a>
-                            </div>
-                            <div style="font-size:13px; color:var(--t3); margin-bottom:8px; line-height:1.4;">
-                                ${desc}
-                            </div>
-                            <div class="pi-meta" style="font-size:11px; color:var(--t4);">
-                                ${sourceName} · ${date}
+                            <div class="news-num">${index + 1}</div>
+                            <div class="news-content">
+                                <div class="news-title">${title}</div>
+                                <div class="news-desc">${desc}</div>
+                                <div class="news-meta">
+                                    <span>${sourceName}</span>
+                                    <span style="opacity:0.5">•</span>
+                                    <span>${date}</span>
+                                </div>
                             </div>
                         `;
                         container.appendChild(item);
