@@ -11,8 +11,9 @@ export default async function handler(req, res) {
   }
 
   const apiKey = '8203ca35fa43ce8d6354bef20fb133a0';
-  const query = 'carbon OR "carbon credits" OR "carbon permits" OR emissions OR "climate change" OR "net zero" OR decarbonization';
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&sortBy=publishedAt&apikey=${apiKey}`;
+// This groups carbon with environmental keywords while keeping your other specific phrases intact
+const query = '(carbon AND (credits OR permits OR footprint OR taxation OR tax OR offsets OR market)) OR "paris agreement" OR emissions OR "climate change" OR "net zero" OR decarbonization'; 
+const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&sortBy=publishedAt&apikey=${apiKey}`;
 
   try {
     const response = await fetch(url);
