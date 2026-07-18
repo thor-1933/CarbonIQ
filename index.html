@@ -5167,17 +5167,19 @@
     <!-- DASHBOARD -->
         <div id="page-dashboard">
         <div class="dash-wrap" style="background:var(--bg1);">
-            <!-- Mobile Header for Dashboard -->
-            <div class="dash-mob-header" style="display:none; align-items:center; justify-content:space-between; padding:16px 24px; background:rgba(15,18,25,0.9); border-bottom:1px solid rgba(255,255,255,0.06); position:sticky; top:0; z-index:40; backdrop-filter:blur(10px);">
-                <div style="font-size:18px; font-weight:800; font-family:var(--display); letter-spacing:-0.5px;">Carbon<span style="color:var(--teal);">IQ</span></div>
-                <button class="nav-ham" id="dashHam" onclick="toggleDashMenu()" aria-label="Menu" style="display:flex;">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
+            <!-- Mobile Floating Menu Button -->
+            <button class="nav-ham dash-mob-ham" id="dashHam" onclick="toggleDashMenu()" aria-label="Menu" style="display:none; position:fixed; top:20px; right:20px; z-index:90; background:rgba(15,18,25,0.85); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:12px 10px; flex-direction:column; justify-content:space-between; width:44px; height:44px; cursor:pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                <span style="display:block; width:100%; height:2px; background:var(--teal, #00d4aa); border-radius:2px; transition:0.3s; pointer-events:none;"></span>
+                <span style="display:block; width:100%; height:2px; background:var(--teal, #00d4aa); border-radius:2px; transition:0.3s; pointer-events:none;"></span>
+                <span style="display:block; width:100%; height:2px; background:var(--teal, #00d4aa); border-radius:2px; transition:0.3s; pointer-events:none;"></span>
+            </button>
             <style>
                 @media (max-width: 960px) {
-                    .dash-mob-header { display: flex !important; }
-                    .dash-content { padding: 16px !important; }
+                    .dash-mob-ham { display: flex !important; }
+                    .dash-content { padding: 80px 16px 24px 16px !important; }
+                    .dash-mob-ham.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+                    .dash-mob-ham.open span:nth-child(2) { opacity: 0; }
+                    .dash-mob-ham.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
                 }
             </style>
             
