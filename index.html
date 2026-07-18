@@ -4224,6 +4224,9 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.1/dist/chartjs-chart-financial.js"></script>
 </head>
 <body>
     <!-- BG ORBS -->
@@ -7676,13 +7679,18 @@
             if (rangeKey === '1M' || rangeKey === '3M' || rangeKey === '6M') return customDate;
             return `${monthStr} '${yearStr}`;
         });
-        const dataVals = points.map(p => p.y);
+        const dataVals = points.map(p => {
+            if (chartType === 'candlestick') {
+                return { x: p.x, o: p.open, h: p.high, l: p.low, c: p.y };
+            }
+            return p.y;
+        });
         
         const gridColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
         const textColor = isLight ? '#64748B' : '#6D8Baa';
 
         window.dashChartInstance = new Chart(canvas.getContext('2d'), {
-            type: chartType === 'bar' ? 'bar' : 'line',
+            type: chartType === 'bar' ? 'bar' : (chartType === 'candlestick' ? 'candlestick' : 'line'),
             data: {
                 labels: labels,
                 datasets: [{
@@ -7691,6 +7699,11 @@
                     borderColor: activeColorHex,
                     backgroundColor: chartType === 'area' ? activeColorGlow : (chartType === 'bar' ? activeColorHex : 'transparent'),
                     borderWidth: 2,
+                    color: {
+                        up: isLight ? '#059669' : '#00FF87',
+                        down: isLight ? '#EF4444' : '#FF4444',
+                        unchanged: isLight ? '#64748B' : '#94A3B8'
+                    },
                     pointRadius: 0,
                     pointHoverRadius: 5,
                     fill: chartType === 'area',
@@ -7758,10 +7771,7 @@
                             maxRotation: 0,
                             callback: function(value, index, values) {
                                 const label = labels[index];
-                                if (rangeKey === '1W') {
-                                    const parts = label.split(',');
-                                    if (parts.length >= 2) return parts[0].trim();
-                                }
+                                
                                 return label;
                             }
                         }
