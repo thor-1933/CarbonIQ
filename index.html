@@ -5167,7 +5167,21 @@
     <!-- DASHBOARD -->
         <div id="page-dashboard">
         <div class="dash-wrap" style="background:var(--bg1);">
+            <!-- Mobile Header for Dashboard -->
+            <div class="dash-mob-header" style="display:none; align-items:center; justify-content:space-between; padding:16px 24px; background:rgba(15,18,25,0.9); border-bottom:1px solid rgba(255,255,255,0.06); position:sticky; top:0; z-index:40; backdrop-filter:blur(10px);">
+                <div style="font-size:18px; font-weight:800; font-family:var(--display); letter-spacing:-0.5px;">Carbon<span style="color:var(--teal);">IQ</span></div>
+                <button class="nav-ham" id="dashHam" onclick="toggleDashMenu()" aria-label="Menu" style="display:flex;">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+            <style>
+                @media (max-width: 960px) {
+                    .dash-mob-header { display: flex !important; }
+                    .dash-content { padding: 16px !important; }
+                }
+            </style>
             
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleDashMenu()"></div>
             <!-- Glassmorphic Sidebar -->
             <nav class="sidebar" id="sidebar" style="background:linear-gradient(180deg, rgba(10,13,18,0.85) 0%, rgba(10,13,18,0.95) 100%); backdrop-filter:blur(24px); border-right:1px solid rgba(255,255,255,0.06); width:240px; display:flex; flex-direction:column; padding:24px 16px;">
                 <div class="sb-brand" style="margin-bottom:40px; padding-left:12px;">
