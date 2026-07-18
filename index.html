@@ -7661,7 +7661,7 @@
         const labels = points.map(p => {
             const d = new Date(p.x);
             
-            const getOrdinalNum = (n) => n + (n > 0 ? ['th', 'st', 'nd', 'rd'][(n > 3 && n < 21) || n % 10 > 3 ? 0 : n % 10] : '');
+            const getOrdinalNum = (n) => n + (n > 0 ? ['ᵗʰ', 'ˢᵗ', 'ⁿᵈ', 'ʳᵈ'][(n > 3 && n < 21) || n % 10 > 3 ? 0 : n % 10] : '');
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
             const dayStr = getOrdinalNum(d.getDate());
