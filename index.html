@@ -4206,6 +4206,8 @@
             document.documentElement.classList.toggle('light-mode');
             const isLight = document.documentElement.classList.contains('light-mode');
             localStorage.setItem('carboniq_theme', isLight ? 'light' : 'dark');
+            const checkbox = document.getElementById("themeCheckbox");
+            if (checkbox) checkbox.checked = isLight;
             
             // Re-render chart if it exists and we've migrated to Chart.js
             if (window.dashChartInstance) {
@@ -5310,21 +5312,6 @@
                             <div class="sb-user-plan" style="font-size:10px; color:var(--gold); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Pro Plan</div>
                         </div>
                     </div>
-                    
-                    <div class="sb-item" onclick="toggleTheme()" style="padding:8px 12px; margin-bottom:4px;">
-                        <svg class="sb-icon" viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                        <span style="font-size:12px;">Toggle Theme</span>
-                    </div>
                     <div class="sb-item" onclick="showPage('landing')" style="padding:8px 12px;">
                         <svg class="sb-icon" viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         <span style="font-size:12px;">Back to Site</span>
@@ -5406,6 +5393,67 @@
                                                     
                                                     <span class="section-badge badge-live" id="dashLiveBadge" style="background:transparent; border:1px solid rgba(255,255,255,0.1); padding:4px 10px; border-radius:12px; display:flex; align-items:center; gap:6px;">
                                                         <span class="pulse-dot" id="marketStatusDot" style="width:6px; height:6px; flex-shrink:0; background:var(--signal); box-shadow:0 0 8px var(--signal); border-radius:50%;"></span>
+                                                    <!-- Theme Toggle Switch -->
+                                                    <style>
+                                                        .theme-switch {
+                                                            position: relative;
+                                                            display: inline-block;
+                                                            width: 38px;
+                                                            height: 20px;
+                                                            vertical-align: middle;
+                                                        }
+                                                        .theme-switch input {
+                                                            opacity: 0;
+                                                            width: 0;
+                                                            height: 0;
+                                                        }
+                                                        .theme-slider {
+                                                            position: absolute;
+                                                            cursor: pointer;
+                                                            inset: 0;
+                                                            background-color: rgba(255, 255, 255, 0.08);
+                                                            border: 1px solid rgba(255, 255, 255, 0.15);
+                                                            transition: 0.25s ease;
+                                                            border-radius: 20px;
+                                                        }
+                                                        .theme-slider:before {
+                                                            position: absolute;
+                                                            content: "";
+                                                            height: 12px;
+                                                            width: 12px;
+                                                            left: 3px;
+                                                            bottom: 3px;
+                                                            background-color: var(--t2);
+                                                            transition: 0.25s ease;
+                                                            border-radius: 50%;
+                                                            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+                                                        }
+                                                        input:checked + .theme-slider {
+                                                            background-color: rgba(0, 212, 170, 0.2);
+                                                            border-color: rgba(0, 212, 170, 0.4);
+                                                        }
+                                                        input:checked + .theme-slider:before {
+                                                            transform: translateX(18px);
+                                                            background-color: var(--teal);
+                                                        }
+                                                    </style>
+                                                    <script>
+                                                        if (typeof toggleTheme === 'undefined') {
+                                                            window.toggleTheme = function() {
+                                                                document.documentElement.classList.toggle('light-mode');
+                                                                const isLight = document.documentElement.classList.contains('light-mode');
+                                                                localStorage.setItem('carboniq_theme', isLight ? 'light' : 'dark');
+                                                            };
+                                                        }
+                                                    </script>
+                                                    <div style="display:flex; align-items:center; gap:8px; margin-left:12px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.05); padding:4px 10px; border-radius:12px;">
+                                                        <span style="font-size:10px; font-weight:700; font-family:var(--mono); color:var(--t3); text-transform:uppercase; letter-spacing:0.5px;">Light Mode</span>
+                                                        <label class="theme-switch" for="themeCheckbox">
+                                                            <input type="checkbox" id="themeCheckbox" onclick="toggleTheme()" />
+                                                            <span class="theme-slider"></span>
+                                                        </label>
+                                                    </div>
+                                                    
                                                         <span id="marketStatusLabel" style="color:var(--t2); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Live</span>
                                                     </span>
                                                 </div>
@@ -8019,6 +8067,8 @@
 
     // ─── INIT DASHBOARD ──────────────────────────────────────────────
     async function initDashCharts() {
+        const checkbox = document.getElementById("themeCheckbox");
+        if (checkbox) checkbox.checked = document.documentElement.classList.contains("light-mode");
         // Show all symbols in the performance comparison chart by default
         Object.keys(MARKET_TICKERS).forEach((sym, idx) => {
             performanceSeriesHidden[idx] = false;
