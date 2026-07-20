@@ -5564,14 +5564,14 @@
                         <div style="display:flex;flex-direction:column;gap:12px">
                             <div class="card">
                                 <div class="card-hd"><span class="card-title">Model Signal Summary</span></div>
-                                <div class="acc-row"><span class="acc-lbl">Trend Direction</span><div class="acc-track"><div class="acc-fill acc-g" style="width:78%"></div></div><span class="acc-num pos">Bullish</span></div>
-                                <div class="acc-row"><span class="acc-lbl">Volatility</span><div class="acc-track"><div class="acc-fill acc-a" style="width:42%"></div></div><span class="acc-num neu">Moderate</span></div>
-                                <div class="acc-row"><span class="acc-lbl">Momentum</span><div class="acc-track"><div class="acc-fill acc-g" style="width:68%"></div></div><span class="acc-num pos">Positive</span></div>
-                                <div class="acc-row"><span class="acc-lbl">Policy Risk</span><div class="acc-track"><div class="acc-fill acc-a" style="width:35%"></div></div><span class="acc-num neu">Low-Med</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Trend Direction</span><div class="acc-track"><div id="aiTrendFill" class="acc-fill acc-g" style="width:78%"></div></div><span id="aiTrendVal" class="acc-num pos">Bullish</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Volatility</span><div class="acc-track"><div id="aiVolFill" class="acc-fill acc-a" style="width:42%"></div></div><span id="aiVolVal" class="acc-num neu">Moderate</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Momentum</span><div class="acc-track"><div id="aiMomFill" class="acc-fill acc-g" style="width:68%"></div></div><span id="aiMomVal" class="acc-num pos">Positive</span></div>
+                                <div class="acc-row"><span class="acc-lbl">Policy Risk</span><div class="acc-track"><div id="aiPolicyFill" class="acc-fill acc-a" style="width:35%"></div></div><span id="aiPolicyVal" class="acc-num neu">Low-Med</span></div>
                             </div>
                             <div class="card">
                                 <div class="card-hd"><span class="card-title">Feature Inputs</span></div>
-                                <div style="font-size:11px;color:var(--t2);line-height:2.1">
+                                <div id="aiFeaturesList" style="font-size:11px;color:var(--t2);line-height:2.1">
                                     ✓ EUA close price (60d lookback)<br>✓ Daily volume &amp; open interest<br>✓ Gas/power spread proxy<br>✓ EU policy event flags<br>✓ RSI, MACD, Bollinger Bands<br>✓ EUR/USD exchange rate<br>✓ VIX volatility index<br>✓ Temperature anomaly index
                                 </div>
                             </div>
@@ -6508,7 +6508,7 @@
             if (n) n.classList.add('active');
         } else if (name === 'ai') {
             var n2 = document.querySelector('.nav-link[data-page="ai-explainer"]');
-            if (n2) n2.classList.add('active');
+            if (n2) { n2.classList.add('active'); updateAIPredictions(currentDashboardSymbol); }
         } else if (name === 'policy') {
             var n3 = document.querySelector('.nav-link[data-page="dashboard-policy"]');
             if (n3) n3.classList.add('active');
@@ -8124,7 +8124,7 @@
         await fetchFXRates();
         
         // Re-fetch statistics and render the main chart
-        await setDashRange(currentRange);
+        await setDashRange(currentRange); if (document.getElementById('panel-ai').classList.contains('active')) { updateAIPredictions(symbol); }
     }
 
     // ─── INIT DASHBOARD ──────────────────────────────────────────────
