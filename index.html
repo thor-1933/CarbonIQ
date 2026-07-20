@@ -5300,10 +5300,6 @@
                         <svg class="sb-icon" viewBox="0 0 16 16" fill="none" width="18" height="18"><path d="M3 3h10v2H3zM3 7h8v2H3zM3 11h6v2H3z" fill="currentColor" opacity=".7"/></svg>
                         <span>Market News</span>
                     </div>
-                    <div class="sb-item" onclick="switchPanel('spread',this)">
-                        <svg class="sb-icon" viewBox="0 0 16 16" fill="none" width="18" height="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="12" r="1.5"/><circle cx="12" cy="4" r="1.5"/><line x1="5.5" y1="10.5" x2="10.5" y2="5.5"/><line x1="2" y1="14" x2="14" y2="2" stroke-dasharray="2 2" opacity="0.5"/></svg>
-                        <span>Spread & Arbitrage</span>
-                    </div>
                 </div>
 
                 <div class="sb-bottom" style="margin-top:auto; display:flex; flex-direction:column; gap:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:20px;">
@@ -5615,110 +5611,7 @@
 
                 
                 
-                </div>
-                
-                <div class="panel" id="panel-spread">
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:18px">
-                        <div>
-                            <h2 class="panel-title" style="margin-bottom:0; font-size:24px; font-weight:700;">Market Spread &amp; Correlation Analytics</h2>
-                            <div style="font-size:11px; color:var(--t4); margin-top:4px;">Cross-Market Arbitrage &amp; statistical tracking</div>
-                        </div>
-                        
-                        <!-- Range Select for Spread -->
-                        <div class="range-sel" id="spreadRangeSel">
-                            <button class="range-btn" data-range="1D" onclick="setSpreadRange('1D',this)">1D</button>
-                            <button class="range-btn" data-range="1W" onclick="setSpreadRange('1W',this)">1W</button>
-                            <button class="range-btn active" data-range="1M" onclick="setSpreadRange('1M',this)">1M</button>
-                            <button class="range-btn" data-range="3M" onclick="setSpreadRange('3M',this)">3M</button>
-                            <button class="range-btn" data-range="1Y" onclick="setSpreadRange('1Y',this)">1Y</button>
-                            
-                        </div>
-                    </div>
-
-                    <div class="stat-row">
-                        <div class="stat-card">
-                            <div class="stat-lbl">EUA - CCA Spread (USD)</div>
-                            <div class="stat-val pos" id="spreadVal">$—</div>
-                            <div class="stat-chg" id="spreadChange">Loading...</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-lbl">Correlation Coefficient (r)</div>
-                            <div class="stat-val" id="spreadCorr" style="color:var(--teal)">—</div>
-                            <div class="stat-chg" id="spreadCorrStrength">Loading...</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-lbl">EUA / CCA Ratio</div>
-                            <div class="stat-val" id="spreadRatio" style="color:var(--gold)">—</div>
-                            <div class="stat-chg" id="spreadRatioAvg">Avg: —</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-lbl">Spread Z-Score</div>
-                            <div class="stat-val" id="spreadZScore" style="color:var(--t1)">—</div>
-                            <div class="stat-chg" id="spreadZLabel">Standard Devs</div>
-                        </div>
-                    </div>
-
-                    <div class="dash-prices-layout">
-                        <!-- LEFT: Spread Chart -->
-                        <div class="dash-chart-col" style="flex: 2; min-width: 320px;">
-                            <div class="chart-card">
-                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                                    <div>
-                                        <div style="font-size:13px;font-weight:600;font-family:var(--display)">EUA vs KCCA Price Differential (USD)</div>
-                                        <div style="font-size:11px;color:var(--t3);margin-top:2px" id="spreadChartSub">Calculated using live exchange rates</div>
-                                    </div>
-                                    <span class="section-badge badge-live">● Spread Live</span>
-                                </div>
-                                <div id="spreadPriceChart" style="min-height:280px"></div>
-                            </div>
-                        </div>
-
-                        <!-- RIGHT: Correlation Matrix & Stats -->
-                        <div class="dash-fx-col" style="flex: 1; min-width: 280px;">
-                            <div class="dash-fx-card" style="padding: 20px">
-                                <div class="dash-fx-title" style="margin-bottom: 6px">Correlation Matrix</div>
-                                <div style="font-size:11px;color:var(--t3);margin-bottom:18px">Price movement correlation (Pearson r)</div>
-                                
-                                <div class="matrix-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; font-family:var(--mono); font-size:11px; text-align:center; margin-bottom: 20px;">
-                                    <!-- Header -->
-                                    <div></div>
-                                    <div style="font-weight:600;color:var(--t3)">EUA</div>
-                                    <div style="font-weight:600;color:var(--t3)">CCA</div>
-                                    <div style="font-weight:600;color:var(--t3)">CHN</div>
-                                    
-                                    <!-- Row 1 -->
-                                    <div style="font-weight:600;color:var(--t3);text-align:left">EUA</div>
-                                    <div style="background:rgba(201, 168, 76, 0.15);color:var(--gold);padding:6px;border-radius:4px">1.00</div>
-                                    <div id="corr-eua-cca" style="background:var(--bg4);padding:6px;border-radius:4px">—</div>
-                                    <div id="corr-eua-chn" style="background:var(--bg4);padding:6px;border-radius:4px">—</div>
-
-                                    <!-- Row 2 -->
-                                    <div style="font-weight:600;color:var(--t3);text-align:left">CCA</div>
-                                    <div id="corr-cca-eua" style="background:var(--bg4);padding:6px;border-radius:4px">—</div>
-                                    <div style="background:rgba(201, 168, 76, 0.15);color:var(--gold);padding:6px;border-radius:4px">1.00</div>
-                                    <div id="corr-cca-chn" style="background:var(--bg4);padding:6px;border-radius:4px">—</div>
-
-                                    <!-- Row 3 -->
-                                    <div style="font-weight:600;color:var(--t3);text-align:left">CHN</div>
-                                    <div id="corr-chn-eua" style="background:var(--bg4);padding:6px;border-radius:4px">—</div>
-                                    <div id="corr-chn-cca" style="background:var(--bg4);padding:6px;border-radius:4px">—</div>
-                                    <div style="background:rgba(201, 168, 76, 0.15);color:var(--gold);padding:6px;border-radius:4px">1.00</div>
-                                </div>
-
-                                <div style="height:1px;background:var(--b2);margin:20px 0 16px"></div>
-
-                                <div class="dash-fx-title" style="margin-bottom:12px;font-size:12px">Statistical Summary</div>
-                                <div style="display:flex;flex-direction:column;gap:8px;font-size:11.5px">
-                                    <div style="display:flex;justify-content:space-between;color:var(--t3)">Average Spread: <span id="statsSpreadAvg" style="color:var(--t2);font-family:var(--mono)">—</span></div>
-                                    <div style="display:flex;justify-content:space-between;color:var(--t3)">Spread Std Dev: <span id="statsSpreadStd" style="color:var(--t2);font-family:var(--mono)">—</span></div>
-                                    <div style="display:flex;justify-content:space-between;color:var(--t3)">Range High: <span id="statsSpreadHigh" style="color:var(--teal);font-family:var(--mono)">—</span></div>
-                                    <div style="display:flex;justify-content:space-between;color:var(--t3)">Range Low: <span id="statsSpreadLow" style="color:var(--red);font-family:var(--mono)">—</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+                </div></main>
         </div>
     </div>
 
@@ -5769,7 +5662,6 @@
     let currentPrevClose = null;
     let dashRefreshTimer = null;
     let currentDashboardSymbol = 'CO2.MI';
-    let currentSpreadRange = '1M';
 
     const holdingsPrices = {
         'CO2.MI': 63.45,
@@ -6512,8 +6404,6 @@
         } else if (name === 'policy') {
             var n3 = document.querySelector('.nav-link[data-page="dashboard-policy"]');
             if (n3) n3.classList.add('active');
-        } else if (name === 'spread') {
-            loadSpreadAnalytics(currentSpreadRange);
         }
     }
 
@@ -8178,196 +8068,7 @@
         const num = n * sumXY - sumX * sumY;
         const den = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
         return den === 0 ? 0 : num / den;
-    }
-
-    async function setSpreadRange(rangeKey, btn) {
-        if (btn) {
-            document.querySelectorAll('#spreadRangeSel .range-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-        currentSpreadRange = rangeKey;
-        await loadSpreadAnalytics(rangeKey);
-    }
-
-    async function loadSpreadAnalytics(rangeKey = '1M') {
-        const map = {
-            '1D': { range: '1d', interval: '5m' },
-            '1W': { range: '7d', interval: '15m' },
-            '1M': { range: '1mo', interval: '1d' },
-            '3M': { range: '3mo', interval: '1d' },
-            '1Y': { range: '1y', interval: '1wk' },
-            'ALL': { range: 'max', interval: '1mo' },
-        };
-        const config = map[rangeKey] || map['1M'];
-        const chartContainer = document.getElementById('spreadPriceChart');
-        if (chartContainer) chartContainer.style.opacity = '0.5';
-
-        try {
-            await fetchFXRates();
-            const eurToUsdRate = getEurToUsdRate();
-
-            const euaResult = await fetchYahooFinanceData(config.range, config.interval, 'CO2.MI');
-            const ccaResult = await fetchYahooFinanceData(config.range, config.interval, 'KCCA');
-            const chnResult = await fetchYahooFinanceData(config.range, config.interval, '3060.HK');
-
-            if (!euaResult || !ccaResult || !chnResult) throw new Error('Data fetch failed');
-
-            const aligned = [];
-            ccaResult.points.forEach(ccaPt => {
-                let closestEua = null;
-                let minDiff = Infinity;
-                euaResult.points.forEach(euaPt => {
-                    const diff = Math.abs(euaPt.x - ccaPt.x);
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                        closestEua = euaPt;
-                    }
-                });
-
-                let closestChn = null;
-                let minDiffChn = Infinity;
-                chnResult.points.forEach(chnPt => {
-                    const diff = Math.abs(chnPt.x - ccaPt.x);
-                    if (diff < minDiffChn) {
-                        minDiffChn = diff;
-                        closestChn = chnPt;
-                    }
-                });
-
-                if (closestEua && minDiff < 24 * 3600 * 1000) {
-                    aligned.push({
-                        x: ccaPt.x,
-                        cca: ccaPt.y,
-                        eua: closestEua.y * eurToUsdRate,
-                        chn: closestChn ? getPriceInUSD(closestChn.y, 'HKD') : null
-                    });
-                }
-            });
-
-            if (aligned.length === 0) throw new Error('No aligned data points');
-
-            const spreads = aligned.map(p => p.eua - p.cca);
-            const ratios = aligned.map(p => p.eua / p.cca);
-
-            const latestSpread = spreads[spreads.length - 1];
-            const latestRatio = ratios[ratios.length - 1];
-
-            const avgSpread = spreads.reduce((a,b) => a+b, 0) / spreads.length;
-            const avgRatio = ratios.reduce((a,b) => a+b, 0) / ratios.length;
-
-            const variance = spreads.reduce((a,b) => a + Math.pow(b - avgSpread, 2), 0) / spreads.length;
-            const stdDev = Math.sqrt(variance);
-
-            const zScore = stdDev === 0 ? 0 : (latestSpread - avgSpread) / stdDev;
-            const maxSpread = Math.max(...spreads);
-            const minSpread = Math.min(...spreads);
-
-            const euaSeries = aligned.map(p => p.eua);
-            const ccaSeries = aligned.map(p => p.cca);
-            const chnSeries = aligned.filter(p => p.chn !== null).map(p => p.chn);
-            const euaSeriesForChn = aligned.filter(p => p.chn !== null).map(p => p.eua);
-            const ccaSeriesForChn = aligned.filter(p => p.chn !== null).map(p => p.cca);
-
-            const corrEuaCca = getCorrelation(euaSeries, ccaSeries);
-            const corrEuaChn = getCorrelation(euaSeriesForChn, chnSeries);
-            const corrCcaChn = getCorrelation(ccaSeriesForChn, chnSeries);
-
-            const updateText = (id, txt) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = txt;
-            };
-
-            const changeVal = latestSpread - spreads[0];
-            const changePct = spreads[0] ? (changeVal / Math.abs(spreads[0])) * 100 : 0;
-            const arrow = changeVal > 0 ? '▲' : changeVal < 0 ? '▼' : '•';
-            const tone = changeVal > 0 ? 'pos' : changeVal < 0 ? 'neg' : 'neu';
-
-            updateText('spreadVal', '$' + latestSpread.toFixed(2));
-            const changeEl = document.getElementById('spreadChange');
-            if (changeEl) {
-                changeEl.textContent = arrow + ' ' + (changeVal > 0 ? '+' : '') + changeVal.toFixed(2) + ' (' + changePct.toFixed(2) + '%)';
-                changeEl.className = 'stat-chg ' + tone;
-            }
-
-            updateText('spreadCorr', corrEuaCca.toFixed(2));
-            const corrLabelEl = document.getElementById('spreadCorrStrength');
-            if (corrLabelEl) {
-                const rVal = Math.abs(corrEuaCca);
-                let label = 'Weak';
-                if (rVal > 0.8) label = 'Very Strong';
-                else if (rVal > 0.6) label = 'Strong';
-                else if (rVal > 0.4) label = 'Moderate';
-                corrLabelEl.textContent = label + ' Correlation';
-            }
-
-            updateText('spreadRatio', latestRatio.toFixed(2) + 'x');
-            updateText('spreadRatioAvg', 'Avg: ' + avgRatio.toFixed(2) + 'x');
-
-            updateText('spreadZScore', (zScore > 0 ? '+' : '') + zScore.toFixed(2));
-            const zLabelEl = document.getElementById('spreadZLabel');
-            if (zLabelEl) {
-                const zVal = Math.abs(zScore);
-                let label = 'Normal Range';
-                if (zVal > 2.0) label = 'Extreme Outlier';
-                else if (zVal > 1.5) label = 'Moderate Deviation';
-                zLabelEl.textContent = label;
-                zLabelEl.style.color = zVal > 2.0 ? 'var(--red)' : (zVal > 1.5 ? 'var(--amber)' : 'var(--t3)');
-            }
-
-            const updateCell = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.textContent = val.toFixed(2);
-                    const absVal = Math.abs(val);
-                    el.style.color = val > 0 ? 'var(--teal)' : 'var(--red)';
-                    el.style.background = `rgba(0, 212, 170, ${absVal * 0.15})`;
-                }
-            };
-
-            updateCell('corr-eua-cca', corrEuaCca);
-            updateCell('corr-cca-eua', corrEuaCca);
-            updateCell('corr-eua-chn', corrEuaChn);
-            updateCell('corr-chn-eua', corrEuaChn);
-            updateCell('corr-cca-chn', corrCcaChn);
-            updateCell('corr-chn-cca', corrCcaChn);
-
-            updateText('statsSpreadAvg', '$' + avgSpread.toFixed(2));
-            updateText('statsSpreadStd', '$' + stdDev.toFixed(2));
-            updateText('statsSpreadHigh', '$' + maxSpread.toFixed(2));
-            updateText('statsSpreadLow', '$' + minSpread.toFixed(2));
-
-            const chartPoints = aligned.map(p => ({ x: p.x, y: p.eua - p.cca }));
-            renderSpreadChart(chartPoints, rangeKey);
-
-            if (chartContainer) chartContainer.style.opacity = '1';
-            const subEl = document.getElementById('spreadChartSub');
-            if (subEl) subEl.textContent = 'Calculated using live exchange rates · ' + new Date().toLocaleTimeString();
-
-        } catch (err) {
-            console.error('Spread load error:', err);
-            if (chartContainer) chartContainer.style.opacity = '1';
-            const subEl = document.getElementById('spreadChartSub');
-            if (subEl) subEl.textContent = 'Error loading spread analytics. Re-trying...';
-        }
-    }
-
-    function renderSpreadChart(points, rangeKey) {
-        const seriesData = points.map(function(p) { return { x: p.x, y: Number(p.y.toFixed(4)) }; });
-
-        spreadChart = new CustomSVGChart('spreadPriceChart', {
-            height: 280,
-            type: 'area',
-            yPrefix: '$',
-            series: [{
-                name: 'EUA-CCA Spread (USD)',
-                data: seriesData
-            }],
-            colors: ['var(--signal)'],
-            dashArray: [0]
-        });
-    }
-
-    // ─── HERO LIVE INSTRUMENT PANEL ─────────────────────────────────────
+    }// ─── HERO LIVE INSTRUMENT PANEL ─────────────────────────────────────
     function initHeroInstrumentPanel() {
         const heroPrices = {
             'EUA':  { price: 63.45,  change: 2.06,  currency: '\u20ac' },
