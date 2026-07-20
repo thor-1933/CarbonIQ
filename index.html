@@ -5307,6 +5307,74 @@
                 <div class="sb-bottom" style="margin-top:auto; display:flex; flex-direction:column; gap:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:20px;">
                     <div class="sb-user" onclick="" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:8px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05); margin-bottom:8px; cursor:pointer; transition:all 0.2s ease;">
                         <div class="sb-av" id="sb-avatar" style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, var(--teal), var(--electric)); display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--ink); font-size:16px; box-shadow:0 0 12px rgba(0,212,170,0.4);">A</div>
+                    <!-- Theme Toggle Switch -->
+                    <style>
+                        .theme-switch {
+                            position: relative;
+                            display: inline-block;
+                            width: 34px;
+                            height: 18px;
+                            vertical-align: middle;
+                            margin: 0;
+                        }
+                        .theme-switch input {
+                            opacity: 0;
+                            width: 0;
+                            height: 0;
+                        }
+                        .theme-slider {
+                            position: absolute;
+                            cursor: pointer;
+                            inset: 0;
+                            background-color: rgba(255, 255, 255, 0.08);
+                            border: 1px solid rgba(255, 255, 255, 0.15);
+                            transition: 0.25s ease;
+                            border-radius: 20px;
+                        }
+                        .theme-slider:before {
+                            position: absolute;
+                            content: "";
+                            height: 10px;
+                            width: 10px;
+                            left: 3px;
+                            bottom: 3px;
+                            background-color: var(--t2);
+                            transition: 0.25s ease;
+                            border-radius: 50%;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+                        }
+                        input:checked + .theme-slider {
+                            background-color: rgba(0, 212, 170, 0.2);
+                            border-color: rgba(0, 212, 170, 0.4);
+                        }
+                        input:checked + .theme-slider:before {
+                            transform: translateX(16px);
+                            background-color: var(--teal);
+                        }
+                    </style>
+                    <script>
+                        if (typeof toggleTheme === 'undefined') {
+                            window.toggleTheme = function() {
+                                document.documentElement.classList.toggle('light-mode');
+                                const isLight = document.documentElement.classList.contains('light-mode');
+                                localStorage.setItem('carboniq_theme', isLight ? 'light' : 'dark');
+                            };
+                        }
+                    </script>
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; margin-bottom:4px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.05); border-radius:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <svg viewBox="0 0 24 24" fill="none" width="14" height="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7; color:var(--t2);">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                            </svg>
+                            <span style="font-size:12px; font-weight:600; color:var(--t2); font-family:var(--display);">Light Mode</span>
+                        </div>
+                        <label class="theme-switch" for="themeCheckbox">
+                            <input type="checkbox" id="themeCheckbox" onclick="toggleTheme()" />
+                            <span class="theme-slider"></span>
+                        </label>
+                    </div>
                         <div>
                             <div class="sb-user-name" id="sb-name" style="font-size:13px; font-weight:600; color:var(--t1);">Alex Morgan</div>
                             <div class="sb-user-plan" style="font-size:10px; color:var(--gold); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Pro Plan</div>
@@ -5397,66 +5465,7 @@
                                                     
                                                         <span id="marketStatusLabel" style="color:var(--t2); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Live</span>
                                                     </span>
-                                                    <!-- Theme Toggle Switch -->
-                                                    <style>
-                                                        .theme-switch {
-                                                            position: relative;
-                                                            display: inline-block;
-                                                            width: 38px;
-                                                            height: 20px;
-                                                            vertical-align: middle;
-                                                        }
-                                                        .theme-switch input {
-                                                            opacity: 0;
-                                                            width: 0;
-                                                            height: 0;
-                                                        }
-                                                        .theme-slider {
-                                                            position: absolute;
-                                                            cursor: pointer;
-                                                            inset: 0;
-                                                            background-color: rgba(255, 255, 255, 0.08);
-                                                            border: 1px solid rgba(255, 255, 255, 0.15);
-                                                            transition: 0.25s ease;
-                                                            border-radius: 20px;
-                                                        }
-                                                        .theme-slider:before {
-                                                            position: absolute;
-                                                            content: "";
-                                                            height: 12px;
-                                                            width: 12px;
-                                                            left: 3px;
-                                                            bottom: 3px;
-                                                            background-color: var(--t2);
-                                                            transition: 0.25s ease;
-                                                            border-radius: 50%;
-                                                            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-                                                        }
-                                                        input:checked + .theme-slider {
-                                                            background-color: rgba(0, 212, 170, 0.2);
-                                                            border-color: rgba(0, 212, 170, 0.4);
-                                                        }
-                                                        input:checked + .theme-slider:before {
-                                                            transform: translateX(18px);
-                                                            background-color: var(--teal);
-                                                        }
-                                                    </style>
-                                                    <script>
-                                                        if (typeof toggleTheme === 'undefined') {
-                                                            window.toggleTheme = function() {
-                                                                document.documentElement.classList.toggle('light-mode');
-                                                                const isLight = document.documentElement.classList.contains('light-mode');
-                                                                localStorage.setItem('carboniq_theme', isLight ? 'light' : 'dark');
-                                                            };
-                                                        }
-                                                    </script>
-                                                    <div style="display:flex; align-items:center; gap:8px; margin-left:12px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.05); padding:4px 10px; border-radius:12px;">
-                                                        <span style="font-size:10px; font-weight:700; font-family:var(--mono); color:var(--t3); text-transform:uppercase; letter-spacing:0.5px;">Light Mode</span>
-                                                        <label class="theme-switch" for="themeCheckbox">
-                                                            <input type="checkbox" id="themeCheckbox" onclick="toggleTheme()" />
-                                                            <span class="theme-slider"></span>
-                                                        </label>
-                                                    </div>
+                                                    
                                                 </div>
                                                 <div id="dashChartSub" style="font-family:var(--mono); font-size:11px; color:var(--t2);">Loading price feed status...</div>
                                             </div>
