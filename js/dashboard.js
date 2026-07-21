@@ -1948,3 +1948,10 @@
 
         runBoot();
     }
+
+    // Call init and start update ticker loop
+    (async function initTicker() {
+        buildTicker();
+        await updateTickerData();
+        setInterval(updateTickerData, 30000);
+    })();
