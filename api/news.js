@@ -1,25 +1,42 @@
-export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+const https = require('https');
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+module.exports = function handler(req, res) {
+    const symbol = req.query.symbol || 'CO2.MI';
+    const range = req.query.range || '1d';
+    const interval = req.query.interval || '5m';
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${encodeURIComponent(range)}&interval=${encodeURIComponent(interval)}&includePrePost=false`;
 
-  const apiKey = '8203ca35fa43ce8d6354bef20fb133a0';
-  const query = '("carbon credits" OR "carbon permits" OR "carbon offsets" OR "carbon trading" OR "carbon market" OR "carbon pricing" OR "ETS" OR "cap and trade")';  
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&sortBy=publishedAt&apikey=${apiKey}`;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('Error fetching news:', error);
-    res.status(500).json({ errors: ['Failed to fetch news from source'] });
-  }
-}
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    const options = {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+    };
+
+    https.get(url, options, (yahooRes) => {
+        let body = '';
+        yahooRes.on('data', (chunk) => {
+            body += chunk;
+        });
+        yahooRes.on('end', () => {
+            try {
+                if (yahooRes.statusCode !== 200) {
+                    return res.status(yahooRes.statusCode).json({ error: `Yahoo returned HTTP ${yahooRes.statusCode}` });
+                }
+                const data = JSON.parse(body);
+                return res.status(200).json(data);
+            } catch (e) {
+                return res.status(500).json({ error: 'Failed to parse response: ' + e.message });
+            }
+        });
+    }).on('error', (err) => {
+        return res.status(500).json({ error: err.message });
+    });
+};
