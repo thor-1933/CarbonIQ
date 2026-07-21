@@ -1,7 +1,7 @@
 // ─── DASHBOARD INTERACTION LOGIC ───
 
 // ─── PANEL SWITCH ──────────────────────────────────────────────────
-    function switchPanel(name, el) {
+    window.switchPanel = function(name, el) {
         document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
         document.querySelectorAll('.sb-item').forEach(function(s) { s.classList.remove('active'); });
         var target = document.getElementById('panel-' + name);
@@ -13,7 +13,7 @@
             if (n) n.classList.add('active');
         } else if (name === 'ai') {
             var n2 = document.querySelector('.nav-link[data-page="ai-explainer"]');
-            if (n2) { n2.classList.add('active'); updateAIPredictions(currentDashboardSymbol); }
+            if (n2) { n2.classList.add('active'); window.updateAIPredictions(window.currentDashboardSymbol); }
         } else if (name === 'policy') {
             var n3 = document.querySelector('.nav-link[data-page="dashboard-policy"]');
             if (n3) n3.classList.add('active');
@@ -180,16 +180,16 @@
         
         const results = await Promise.all(fetchPromises);
         results.forEach((res) => {
-            const oldPrice = holdingsPrices[res.symbol];
+            const oldPrice = window.holdingsPrices[res.symbol];
             if (res.price !== null && !isNaN(res.price)) {
-                holdingsPrices[res.symbol] = res.price;
-                holdingsChanges[res.symbol] = res.changePct;
+                window.holdingsPrices[res.symbol] = res.price;
+                window.holdingsChanges[res.symbol] = res.changePct;
                 
                 // Add to history
-                if (holdingsHistory[res.symbol]) {
-                    holdingsHistory[res.symbol].push(res.price);
-                    if (holdingsHistory[res.symbol].length > 10) {
-                        holdingsHistory[res.symbol].shift();
+                if (window.holdingsHistory[res.symbol]) {
+                    window.holdingsHistory[res.symbol].push(res.price);
+                    if (window.holdingsHistory[res.symbol].length > 10) {
+                        window.holdingsHistory[res.symbol].shift();
                     }
                 }
                 
@@ -231,446 +231,39 @@
             });
         });
 
-        updateHoldingsTable();
+        window.updateHoldingsTable();
         resetSyncTimer();
     }
 
-    // ─── CORS PROXIES ───────────────────────────────────────────────────
-    const CORS_PROXIES = [
-        // Vercel Serverless Proxy - bypassed CORS and is extremely fast on deployment
-        (url) => {
-            try {
-                const u = new URL(url);
-                const parts = u.pathname.split('/');
-                const sym = parts[parts.length - 1] || 'CO2.MI';
-                const r = u.searchParams.get('range') || '1d';
-                const iv = u.searchParams.get('interval') || '5m';
-                return `/api/yahoo?symbol=${sym}&range=${r}&interval=${iv}`;
-            } catch(e) {
-                return '/api/yahoo?symbol=CO2.MI&range=1d&interval=5m';
-            }
-        },
-        // corsproxy.io - extremely reliable and fast public proxy
-        (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        // Cloudflare-cached allorigins JSON wrap (backup)
-        (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-        // allorigins raw (backup)
-        (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        // codetabs (backup)
-        (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-    ];
+    
+    window.onMarketAssetChange = async function(symbol) {
+        window.currentDashboardSymbol = symbol;
+        
+        // Keep the dropdown selection synchronized
+        const dropdown = document.getElementById('marketSystemDropdown');
+        if (dropdown) dropdown.value = symbol;
 
-    // Call init and start update ticker loop
-    (async function initTicker() {
-        buildTicker();
-        await updateTickerData();
-        setInterval(updateTickerData, 30000);
-    })();
-
-    let lastKnownGood = null;
-
-    async function fetchYahooFinanceData(range, interval, symbol = 'CO2.MI') {
-        const yahooUrl =
-            `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}&includePrePost=false`;
-
-        for (let i = 0; i < CORS_PROXIES.length; i++) {
-            const proxyUrl = CORS_PROXIES[i](yahooUrl);
-            try {
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Request timed out')), 8000)
-                );
-                const response = await Promise.race([
-                    fetch(proxyUrl),
-                    timeoutPromise
-                ]);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-                const raw = await response.text();
-                let json;
-                try {
-                    const parsedOuter = JSON.parse(raw);
-                    json = (parsedOuter && typeof parsedOuter.contents === 'string') ?
-                        JSON.parse(parsedOuter.contents) : parsedOuter;
-                } catch (parseErr) {
-                    throw new Error('Unparseable proxy response');
-                }
-
-                const result = json && json.chart && json.chart.result && json.chart.result[0];
-                if (!result) throw new Error('No result in response');
-                if (json.chart.error) throw new Error(json.chart.error.description || 'Yahoo returned an error');
-
-                const meta = result.meta || {};
-                const timestamps = result.timestamp || [];
-                const quotes = (result.indicators && result.indicators.quote && result.indicators.quote[0]) || {};
-                const closePrices = quotes.close || [];
-
-                const points = [];
-                let latestOpen = null,
-                    latestHigh = null,
-                    latestLow = null;
-                for (let j = 0; j < timestamps.length; j++) {
-                    const price = closePrices[j];
-                    if (price !== null && price !== undefined && !isNaN(price)) {
-                        const ts = timestamps[j] * 1000;
-                        points.push({
-                            x: ts,
-                            y: price,
-                            open: (quotes.open && quotes.open[j] !== null) ? quotes.open[j] : price,
-                            high: (quotes.high && quotes.high[j] !== null) ? quotes.high[j] : price,
-                            low: (quotes.low && quotes.low[j] !== null) ? quotes.low[j] : price,
-                            close: price
-                        });
-                        if (quotes.high && quotes.high[j] !== null) {
-                            if (latestHigh === null || quotes.high[j] > latestHigh) latestHigh = quotes.high[j];
-                        }
-                        if (quotes.low && quotes.low[j] !== null) {
-                            if (latestLow === null || quotes.low[j] < latestLow) latestLow = quotes.low[j];
-                        }
-                        if (latestOpen === null && quotes.open && quotes.open[j] !== null) latestOpen = quotes.open[j];
-                    }
-                }
-
-                let latestPrice = points.length > 0 ? points[points.length - 1].y : null;
-                if (latestPrice === null || latestPrice === undefined) {
-                    if (meta.regularMarketPrice !== undefined && meta.regularMarketPrice !== null) {
-                        latestPrice = meta.regularMarketPrice;
-                    }
-                }
-                if (latestOpen === null) latestOpen = (meta.regularMarketOpen !== undefined) ? meta.regularMarketOpen : null;
-                if (latestHigh === null) latestHigh = (meta.regularMarketDayHigh !== undefined) ? meta.regularMarketDayHigh : null;
-                if (latestLow === null) latestLow = (meta.regularMarketDayLow !== undefined) ? meta.regularMarketDayLow : null;
-
-                if (latestPrice === null || latestPrice === undefined || isNaN(latestPrice)) {
-                    throw new Error('No price data available');
-                }
-
-                if (points.length < 2) {
-                    throw new Error('Not enough chart data returned by Yahoo to draw a line chart.');
-                }
-
-                lastKnownGood = {
-                    price: latestPrice,
-                    open: latestOpen,
-                    high: latestHigh,
-                    low: latestLow,
-                    previousClose: meta.previousClose || null,
-                    ts: Date.now(),
-                };
-
-                return {
-                    points: points,
-                    latestPrice: latestPrice,
-                    previousClose: meta.previousClose || null,
-                    open: latestOpen,
-                    high: latestHigh,
-                    low: latestLow,
-                    success: true
-                };
-            } catch (err) {
-                console.warn(`CORS proxy ${i + 1}/${CORS_PROXIES.length} failed:`, err.message || err);
-            }
-        }
-
-        console.warn('All CORS proxies failed — using fallback data.');
-        return generateFallbackData(range, symbol);
-    }
-
-    function generateFallbackData(range, symbol = 'CO2.MI') {
-        const now = Date.now();
-        const map = {
-            '1d': { points: 60, interval: 60000 },
-            '7d': { points: 100, interval: 3600000 },
-            '1mo': { points: 90, interval: 28800000 },
-            '3mo': { points: 90, interval: 86400000 },
-            '1y': { points: 52, interval: 604800000 },
-            'max': { points: 100, interval: 2592000000 }
-        };
-        let key = '1mo';
-        if (range.includes('1d')) key = '1d';
-        else if (range.includes('7d') || range.includes('5d')) key = '7d';
-        else if (range.includes('1mo')) key = '1mo';
-        else if (range.includes('3mo')) key = '3mo';
-        else if (range.includes('1y')) key = '1y';
-        else if (range.includes('max')) key = 'max';
-        const cfg = map[key] || map['1mo'];
-
-        let defaultAnchor = 63.45;
-        if (symbol === 'KCCA') {
-            defaultAnchor = 14.80;
-        } else if (symbol === '3060.HK') {
-            defaultAnchor = 68.50;
+        // Update all UI labels/terminology
+        updateDashboardAssetLabels();
+        if (typeof window.updateMarketStatusUI === 'function') {
+            window.updateMarketStatusUI();
         }
         
-        const basePrice = (typeof TICKER_FALLBACKS !== 'undefined' && TICKER_FALLBACKS[symbol]) ? TICKER_FALLBACKS[symbol].price : defaultAnchor;
-        const anchor = (lastKnownGood && currentDashboardSymbol === symbol) ? lastKnownGood.price : basePrice;
-        
-        const points = [];
-        
-        let noiseFactor = 0.12;
-        if (symbol === 'KCCA') noiseFactor = 0.08;
-        else if (symbol === '3060.HK') noiseFactor = 0.09;
-
-        let currentPrice = anchor;
-        const backwardsPoints = [];
-        
-        for (let i = 0; i < cfg.points; i++) {
-            const ts = now - i * cfg.interval;
-            const o = currentPrice + (Math.random() - 0.5) * 0.08;
-            const h = Math.max(o, currentPrice) + Math.random() * 0.15;
-            const l = Math.min(o, currentPrice) - Math.random() * 0.15;
-            
-            backwardsPoints.push({ x: ts, y: currentPrice, open: o, high: h, low: l, close: currentPrice });
-            
-            const drift = (symbol === 'CO2.MI' ? -0.01 : (symbol === 'KCCA' ? 0.005 : -0.003));
-            currentPrice += (Math.random() - 0.5) * noiseFactor + drift;
-            currentPrice = Math.max(anchor - 4, Math.min(anchor + 4, currentPrice));
+        // Refresh the relative performance chart to highlight the new selection
+        if (typeof window.renderPerformanceChart === 'function') {
+            window.renderPerformanceChart();
         }
         
-        backwardsPoints.reverse().forEach(pt => points.push(pt));
-        const latest = points[points.length - 1];
-        const prevCloseFallback = lastKnownGood && lastKnownGood.previousClose ? lastKnownGood.previousClose :
-            (points.length > 1 ? points[0].close : latest.close);
-        return {
-            points: points,
-            latestPrice: latest.close,
-            previousClose: prevCloseFallback,
-            open: points[0] ? points[0].open : latest.open,
-            high: Math.max.apply(null, points.map(p => p.high)),
-            low: Math.min.apply(null, points.map(p => p.low)),
-            success: false,
-            isFallback: true
-        };
-    }
-
-    // ─── MARKET HOURS ──────────────────────────────────────────────────
-    const MARKET_CONFIGS = {
-        'CO2.MI': {
-            exchange: 'Borsa Italiana',
-            hoursLabel: '09:00–17:30 CET/CEST · Mon–Fri',
-            openMin: 9 * 60,
-            closeMin: 17 * 60 + 30,
-            timezone: 'Europe/Rome',
-            tzLabel: 'CET/CEST',
-            clockLabel: 'Milan time now'
-        },
-        'KCCA': {
-            exchange: 'NYSE Arca',
-            hoursLabel: '09:30–16:00 EST/EDT · Mon–Fri',
-            openMin: 9 * 60 + 30,
-            closeMin: 16 * 60,
-            timezone: 'America/New_York',
-            tzLabel: 'EST/EDT',
-            clockLabel: 'New York time now'
-        },
-        '3060.HK': {
-            exchange: 'HKEX',
-            hoursLabel: '09:30–16:00 HKT · Mon–Fri',
-            openMin: 9 * 60 + 30,
-            closeMin: 16 * 60,
-            timezone: 'Asia/Hong_Kong',
-            tzLabel: 'HKT',
-            clockLabel: 'Hong Kong time now'
+        // Fetch new FX Rates relative to the new base currency
+        if (typeof window.fetchFXRates === 'function') {
+            await window.fetchFXRates();
+        }
+        
+        // Re-fetch statistics and render the main chart
+        if (typeof setDashRange === 'function') {
+            await setDashRange(window.currentRange);
         }
     };
-    var WEEKDAY_ORDER = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    function getMarketTimeNow(tz) {
-        var parts = new Intl.DateTimeFormat('en-GB', {
-            timeZone: tz,
-            weekday: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-        }).formatToParts(new Date());
-        var map = {};
-        parts.forEach(function(p) { map[p.type] = p.value; });
-        return {
-            weekday: map.weekday,
-            hour: parseInt(map.hour, 10),
-            minute: parseInt(map.minute, 10),
-            second: parseInt(map.second, 10),
-        };
-    }
-
-    function getMarketStatus() {
-        const config = MARKET_CONFIGS[currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
-        var now = getMarketTimeNow(config.timezone);
-        var minutesNow = now.hour * 60 + now.minute;
-        var isWeekend = (now.weekday === 'Sat' || now.weekday === 'Sun');
-        var isOpen = !isWeekend && minutesNow >= config.openMin && minutesNow < config.closeMin;
-
-        var clockStr = String(now.hour).padStart(2, '0') + ':' + String(now.minute).padStart(2, '0') + ':' + String(now.second).padStart(2, '0');
-
-        var nextEvent = '';
-        if (isOpen) {
-            var minsToClose = config.closeMin - minutesNow;
-            var h = Math.floor(minsToClose / 60),
-                m = minsToClose % 60;
-            nextEvent = 'Closes in ' + (h > 0 ? h + 'h ' : '') + m + 'm';
-        } else {
-            var dayIdx = WEEKDAY_ORDER.indexOf(now.weekday);
-            var minutesUntilMidnight = (24 * 60) - minutesNow;
-            var minsToOpenToday = config.openMin - minutesNow;
-            if (!isWeekend && minsToOpenToday > 0) {
-                var h2 = Math.floor(minsToOpenToday / 60),
-                    m2 = minsToOpenToday % 60;
-                nextEvent = 'Opens in ' + (h2 > 0 ? h2 + 'h ' : '') + m2 + 'm';
-            } else {
-                var totalMins = minutesUntilMidnight;
-                var candidateIdx = (dayIdx + 1) % 7;
-                while (candidateIdx === 0 || candidateIdx === 6) {
-                    totalMins += 24 * 60;
-                    candidateIdx = (candidateIdx + 1) % 7;
-                }
-                totalMins += config.openMin;
-                var hh = Math.floor(totalMins / 60),
-                    mm = totalMins % 60;
-                nextEvent = 'Opens in ' + hh + 'h ' + mm + 'm (' + WEEKDAY_ORDER[candidateIdx] + ')';
-            }
-        }
-
-        return { isOpen: isOpen, clockStr: clockStr, nextEvent: nextEvent, weekday: now.weekday, tzLabel: config.tzLabel };
-    }
-
-    function updateMarketStatusUI() {
-        var status = getMarketStatus();
-        var dot = document.getElementById('marketStatusDot');
-        var label = document.getElementById('marketStatusLabel');
-        var clock = document.getElementById('marketMilanClock');
-        var next = document.getElementById('marketNextEvent');
-        var liveBadge = document.getElementById('dashLiveBadge');
-        const config = MARKET_CONFIGS[currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
-
-        var exLabel = document.getElementById('marketExchangeLabel');
-        if (exLabel) exLabel.textContent = config.exchange + ' · ' + config.hoursLabel;
-
-        var clLabel = document.getElementById('marketClockLabel');
-        if (clLabel) clLabel.textContent = config.clockLabel;
-
-        if (clock) clock.textContent = status.clockStr + ' ' + status.tzLabel;
-        if (next) next.textContent = status.nextEvent;
-
-        const specTime = document.getElementById('specTime');
-        if (specTime) specTime.textContent = status.clockStr + ' ' + status.tzLabel;
-
-        if (status.isOpen) {
-            if (dot) { dot.style.background = '';
-                dot.classList.remove('ms-closed'); }
-            if (label) { label.textContent = 'Market Open';
-                label.style.color = 'var(--teal)'; }
-            if (liveBadge) { liveBadge.textContent = '● Live';
-                liveBadge.className = 'section-badge badge-live'; }
-        } else {
-            if (dot) { dot.style.background = '';
-                dot.classList.add('ms-closed'); }
-            if (label) { label.textContent = 'Market Closed';
-                label.style.color = 'var(--amber)'; }
-            if (liveBadge) { liveBadge.textContent = '● Market Closed';
-                liveBadge.className = 'section-badge badge-warn'; }
-        }
-
-        // Keep active count updated in real-time
-        if (typeof updateMarketOverviewMetrics === 'function') {
-            updateMarketOverviewMetrics();
-        }
-    }
-
-    // ─── STATS HELPERS ──────────────────────────────────────────────────
-    function computeRangeStats(data) {
-        const points = data.points || [];
-        if (points.length === 0) return null;
-        const opens = points.map(p => p.open).filter(v => v !== null && v !== undefined && !isNaN(v));
-        const highs = points.map(p => p.high).filter(v => v !== null && v !== undefined && !isNaN(v));
-        const lows = points.map(p => p.low).filter(v => v !== null && v !== undefined && !isNaN(v));
-        const open = opens.length ? opens[0] : points[0].y;
-        const high = highs.length ? Math.max.apply(null, highs) : Math.max.apply(null, points.map(p => p.y));
-        const low = lows.length ? Math.min.apply(null, lows) : Math.min.apply(null, points.map(p => p.y));
-        const close = data.latestPrice;
-        const prevClose = (data.previousClose !== null && data.previousClose !== undefined) ? data.previousClose : open;
-        return { open: open, high: high, low: low, close: close, prevClose: prevClose };
-    }
-
-    function fmtDashCurrency(v) {
-        if (v === null || v === undefined || isNaN(v)) return '—';
-        const symbol = currentDashboardSymbol;
-        const ticker = MARKET_TICKERS[symbol];
-        if (!ticker) return '$' + v.toFixed(2);
-        
-        const displayVal = getPriceInDisplayCurrency(v, symbol);
-        let prefix = '$';
-        if (ticker.displayCurrency === 'EUR') prefix = '€';
-        else if (ticker.displayCurrency === 'CNY') prefix = '¥';
-        
-        return prefix + displayVal.toFixed(2);
-    }
-
-    function updateDashStats(data) {
-        const stats = computeRangeStats(data);
-        if (!stats) return;
-        currentPrevClose = stats.prevClose;
-
-        const change = stats.close - stats.prevClose;
-        const changePct = stats.prevClose ? (change / stats.prevClose) * 100 : 0;
-        const tone = change > 0 ? 'pos' : change < 0 ? 'neg' : 'neu';
-        const arrow = change > 0 ? '▲' : change < 0 ? '▼' : '•';
-        const sign = change > 0 ? '+' : '';
-
-        const curEl = document.getElementById('statCurrentPrice');
-        const chgEl = document.getElementById('statChange');
-        const prevEl = document.getElementById('statPrevClose');
-        const openEl = document.getElementById('statOpen');
-        const highEl = document.getElementById('statHigh');
-        const lowEl = document.getElementById('statLow');
-
-        const priceHeaderVal = document.getElementById('dashPriceHeaderVal');
-        const ohlcOpen = document.getElementById('dashOHLCOpen');
-        const ohlcHigh = document.getElementById('dashOHLCHigh');
-        const ohlcLow = document.getElementById('dashOHLCLow');
-        const ohlcVol = document.getElementById('dashOHLCVol');
-
-        const displayHeaderPrice = fmtDashCurrency(stats.close);
-        const displayHeaderChange = sign + change.toFixed(2) + ' (' + sign + changePct.toFixed(2) + '%)';
-
-        if (priceHeaderVal) {
-            priceHeaderVal.innerHTML = displayHeaderPrice + ' <span style="font-size:12px; font-weight:600; margin-left:6px;" class="' + tone + '">' + (change >= 0 ? '▲ ' : '▼ ') + displayHeaderChange + '</span>';
-        }
-        if (ohlcOpen) ohlcOpen.textContent = fmtDashCurrency(stats.open);
-        if (ohlcHigh) ohlcHigh.textContent = fmtDashCurrency(stats.high);
-        if (ohlcLow) ohlcLow.textContent = fmtDashCurrency(stats.low);
-        
-        const metadata = ASSET_METADATA[currentDashboardSymbol] || { volume: '0.00M lots' };
-        if (ohlcVol) ohlcVol.textContent = metadata.volume;
-
-        if (curEl) { curEl.textContent = fmtDashCurrency(stats.close);
-            curEl.className = 'stat-val ' + tone; }
-        if (chgEl) { chgEl.textContent = arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + changePct.toFixed(2) + '%)';
-            chgEl.className = 'stat-chg ' + tone; }
-        if (prevEl) prevEl.textContent = fmtDashCurrency(stats.prevClose);
-        if (openEl) openEl.textContent = fmtDashCurrency(stats.open);
-        if (highEl) highEl.textContent = fmtDashCurrency(stats.high);
-        if (lowEl) lowEl.textContent = fmtDashCurrency(stats.low);
-
-        const fco2Ticks = document.querySelectorAll('.tick[data-key="fco2"]');
-        fco2Ticks.forEach(function(el) {
-            var valEl = el.querySelector('.tick-val');
-            var tchgEl = el.querySelector('.tick-chg');
-            valEl.textContent = fmtDashCurrency(stats.close);
-            tchgEl.textContent = arrow + ' ' + sign + changePct.toFixed(2) + '%';
-            valEl.className = 'tick-val ' + tone;
-            tchgEl.className = 'tick-chg ' + tone;
-        });
-        if (stats.close) {
-            holdingsPrices[currentDashboardSymbol] = stats.close;
-            holdingsChanges[currentDashboardSymbol] = changePct;
-            updateHoldingsTable();
-        }
-
-        // Update currency conversions dynamically in real-time
-        if (typeof onEuaPriceUpdate === 'function') {
-            onEuaPriceUpdate();
-        }
-    }
 
     // ─── TICKER-ONLY REFRESH ──────────────────────────────────────────
     async function updateTickerOnly() {
@@ -682,12 +275,12 @@
     }
 
     async function periodicRefresh() {
-        if (currentRange === '1D') {
+        if (window.currentRange === '1D') {
             try {
-                const result = await fetchYahooFinanceData('1d', '5m', currentDashboardSymbol);
-                currentDataPoints = result.points;
-                renderDashChart(result.points, currentRange, currentChartType);
-                updateDashStats(result);
+                const result = await window.fetchYahooFinanceData('1d', '5m', window.currentDashboardSymbol);
+                window.currentDataPoints = result.points;
+                renderDashChart(result.points, window.currentRange, window.currentChartType);
+                window.updateDashStats(result);
                 const subEl = document.getElementById('dashChartSub');
                 if (subEl) {
                     subEl.textContent = result.isFallback ?
@@ -1109,7 +702,7 @@
         }
     }
 
-    function initLandingCharts() {
+    window.initLandingCharts = function() {
         var h = genSeries(22, 60.2, 1.4);
         var f = [].concat(Array(21).fill(null), [h[h.length - 1]]).concat(genSeries(8, h[h.length - 1], .6).slice(1));
         var timestamps = mkTimestamps(22, 8);
@@ -1128,8 +721,8 @@
     }
 
     function renderDashChart(points, rangeKey, chartType) {
-        if (!chartType) chartType = currentChartType;
-        const isEua = currentDashboardSymbol === 'CO2.MI';
+        if (!chartType) chartType = window.currentChartType;
+        const isEua = window.currentDashboardSymbol === 'CO2.MI';
         const baseSym = isEua ? '€' : '$';
         
         // Ensure we handle light mode properly
@@ -1197,7 +790,7 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: currentDashboardSymbol,
+                    label: window.currentDashboardSymbol,
                     data: dataVals,
                     borderColor: activeColorHex,
                     backgroundColor: chartType === 'area' ? activeColorGlow : (chartType === 'bar' ? activeColorHex : 'transparent'),
@@ -1305,12 +898,12 @@
     }
     
     function setChartType(type, btn) {
-        if (type === currentChartType) return;
-        currentChartType = type;
+        if (type === window.currentChartType) return;
+        window.currentChartType = type;
         document.querySelectorAll('.chart-type-btn').forEach(function(b) { b.classList.remove('active'); });
         if (btn) btn.classList.add('active');
-        if (currentDataPoints && currentDataPoints.length > 0) {
-            renderDashChart(currentDataPoints, currentRange, type);
+        if (window.currentDataPoints && window.currentDataPoints.length > 0) {
+            renderDashChart(window.currentDataPoints, window.currentRange, type);
         }
     }
 
@@ -1327,7 +920,7 @@
         renderPerformanceChart();
     };
 
-    function renderPerformanceChart() {
+    window.renderPerformanceChart = function() {
         if (!lastPerformanceResults) return;
         const container = document.getElementById('relativePerformanceChart');
         if (!container) return;
@@ -1352,7 +945,7 @@
                 y: (pt.y / firstVal) * 100 + offset
             }));
 
-            const isSelected = (symbol === currentDashboardSymbol);
+            const isSelected = (symbol === window.currentDashboardSymbol);
 
             seriesList.push({
                 name: MARKET_TICKERS[symbol].sym,
@@ -1418,7 +1011,7 @@
 
         const symbols = Object.keys(MARKET_TICKERS);
         const promises = symbols.map(symbol => 
-            fetchYahooFinanceData(config.range, config.interval, symbol)
+            window.fetchYahooFinanceData(config.range, config.interval, symbol)
                 .then(res => ({ symbol: symbol, data: res }))
                 .catch(err => {
                     console.warn(`Failed to fetch performance for ${symbol}:`, err);
@@ -1443,7 +1036,7 @@
     async function setDashRange(rangeKey, btn) {
         document.querySelectorAll('#rangeSel .range-btn').forEach(function(b) { b.classList.remove('active'); });
         if (btn) btn.classList.add('active');
-        currentRange = rangeKey;
+        window.currentRange = rangeKey;
 
         const map = {
             '1D': { range: '1d', interval: '5m' },
@@ -1460,10 +1053,10 @@
         chartContainer.style.opacity = '0.5';
 
         try {
-            const result = await fetchYahooFinanceData(config.range, config.interval, currentDashboardSymbol);
-            currentDataPoints = result.points;
-            updateDashStats(result);
-            renderDashChart(result.points, rangeKey, currentChartType);
+            const result = await window.fetchYahooFinanceData(config.range, config.interval, window.currentDashboardSymbol);
+            window.currentDataPoints = result.points;
+            window.updateDashStats(result);
+            renderDashChart(result.points, rangeKey, window.currentChartType);
             chartContainer.style.opacity = '1';
             const subEl = document.getElementById('dashChartSub');
             if (subEl) {
@@ -1484,9 +1077,9 @@
 
     // ─── CARBON MARKET SWITCHING ────────────────────────────────────────
     function updateDashboardAssetLabels() {
-        const config = MARKET_CONFIGS[currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
-        const metadata = ASSET_METADATA[currentDashboardSymbol] || { name: currentDashboardSymbol };
-        const ticker = MARKET_TICKERS[currentDashboardSymbol] || { sym: currentDashboardSymbol };
+        const config = MARKET_CONFIGS[window.currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
+        const metadata = ASSET_METADATA[window.currentDashboardSymbol] || { name: window.currentDashboardSymbol };
+        const ticker = MARKET_TICKERS[window.currentDashboardSymbol] || { sym: window.currentDashboardSymbol };
         
         const specExch = document.getElementById('specExch');
         if (specExch) specExch.textContent = config.exchange;
@@ -1536,8 +1129,8 @@
     };
 
     window.updateOrderTicketEstimation = function() {
-        const symbol = currentDashboardSymbol;
-        const price = holdingsPrices[symbol] || 0;
+        const symbol = window.currentDashboardSymbol;
+        const price = window.holdingsPrices[symbol] || 0;
         const qtyInput = document.getElementById('orderQtyInput');
         if (!qtyInput) return;
         const qty = parseFloat(qtyInput.value) || 0;
@@ -1561,10 +1154,10 @@
     };
 
     window.submitMockOrder = function() {
-        const symbol = currentDashboardSymbol;
+        const symbol = window.currentDashboardSymbol;
         const ticker = MARKET_TICKERS[symbol];
         if (!ticker) return;
-        const price = holdingsPrices[symbol] || 0;
+        const price = window.holdingsPrices[symbol] || 0;
         const qtyInput = document.getElementById('orderQtyInput');
         if (!qtyInput) return;
         const qty = parseInt(qtyInput.value, 10) || 0;
@@ -1612,7 +1205,7 @@
 
 
 // ─── INIT DASHBOARD ──────────────────────────────────────────────
-    async function initDashCharts() {
+    window.initDashCharts = async function() {
         const checkbox = document.getElementById("themeCheckbox");
         if (checkbox) checkbox.checked = document.documentElement.classList.contains("light-mode");
         // Show all symbols in the performance comparison chart by default
@@ -1623,24 +1216,24 @@
 
         // Sync initial dropdown value
         const dropdown = document.getElementById('marketSystemDropdown');
-        if (dropdown) dropdown.value = currentDashboardSymbol;
+        if (dropdown) dropdown.value = window.currentDashboardSymbol;
 
         updateDashboardAssetLabels();
-        updateMarketStatusUI();
-        setInterval(updateMarketStatusUI, 1000);
+        window.updateMarketStatusUI();
+        setInterval(window.updateMarketStatusUI, 1000);
         updateSortHeaders();
         await setDashRange('1M', document.querySelector('#rangeSel .range-btn.active'));
-        if (dashRefreshTimer) clearInterval(dashRefreshTimer);
-        dashRefreshTimer = setInterval(periodicRefresh, 60000);
+        if (window.dashRefreshTimer) clearInterval(window.dashRefreshTimer);
+        window.dashRefreshTimer = setInterval(periodicRefresh, 60000);
         document.querySelector('.chart-type-btn.active')?.classList.remove('active');
         document.querySelector('.chart-type-btn[data-type="area"]')?.classList.add('active');
-        currentChartType = 'area';
+        window.currentChartType = 'area';
     }
 
     // ─── SPREAD & CORRELATION ANALYTICS ──────────────────────────────
     function getEurToUsdRate() {
         if (!_fxRates) return 1.08;
-        const base = currentDashboardSymbol === 'CO2.MI' ? 'EUR' : 'USD';
+        const base = window.currentDashboardSymbol === 'CO2.MI' ? 'EUR' : 'USD';
         if (base === 'EUR') {
             return _fxRates.USD || 1.08;
         } else {
@@ -1665,7 +1258,7 @@
         const den = Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY));
         return den === 0 ? 0 : num / den;
     }// ─── HERO LIVE INSTRUMENT PANEL ─────────────────────────────────────
-    function initHeroInstrumentPanel() {
+    window.initHeroInstrumentPanel = function() {
         const heroPrices = {
             'EUA':  { price: 63.45,  change: 2.06,  currency: '\u20ac' },
             'CCA':  { price: 14.80,  change: -0.27, currency: '$' },
@@ -1947,7 +1540,7 @@
         }, 6000);
 
         runBoot();
-    }
+    };
 
     // Call init and start update ticker loop
     (async function initTicker() {
