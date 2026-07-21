@@ -25,12 +25,7 @@
         (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
     ];
 
-    // Call init and start update ticker loop
-    (async function initTicker() {
-        buildTicker();
-        await updateTickerData();
-        setInterval(updateTickerData, 30000);
-    })();
+    // Ticker initialization has been moved to js/dashboard.js where buildTicker is defined.
 
     let lastKnownGood = null;
 
