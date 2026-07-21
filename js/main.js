@@ -13,6 +13,18 @@
     window.dashRefreshTimer = null;
     window.currentDashboardSymbol = 'CO2.MI';
 
+    window.setGeminiKeyPrompt = function() {
+        var key = prompt('Enter your Google Gemini API Key (starts with AIza...):');
+        if (key && key.trim()) {
+            localStorage.setItem('gemini_api_key', key.trim());
+            if (typeof appendMsg === 'function') {
+                appendMsg('<b>Gemini API Key connected successfully!</b> Ask me any question.', 'bot');
+            } else {
+                alert('Gemini API Key connected successfully! Ask me any question.');
+            }
+        }
+    };
+
     window.holdingsPrices = {
         'CO2.MI': 63.45,
         'KCCA': 14.80,
