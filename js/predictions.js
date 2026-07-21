@@ -2,7 +2,7 @@
 
 let predictionsDataCache = null;
 
-    async function updateAIPredictions(symbol) {
+    window.updateAIPredictions = async function(symbol) {
         const tableBody = document.querySelector('#predTable tbody');
         const forecastContainer = document.getElementById('aiForecastChart');
         if (!forecastContainer || !tableBody) return;
@@ -109,25 +109,70 @@ let predictionsDataCache = null;
             }
         }
 
-        // Set simulated volatility based on ticker volatility characteristics
+        // Set simulated volatility and seasonal cycles based on ticker characteristics
         const volVal = document.getElementById('aiVolVal');
         const volFill = document.getElementById('aiVolFill');
-        if (volVal && volFill) {
-            if (symbol === 'CO2.MI') {
+        const weeklyVal = document.getElementById('aiWeeklyVal');
+        const weeklyFill = document.getElementById('aiWeeklyFill');
+        const yearlyVal = document.getElementById('aiYearlyVal');
+        const yearlyFill = document.getElementById('aiYearlyFill');
+
+        if (symbol === 'CO2.MI') {
+            if (volVal && volFill) {
                 volVal.textContent = 'High';
                 volVal.className = 'acc-num neg';
                 volFill.style.width = '75%';
                 volFill.className = 'acc-fill acc-r';
-            } else if (symbol === 'KCCA') {
+            }
+            if (weeklyVal && weeklyFill) {
+                weeklyVal.textContent = 'Positive (65%)';
+                weeklyVal.className = 'acc-num pos';
+                weeklyFill.style.width = '65%';
+                weeklyFill.className = 'acc-fill acc-g';
+            }
+            if (yearlyVal && yearlyFill) {
+                yearlyVal.textContent = 'Peak Demand';
+                yearlyVal.className = 'acc-num pos';
+                yearlyFill.style.width = '85%';
+                yearlyFill.className = 'acc-fill acc-g';
+            }
+        } else if (symbol === 'KCCA') {
+            if (volVal && volFill) {
                 volVal.textContent = 'Moderate';
                 volVal.className = 'acc-num neu';
                 volFill.style.width = '45%';
                 volFill.className = 'acc-fill acc-a';
-            } else {
+            }
+            if (weeklyVal && weeklyFill) {
+                weeklyVal.textContent = 'Neutral (50%)';
+                weeklyVal.className = 'acc-num neu';
+                weeklyFill.style.width = '50%';
+                weeklyFill.className = 'acc-fill acc-a';
+            }
+            if (yearlyVal && yearlyFill) {
+                yearlyVal.textContent = 'Steady';
+                yearlyVal.className = 'acc-num neu';
+                yearlyFill.style.width = '60%';
+                yearlyFill.className = 'acc-fill acc-a';
+            }
+        } else {
+            if (volVal && volFill) {
                 volVal.textContent = 'Low';
                 volVal.className = 'acc-num pos';
                 volFill.style.width = '20%';
                 volFill.className = 'acc-fill acc-g';
+            }
+            if (weeklyVal && weeklyFill) {
+                weeklyVal.textContent = 'Weak (42%)';
+                weeklyVal.className = 'acc-num neu';
+                weeklyFill.style.width = '42%';
+                weeklyFill.className = 'acc-fill acc-a';
+            }
+            if (yearlyVal && yearlyFill) {
+                yearlyVal.textContent = 'Cyclical Trough';
+                yearlyVal.className = 'acc-num neg';
+                yearlyFill.style.width = '30%';
+                yearlyFill.className = 'acc-fill acc-r';
             }
         }
 
