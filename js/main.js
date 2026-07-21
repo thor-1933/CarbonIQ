@@ -805,6 +805,14 @@
         appendMsg(val, 'user');
         inp.value = '';
 
+        // Allow setting key via /key AIza... command
+        if (val.startsWith('/key ')) {
+            var newKey = val.replace('/key ', '').trim();
+            localStorage.setItem('gemini_api_key', newKey);
+            appendMsg('<b>Gemini API Key saved to browser storage!</b> Chatbot is now connected to live Gemini AI.', 'bot');
+            return;
+        }
+
         var typDiv = document.createElement('div');
         typDiv.className = 'msg bot';
         typDiv.innerHTML = '<div class="typing-dot"><span></span><span></span><span></span></div>';
@@ -812,19 +820,46 @@
         document.getElementById('chatBody').scrollTop = 9999;
 
         var replyText = '';
-        try {
-            var res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: val })
-            });
-            var data = await res.json();
-            if (data && data.reply && !data.fallback) {
-                replyText = data.reply;
-            } else {
-                replyText = getReply(val);
+        var localKey = localStorage.getItem('gemini_api_key');
+
+        // Option A: Try direct client-side Gemini API if key saved in browser
+        if (localKey) {
+            try {
+                var directRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${localKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ role: 'user', parts: [{ text: `You are CarbonIQ AI Copilot. Answer concisely in 2-3 sentences: ${val}` }] }]
+                    })
+                });
+                var directData = await directRes.json();
+                if (directData.candidates && directData.candidates[0]) {
+                    replyText = directData.candidates[0].content.parts[0].text;
+                }
+            } catch (err) {
+                console.warn('Direct Gemini API call failed:', err);
             }
-        } catch (e) {
+        }
+
+        // Option B: Try Serverless API proxy /api/chat
+        if (!replyText) {
+            try {
+                var res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: val })
+                });
+                var data = await res.json();
+                if (data && data.reply && !data.fallback) {
+                    replyText = data.reply;
+                }
+            } catch (e) {
+                console.warn('Serverless /api/chat failed:', e);
+            }
+        }
+
+        // Option C: Final fallback to local rule engine
+        if (!replyText) {
             replyText = getReply(val);
         }
 
@@ -841,7 +876,14 @@
 
     function quickSend(t) { document.getElementById('chatInput').value = t;
         sendMsg(); }
-    window.quickSend = quickSend;
+    function setGeminiKeyPrompt() {
+        var key = prompt('Enter your Google Gemini API Key (starts with AIza...):');
+        if (key && key.trim()) {
+            localStorage.setItem('gemini_api_key', key.trim());
+            appendMsg('<b>Gemini API Key connected successfully!</b> Ask me any question.', 'bot');
+        }
+    }
+    window.setGeminiKeyPrompt = setGeminiKeyPrompt;
 
     // ─── CARBON PAGE INIT ──────────────────────────────────────────────
     var _carbonSystems = [
