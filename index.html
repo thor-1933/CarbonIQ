@@ -1759,10 +1759,10 @@
             <div class="msg bot">Hi! I'm your EU ETS AI Copilot. Ask me about carbon prices, AI forecasts, policy updates, and the difference between CCM and VCM markets.</div>
         </div>
         <div class="chat-pills">
+            <button class="cpill" onclick="setGeminiKeyPrompt()" style="border: 1px solid var(--teal); color: var(--teal); font-weight: 700;">🔑 Connect Key</button>
             <button class="cpill" onclick="quickSend('What is the forecast for Friday?')">Friday forecast?</button>
             <button class="cpill" onclick="quickSend('Explain CCM vs VCM')">CCM vs VCM</button>
             <button class="cpill" onclick="quickSend('What is Fit for 55?')">Fit for 55</button>
-            <button class="cpill" onclick="quickSend('Latest policy update')">Policy news</button>
         </div>
         <div class="chat-input-row">
             <input class="chat-input" id="chatInput" placeholder="Ask about EU ETS, forecasts, policy…" onkeydown="if(event.key==='Enter')sendMsg()"/>
