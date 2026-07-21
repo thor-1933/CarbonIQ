@@ -263,6 +263,11 @@
         if (typeof setDashRange === 'function') {
             await setDashRange(window.currentRange);
         }
+
+        // Update AI predictions dynamically if available
+        if (typeof window.updateAIPredictions === 'function') {
+            window.updateAIPredictions(symbol);
+        }
     };
 
     // ─── TICKER-ONLY REFRESH ──────────────────────────────────────────
@@ -722,24 +727,26 @@
 
     function renderDashChart(points, rangeKey, chartType) {
         if (!chartType) chartType = window.currentChartType;
-        const isEua = window.currentDashboardSymbol === 'CO2.MI';
-        const baseSym = isEua ? '€' : '$';
+        const sym = window.currentDashboardSymbol || 'CO2.MI';
+        const isEua = sym === 'CO2.MI';
+        const isCets = sym === '3060.HK';
+        const baseSym = isEua ? '€' : (isCets ? '¥' : '$');
         
         // Ensure we handle light mode properly
         const isLight = document.documentElement.classList.contains('light-mode');
-        const activeColorHex = isEua ? (isLight ? '#059669' : '#00FF87') : (isLight ? '#D97706' : '#FFAB00');
-        const activeColor = isEua ? 'var(--signal)' : 'var(--amber)';
-        const activeColorGlow = isEua ? (isLight ? 'rgba(5, 150, 105, 0.1)' : 'rgba(0, 255, 135, 0.1)') : (isLight ? 'rgba(217, 119, 6, 0.1)' : 'rgba(255, 171, 0, 0.1)');
+        const activeColorHex = isEua ? (isLight ? '#059669' : '#00FF87') : (isCets ? (isLight ? '#0ea5e9' : '#38bdf8') : (isLight ? '#D97706' : '#FFAB00'));
+        const activeColor = isEua ? 'var(--signal)' : (isCets ? 'var(--electric)' : 'var(--amber)');
+        const activeColorGlow = isEua ? (isLight ? 'rgba(5, 150, 105, 0.1)' : 'rgba(0, 255, 135, 0.1)') : (isCets ? (isLight ? 'rgba(14, 165, 233, 0.1)' : 'rgba(56, 189, 248, 0.1)') : (isLight ? 'rgba(217, 119, 6, 0.1)' : 'rgba(255, 171, 0, 0.1)'));
 
         const legendEl = document.getElementById('dashChartLegend');
         if (legendEl) {
-            const legendText = isEua ? 'EUA=F (ICE ECX)' : 'KCCA (NYSE ARCA)';
+            const legendText = isEua ? 'EUA=F (ICE ECX)' : (isCets ? '3060.HK (HKEX)' : 'KCCA (NYSE ARCA)');
             legendEl.innerHTML = `<div class="leg-item"><div class="leg-line" style="background:${activeColor}"></div>${legendText}</div>`;
         }
 
         const titleEl = document.getElementById('dashChartTitle');
         if (titleEl) {
-            const name = isEua ? 'SparkChange Physical Carbon EUA ETC (CO2.MI)' : 'KraneShares California Carbon Allowance ETF (KCCA)';
+            const name = isEua ? 'SparkChange Physical Carbon EUA ETC (CO2.MI)' : (isCets ? 'CICC Carbon Futures ETF (3060.HK)' : 'KraneShares California Carbon Allowance ETF (KCCA)');
             titleEl.textContent = name + ' · ' + rangeKey;
         }
 
@@ -757,7 +764,23 @@
         canvas.style.height = '280px';
         container.appendChild(canvas);
 
-        const labels = points.map(p => {
+        // Convert points to display currency values
+        const convertedPoints = points.map(p => {
+            const yVal = window.getPriceInDisplayCurrency ? window.getPriceInDisplayCurrency(p.y, sym) : p.y;
+            const oVal = window.getPriceInDisplayCurrency ? window.getPriceInDisplayCurrency(p.open, sym) : p.open;
+            const hVal = window.getPriceInDisplayCurrency ? window.getPriceInDisplayCurrency(p.high, sym) : p.high;
+            const lVal = window.getPriceInDisplayCurrency ? window.getPriceInDisplayCurrency(p.low, sym) : p.low;
+            return {
+                x: p.x,
+                y: yVal,
+                open: oVal,
+                high: hVal,
+                low: lVal,
+                close: yVal
+            };
+        });
+
+        const labels = convertedPoints.map(p => {
             const d = new Date(p.x);
             
             const getOrdinalNum = (n) => n + (n > 0 ? ['ᵗʰ', 'ˢᵗ', 'ⁿᵈ', 'ʳᵈ'][(n > 3 && n < 21) || n % 10 > 3 ? 0 : n % 10] : '');
@@ -775,7 +798,7 @@
             if (rangeKey === '1M' || rangeKey === '3M' || rangeKey === '6M') return customDate;
             return `${monthStr} '${yearStr}`;
         });
-        const dataVals = points.map(p => {
+        const dataVals = convertedPoints.map(p => {
             if (chartType === 'candlestick') {
                 return { x: p.x, o: p.open, h: p.high, l: p.low, c: p.y };
             }
