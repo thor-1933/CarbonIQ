@@ -19,18 +19,19 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
+    console.warn('GEMINI_API_KEY is missing in process.env');
     return res.status(200).json({
       fallback: true,
-      reply: 'Gemini API key is not configured in Vercel environment variables. Using fallback rule engine.'
+      reason: 'GEMINI_API_KEY missing in environment'
     });
   }
 
+  // Try calling Gemini 1.5 Flash API
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(geminiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [
           {
@@ -51,10 +52,11 @@ export default async function handler(req, res) {
       const replyText = data.candidates[0].content.parts[0].text;
       return res.status(200).json({ reply: replyText });
     } else {
-      return res.status(200).json({ fallback: true });
+      console.error('Gemini API Error Response:', data);
+      return res.status(200).json({ fallback: true, error: data });
     }
   } catch (error) {
-    console.error('Gemini API Proxy Error:', error);
-    return res.status(200).json({ fallback: true });
+    console.error('Gemini Fetch Exception:', error);
+    return res.status(200).json({ fallback: true, error: error.message });
   }
 }
