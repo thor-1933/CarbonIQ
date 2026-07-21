@@ -837,10 +837,10 @@
         // Option A: Try direct client-side Gemini API if key saved in browser
         if (localKey) {
             var modelsToTry = [
-                'gemini-1.5-flash-latest',
+                'gemini-1.5-flash-8b',
                 'gemini-1.5-flash',
                 'gemini-1.5-pro',
-                'gemini-pro'
+                'gemini-2.0-flash-exp'
             ];
             
             var lastError = '';
