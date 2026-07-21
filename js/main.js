@@ -836,6 +836,7 @@
 
         // Option A: Try direct client-side Gemini API if key saved in browser
         if (localKey) {
+            var isBearer = localKey.startsWith('AQ.') || localKey.startsWith('ya29.');
             var modelsToTry = [
                 'gemini-1.5-flash-8b',
                 'gemini-1.5-flash',
@@ -847,9 +848,18 @@
             for (var m = 0; m < modelsToTry.length; m++) {
                 var modelName = modelsToTry[m];
                 try {
-                    var directRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${localKey}`, {
+                    var endpointUrl = isBearer
+                        ? `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`
+                        : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${localKey}`;
+                    
+                    var reqHeaders = { 'Content-Type': 'application/json' };
+                    if (isBearer) {
+                        reqHeaders['Authorization'] = 'Bearer ' + localKey;
+                    }
+
+                    var directRes = await fetch(endpointUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: reqHeaders,
                         body: JSON.stringify({
                             contents: [{ role: 'user', parts: [{ text: `You are CarbonIQ AI Copilot. Answer concisely in 2-3 sentences: ${val}` }] }]
                         })
@@ -857,7 +867,7 @@
                     var directData = await directRes.json();
                     if (directData.candidates && directData.candidates[0] && directData.candidates[0].content) {
                         replyText = directData.candidates[0].content.parts[0].text;
-                        break; // Success! Exit model loop
+                        break;
                     } else if (directData.error && directData.error.message) {
                         lastError = directData.error.message;
                     }
