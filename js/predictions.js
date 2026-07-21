@@ -54,38 +54,58 @@ let predictionsDataCache = null;
         }
 
         // 2. Populate Predictions Table & Signal Indicators
-        tableBody.innerHTML = '';
-        const currentPrice = window.holdingsPrices[symbol] || data.predictions[0].price;
+        const rawLivePrice = (window.holdingsPrices && window.holdingsPrices[symbol]) || (data.predictions[0] ? data.predictions[0].price : 0);
+        const livePriceDisplay = window.getPriceInDisplayCurrency ? window.getPriceInDisplayCurrency(rawLivePrice, symbol) : rawLivePrice;
         
-        let prevPrice = currentPrice;
-        let priceDiffTotal = 0;
+        const firstPredRaw = data.predictions[0] ? data.predictions[0].price : 1;
+        const firstPredDisplay = window.getPriceInDisplayCurrency ? window.getPriceInDisplayCurrency(firstPredRaw, symbol) : firstPredRaw;
+        
+        let scaleFactor = 1.0;
+        if (livePriceDisplay && firstPredDisplay) {
+            const mismatch = Math.abs(livePriceDisplay - firstPredDisplay) / livePriceDisplay;
+            if (mismatch > 0.15) {
+                scaleFactor = livePriceDisplay / firstPredDisplay;
+            }
+        }
 
-        data.predictions.forEach((pred, index) => {
+        // Generate scaled predictions in display currency
+        const displayPredictions = data.predictions.map(pred => {
+            const dispPriceRaw = window.getPriceInDisplayCurrency ? window.getPriceInDisplayCurrency(pred.price, symbol) : pred.price;
+            return {
+                date: pred.date,
+                price: dispPriceRaw * scaleFactor
+            };
+        });
+
+        const activePrefix = symbol === 'CO2.MI' ? '€' : (symbol === '3060.HK' ? '¥' : '$');
+        
+        tableBody.innerHTML = '';
+        let prevPrice = livePriceDisplay;
+        
+        displayPredictions.forEach((pred, index) => {
             const changeVal = pred.price - prevPrice;
             const changePct = prevPrice ? (changeVal / prevPrice) * 100 : 0;
             prevPrice = pred.price;
-            priceDiffTotal += changeVal;
 
             const tone = changeVal >= 0 ? 'pos' : 'neg';
             const sign = changeVal >= 0 ? '+' : '';
             const signText = changeVal >= 0 ? '▲' : '▼';
             
-            // Simulating a decay of confidence over forecast horizon
             const confDecay = Math.max(70, Math.round(accuracy - (index * 1.5)));
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="font-family:var(--mono);">${pred.date}</td>
-                <td style="font-family:var(--mono); font-weight:700; color:var(--t1);">${pred.price.toFixed(2)}</td>
-                <td class="${tone}" style="font-family:var(--mono); font-weight:600;">${signText} ${sign}${changeVal.toFixed(2)} (${sign}${changePct.toFixed(1)}%)</td>
+                <td style="font-family:var(--mono); font-weight:700; color:var(--t1);">${activePrefix}${pred.price.toFixed(2)}</td>
+                <td class="${tone}" style="font-family:var(--mono); font-weight:600;">${signText} ${sign}${activePrefix}${Math.abs(changeVal).toFixed(2)} (${sign}${changePct.toFixed(1)}%)</td>
                 <td style="font-family:var(--mono); text-align:right;">${confDecay}%</td>
             `;
             tableBody.appendChild(tr);
         });
 
         // 3. Update Model Signal Summary Indicators based on forecast trend
-        const firstPrice = data.predictions[0].price;
-        const lastPrice = data.predictions[data.predictions.length - 1].price;
+        const firstPrice = displayPredictions[0].price;
+        const lastPrice = displayPredictions[displayPredictions.length - 1].price;
         const netChange = lastPrice - firstPrice;
         
         const trendVal = document.getElementById('aiTrendVal');
@@ -177,8 +197,8 @@ let predictionsDataCache = null;
         }
 
         // 4. Render Chart.js Forecast Graph
-        const labels = data.predictions.map(p => p.date);
-        const prices = data.predictions.map(p => p.price);
+        const labels = displayPredictions.map(p => p.date);
+        const prices = displayPredictions.map(p => p.price);
 
         if (window.aiChartInstance) {
             window.aiChartInstance.destroy();
@@ -222,7 +242,14 @@ let predictionsDataCache = null;
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Forecast: ' + activePrefix + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: {
@@ -231,7 +258,13 @@ let predictionsDataCache = null;
                     },
                     y: {
                         grid: { color: gridColor },
-                        ticks: { color: labelColor, font: { family: 'var(--mono)', size: 9 } }
+                        ticks: {
+                            color: labelColor,
+                            font: { family: 'var(--mono)', size: 9 },
+                            callback: function(value) {
+                                return activePrefix + value.toFixed(2);
+                            }
+                        }
                     }
                 }
             }
