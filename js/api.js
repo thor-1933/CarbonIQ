@@ -29,7 +29,7 @@
 
     let lastKnownGood = null;
 
-    async function fetchYahooFinanceData(range, interval, symbol = 'CO2.MI') {
+    window.fetchYahooFinanceData = async function(range, interval, symbol = 'CO2.MI') {
         const yahooUrl =
             `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}&includePrePost=false`;
 
@@ -162,7 +162,7 @@
         }
         
         const basePrice = (typeof TICKER_FALLBACKS !== 'undefined' && TICKER_FALLBACKS[symbol]) ? TICKER_FALLBACKS[symbol].price : defaultAnchor;
-        const anchor = (lastKnownGood && currentDashboardSymbol === symbol) ? lastKnownGood.price : basePrice;
+        const anchor = (lastKnownGood && window.currentDashboardSymbol === symbol) ? lastKnownGood.price : basePrice;
         
         const points = [];
         
@@ -254,7 +254,7 @@
     }
 
     function getMarketStatus() {
-        const config = MARKET_CONFIGS[currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
+        const config = MARKET_CONFIGS[window.currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
         var now = getMarketTimeNow(config.timezone);
         var minutesNow = now.hour * 60 + now.minute;
         var isWeekend = (now.weekday === 'Sat' || now.weekday === 'Sun');
@@ -293,14 +293,14 @@
         return { isOpen: isOpen, clockStr: clockStr, nextEvent: nextEvent, weekday: now.weekday, tzLabel: config.tzLabel };
     }
 
-    function updateMarketStatusUI() {
+    window.updateMarketStatusUI = function() {
         var status = getMarketStatus();
         var dot = document.getElementById('marketStatusDot');
         var label = document.getElementById('marketStatusLabel');
         var clock = document.getElementById('marketMilanClock');
         var next = document.getElementById('marketNextEvent');
         var liveBadge = document.getElementById('dashLiveBadge');
-        const config = MARKET_CONFIGS[currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
+        const config = MARKET_CONFIGS[window.currentDashboardSymbol] || MARKET_CONFIGS['CO2.MI'];
 
         var exLabel = document.getElementById('marketExchangeLabel');
         if (exLabel) exLabel.textContent = config.exchange + ' · ' + config.hoursLabel;
@@ -353,7 +353,7 @@
 
     function fmtDashCurrency(v) {
         if (v === null || v === undefined || isNaN(v)) return '—';
-        const symbol = currentDashboardSymbol;
+        const symbol = window.currentDashboardSymbol;
         const ticker = MARKET_TICKERS[symbol];
         if (!ticker) return '$' + v.toFixed(2);
         
@@ -399,7 +399,7 @@
         if (ohlcHigh) ohlcHigh.textContent = fmtDashCurrency(stats.high);
         if (ohlcLow) ohlcLow.textContent = fmtDashCurrency(stats.low);
         
-        const metadata = ASSET_METADATA[currentDashboardSymbol] || { volume: '0.00M lots' };
+        const metadata = ASSET_METADATA[window.currentDashboardSymbol] || { volume: '0.00M lots' };
         if (ohlcVol) ohlcVol.textContent = metadata.volume;
 
         if (curEl) { curEl.textContent = fmtDashCurrency(stats.close);
@@ -421,9 +421,9 @@
             tchgEl.className = 'tick-chg ' + tone;
         });
         if (stats.close) {
-            holdingsPrices[currentDashboardSymbol] = stats.close;
-            holdingsChanges[currentDashboardSymbol] = changePct;
-            updateHoldingsTable();
+            window.holdingsPrices[window.currentDashboardSymbol] = stats.close;
+            window.holdingsChanges[window.currentDashboardSymbol] = changePct;
+            window.updateHoldingsTable();
         }
 
         // Update currency conversions dynamically in real-time
@@ -458,7 +458,7 @@
             if (!isNaN(val) && val > 0) return val;
         }
         // Fall back to landing page price
-        const isEua = currentDashboardSymbol === 'CO2.MI';
+        const isEua = window.currentDashboardSymbol === 'CO2.MI';
         var el = document.getElementById(isEua ? 'geo-eua-price' : 'geo-cca-price');
         if (el) {
             var raw = el.textContent.replace(/[^\d.]/g, '');
@@ -498,14 +498,14 @@
         if (!rate) return;
 
         var euaEur = getEuaPrice();
-        const baseSym = currentDashboardSymbol === 'CO2.MI' ? '€' : '$';
+        const baseSym = window.currentDashboardSymbol === 'CO2.MI' ? '€' : '$';
         if (labelEl) labelEl.textContent = baseSym + fmtNum(euaEur, 2);
 
         var convertedVal = euaEur * rate * amount;
         resultEl.textContent = sym + fmtNum(convertedVal, dec);
         if (rateTextEl) {
-            const baseLabel = currentDashboardSymbol === 'CO2.MI' ? 'EUR' : 'USD';
-            const creditLabel = currentDashboardSymbol === 'CO2.MI' ? 'EUA' : 'KCCA';
+            const baseLabel = window.currentDashboardSymbol === 'CO2.MI' ? 'EUR' : 'USD';
+            const creditLabel = window.currentDashboardSymbol === 'CO2.MI' ? 'EUA' : 'KCCA';
             rateTextEl.textContent = '1 ' + baseLabel + ' = ' + sym + fmtNum(rate, dec) + ' · 1 ' + creditLabel + ' = ' + sym + fmtNum(euaEur * rate, dec);
         }
 
@@ -544,7 +544,7 @@
         var list = document.getElementById('fxList');
         if (list) {
             var baseEl = document.getElementById('fxEuaEur');
-            const baseSym = currentDashboardSymbol === 'CO2.MI' ? '€' : '$';
+            const baseSym = window.currentDashboardSymbol === 'CO2.MI' ? '€' : '$';
             if (baseEl) baseEl.textContent = baseSym + fmtNum(euaEur, 2);
             var html = '';
             FX_CURRENCIES.forEach(function(cur) {
@@ -596,7 +596,7 @@
         function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }
     ];
 
-    async function fetchFXRates() {
+    window.fetchFXRates = async function() {
         var btn = document.getElementById('fxRefreshBtn');
         var updEl = document.getElementById('fxUpdated');
         if (btn) btn.classList.add('spinning');
@@ -604,7 +604,7 @@
         if (dashBtn2) dashBtn2.classList.add('spinning');
 
         var codes = FX_CURRENCIES.map(function(c) { return c[0]; }).join(',');
-        const baseCurrency = currentDashboardSymbol === 'CO2.MI' ? 'EUR' : 'USD';
+        const baseCurrency = window.currentDashboardSymbol === 'CO2.MI' ? 'EUR' : 'USD';
         var fxUrl = 'https://open.er-api.com/v6/latest/' + baseCurrency;
 
         var lastErr = null;
