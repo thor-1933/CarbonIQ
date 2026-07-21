@@ -1,38 +1,38 @@
 // ─── MAIN APPLICATION SHELL & INITIALIZERS ───
 
 // ─── STATE ─────────────────────────────────────────────
-    let currentUser = null;
-    let chartsInit = false;
-    let dashChartsInit = false;
-    let pendingPanel = null;
-    let dashChart = null;
-    let currentChartType = 'area';
-    let currentRange = '1M';
-    let currentDataPoints = [];
-    let currentPrevClose = null;
-    let dashRefreshTimer = null;
-    let currentDashboardSymbol = 'CO2.MI';
+    window.currentUser = null;
+    window.chartsInit = false;
+    window.dashChartsInit = false;
+    window.pendingPanel = null;
+    window.dashChart = null;
+    window.currentChartType = 'area';
+    window.currentRange = '1M';
+    window.currentDataPoints = [];
+    window.currentPrevClose = null;
+    window.dashRefreshTimer = null;
+    window.currentDashboardSymbol = 'CO2.MI';
 
-    const holdingsPrices = {
+    window.holdingsPrices = {
         'CO2.MI': 63.45,
         'KCCA': 14.80,
         '3060.HK': 68.50
     };
 
-    const holdingsChanges = {
+    window.holdingsChanges = {
         'CO2.MI': 2.06,
         'KCCA': -0.27,
         '3060.HK': 1.74
     };
 
     // Rolling history cache for live sparklines
-    const holdingsHistory = {
+    window.holdingsHistory = {
         'CO2.MI': [62.80, 62.95, 63.10, 62.90, 63.20, 63.05, 63.15, 63.30, 63.25, 63.45],
         'KCCA': [15.10, 15.00, 14.95, 14.90, 14.85, 14.78, 14.82, 14.75, 14.85, 14.80],
         '3060.HK': [67.20, 67.50, 67.80, 67.60, 68.10, 68.30, 68.20, 68.50, 68.40, 68.50]
     };
 
-    const lastHoldingsPrices = Object.assign({}, holdingsPrices);
+    const lastHoldingsPrices = Object.assign({}, window.holdingsPrices);
     let currentTableSortKey = 'symbol';
     let currentSortOrder = 'asc';
     let secondsSinceLastSync = 0;
@@ -191,7 +191,7 @@
         let totalVolLots = 0;
         let activeCount = 0;
 
-        for (const [symbol, price] of Object.entries(holdingsPrices)) {
+        for (const [symbol, price] of Object.entries(window.holdingsPrices)) {
             const vol = ASSET_NUMERIC_VOLUMES[symbol] || 0;
             const ticker = MARKET_TICKERS[symbol];
             if (!ticker) continue;
@@ -316,17 +316,17 @@
         return '<svg width="' + width + '" height="' + height + '" style="overflow:visible;display:block;"><polyline fill="none" stroke="' + color + '" stroke-width="1.2" points="' + points.join(' ') + '"/></svg>';
     }
 
-    function updateHoldingsTable() {
+    window.updateHoldingsTable = function() {
         const tbody = document.getElementById('terminalTableBody');
 
         // 1. Sort Tickers
         const sortedEntries = Object.entries(MARKET_TICKERS).sort(function(a, b) {
             const symA = a[0];
             const symB = b[0];
-            const priceA = holdingsPrices[symA] || 0;
-            const priceB = holdingsPrices[symB] || 0;
-            const chgA = holdingsChanges[symA] || 0;
-            const chgB = holdingsChanges[symB] || 0;
+            const priceA = window.holdingsPrices[symA] || 0;
+            const priceB = window.holdingsPrices[symB] || 0;
+            const chgA = window.holdingsChanges[symA] || 0;
+            const chgB = window.holdingsChanges[symB] || 0;
             const absChgA = (chgA * priceA) / 100;
             const absChgB = (chgB * priceB) / 100;
             const volA = ASSET_NUMERIC_VOLUMES[symA] || 0;
@@ -353,8 +353,8 @@
         sortedEntries.forEach(function(entry) {
             const symbol = entry[0];
             const asset = entry[1];
-            const price = holdingsPrices[symbol] || 0;
-            const chg = holdingsChanges[symbol] || 0;
+            const price = window.holdingsPrices[symbol] || 0;
+            const chg = window.holdingsChanges[symbol] || 0;
             const absChg = (chg * price) / 100;
             const displayPrice = asset.baseCurrency === 'EUR' ? '€' + price.toFixed(2) : '$' + price.toFixed(2);
             const absChgSign = absChg >= 0 ? '+' : '';
@@ -362,7 +362,7 @@
             const chgSign = chg >= 0 ? '+' : '';
             const chgClass = chg > 0 ? 'pos' : (chg < 0 ? 'neg' : 'neu');
             const meta = ASSET_METADATA[symbol] || { name: symbol, volume: '0.00M' };
-            const spark = generateSparklineSVG(holdingsHistory[symbol], chg >= 0);
+            const spark = generateSparklineSVG(window.holdingsHistory[symbol], chg >= 0);
             
             const activeClass = currentDashboardSymbol === symbol ? 'class="active-row"' : '';
 
@@ -409,13 +409,13 @@
 
         let html = '';
         for (const [symbol, asset] of Object.entries(MARKET_TICKERS)) {
-            const price = holdingsPrices[symbol] || 0;
-            const chg = holdingsChanges[symbol] || 0;
+            const price = window.holdingsPrices[symbol] || 0;
+            const chg = window.holdingsChanges[symbol] || 0;
             const isPos = chg >= 0;
             const color = isPos ? 'var(--signal)' : 'var(--crimson)';
             const displayPrice = asset.baseCurrency === 'EUR' ? '€' + price.toFixed(2) : '$' + price.toFixed(2);
             const indicator = isPos ? '▲' : '▼';
-            const miniSpark = generateMiniSparklineSVG(holdingsHistory[symbol], isPos);
+            const miniSpark = generateMiniSparklineSVG(window.holdingsHistory[symbol], isPos);
 
             html += '<div class="mkt-mini-card" onclick="onMarketAssetChange(\'' + symbol + '\')" style="cursor:pointer; display:flex; align-items:center; gap:8px;">' +
                 '<span style="color:var(--t1); font-weight:700;">' + asset.sym + '</span>' +
@@ -435,7 +435,7 @@
 
         let posCount = 0;
         let negCount = 0;
-        for (const chg of Object.values(holdingsChanges)) {
+        for (const chg of Object.values(window.holdingsChanges)) {
             if (chg > 0) posCount++;
             else if (chg < 0) negCount++;
         }
@@ -478,8 +478,8 @@
 
         let rowsHtml = '';
         for (const [symbol, asset] of Object.entries(MARKET_TICKERS)) {
-            const price = holdingsPrices[symbol] || 0;
-            const chg = holdingsChanges[symbol] || 0;
+            const price = window.holdingsPrices[symbol] || 0;
+            const chg = window.holdingsChanges[symbol] || 0;
             const displayPrice = asset.baseCurrency === 'EUR' ? `€${price.toFixed(2)}` : `$${price.toFixed(2)}`;
             
             const chgSign = chg > 0 ? '+' : '';
@@ -513,7 +513,7 @@
     }
 
     // ─── NAVIGATION ──────────────────────────────────────────────────
-    function navigateTo(page, el) {
+    window.navigateTo = function(page, el) {
         // Remove active from all desktop nav links
         document.querySelectorAll('.nav-link').forEach(function(x) { x.classList.remove('active'); });
         // If a specific element was passed, activate it; otherwise find it by data-page
@@ -525,7 +525,10 @@
             if (navEl) navEl.classList.add('active');
         }
 
-        if (page === 'landing') {
+        if (page === 'news') {
+            window.showPage('news');
+            window.fetchCarbonNews();
+        } else if (page === 'landing') {
             showPage('landing');
         } else if (page === 'carbon') {
             showPage('carbon');
@@ -533,32 +536,30 @@
                 window._carbonInited = true; }
         } else if (page === 'ai-explainer') {
             showPage('ai-explainer');
-        } else if (page === 'dashboard-policy') {
-            if (currentUser) {
-                showPage('dashboard');
-                switchPanel('policy', document.querySelector('.sb-item:nth-child(4)'));
-            } else {
-                pendingPanel = 'policy';
-                showPage('auth', 'signin');
-            }
         }
         closeMM();
     }
 
     // ─── PAGE CONTROL ──────────────────────────────────────────────────
-    function showPage(page, tab) {
+    window.showPage = function(page, tab) {
         document.getElementById('page-landing').style.display = 'none';
         document.getElementById('page-auth').style.display = 'none';
         document.getElementById('page-dashboard').style.display = 'none';
         document.getElementById('page-carbon').style.display = 'none';
         document.getElementById('page-ai-explainer').style.display = 'none';
+        document.getElementById('page-news').style.display = 'none';
         document.getElementById('ticker').style.display = (page === 'dashboard') ? 'none' : 'flex';
 
-        if (page === 'landing') {
+        if (page === 'news') {
+            document.getElementById('page-news').style.display = 'block';
+            document.getElementById('nav').style.display = 'flex';
+            updateNavForAuth(!!window.currentUser);
+            initReveal('page-news');
+        } else if (page === 'landing') {
             document.getElementById('page-landing').style.display = 'block';
             document.getElementById('nav').style.display = 'flex';
             updateNavForAuth(!!currentUser);
-            if (!chartsInit) { whenContainerReady('landingChart', initLandingCharts);
+            if (!chartsInit) { whenContainerReady('landingChart', window.initLandingCharts);
                 chartsInit = true; }
             initReveal('page-landing');
         } else if (page === 'auth') {
@@ -568,7 +569,7 @@
         } else if (page === 'dashboard') {
             document.getElementById('page-dashboard').style.display = 'block';
             document.getElementById('nav').style.display = 'none';
-            if (!dashChartsInit) { whenContainerReady('dashPriceChart', initDashCharts);
+            if (!dashChartsInit) { whenContainerReady('dashPriceChart', window.initDashCharts);
                 dashChartsInit = true; }
             updateSidebarUser();
         } else if (page === 'carbon') {
@@ -700,7 +701,7 @@
         currentUser = { name: email.split('@')[0].replace(/\./g, ' '), email: email, initials: email[0].toUpperCase() };
         showPage('dashboard');
         updateNavForAuth(true);
-        if (pendingPanel) { switchPanel(pendingPanel, document.querySelector(pendingPanel === 'policy' ? '.sb-item:nth-child(4)' : '.sb-item:nth-child(3)'));
+        if (pendingPanel) { window.switchPanel(pendingPanel, document.querySelector(pendingPanel === 'policy' ? '.sb-item:nth-child(4)' : '.sb-item:nth-child(3)'));
             pendingPanel = null; }
     }
 
@@ -719,7 +720,7 @@
         currentUser = { name: first + ' ' + last, email: email, initials: first[0].toUpperCase() };
         showPage('dashboard');
         updateNavForAuth(true);
-        if (pendingPanel) { switchPanel(pendingPanel, document.querySelector(pendingPanel === 'policy' ? '.sb-item:nth-child(4)' : '.sb-item:nth-child(3)'));
+        if (pendingPanel) { window.switchPanel(pendingPanel, document.querySelector(pendingPanel === 'policy' ? '.sb-item:nth-child(4)' : '.sb-item:nth-child(3)'));
             pendingPanel = null; }
     }
 
@@ -1035,7 +1036,7 @@
         showPage('landing');
         // Kick off live FX fetch on page load
         fetchFXRates();
-        initHeroInstrumentPanel();
+        window.initHeroInstrumentPanel();
     });
 
     if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) {
@@ -1191,7 +1192,7 @@
 
     // News API Integration
     window.newsFetched = false;
-    async function fetchCarbonNews() {
+    window.fetchCarbonNews = async function() {
         if (window.newsFetched) return; // Only fetch once to save API quota
         
         const apiKey = '8203ca35fa43ce8d6354bef20fb133a0';
@@ -1199,18 +1200,30 @@
         const url = `/api/news`;
         
         const container = document.getElementById('news-container');
-        if (!container) return;
+        const pubContainer = document.getElementById('public-news-container');
+        if (!container && !pubContainer) return;
 
         try {
-            const response = await fetch(url);
-            const data = await response.json();
+            let response = await fetch(url);
+            let data;
+            if (response.ok) {
+                data = await response.json();
+            } else {
+                console.warn('Backend news API route returned non-200. Falling back to direct fetch.');
+                const directUrl = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&sortBy=publishedAt&apikey=${apiKey}`;
+                response = await fetch(directUrl);
+                data = await response.json();
+            }
             
-                        if (data.articles) {
+            if (data.articles) {
                 window.newsFetched = true;
-                container.innerHTML = ''; // Clear loading text
+                if (container) container.innerHTML = '';
+                if (pubContainer) pubContainer.innerHTML = '';
                 
                 if (data.articles.length === 0) {
-                    container.innerHTML = '<div style="padding:20px; color:var(--t3);">No news found.</div>';
+                    const noNews = '<div style="padding:20px; color:var(--t3);">No news found.</div>';
+                    if (container) container.innerHTML = noNews;
+                    if (pubContainer) pubContainer.innerHTML = noNews;
                 }
                 
                 let styleAdded = false;
@@ -1335,6 +1348,6 @@
     // Attempt to load news if we start on the policy panel
     document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('panel-policy') && document.getElementById('panel-policy').style.display === 'block') {
-            fetchCarbonNews();
+            window.fetchCarbonNews();
         }
     });
