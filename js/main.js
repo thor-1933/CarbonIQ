@@ -837,6 +837,7 @@
         // Option A: Try direct client-side Gemini API if key saved in browser
         if (localKey) {
             try {
+                // Try 1: gemini-1.5-flash
                 var directRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${localKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -845,8 +846,25 @@
                     })
                 });
                 var directData = await directRes.json();
-                if (directData.candidates && directData.candidates[0]) {
+                if (directData.candidates && directData.candidates[0] && directData.candidates[0].content) {
                     replyText = directData.candidates[0].content.parts[0].text;
+                } else if (directData.error) {
+                    // Try 2: gemini-2.0-flash fallback
+                    var fallbackRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${localKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ role: 'user', parts: [{ text: `You are CarbonIQ AI Copilot. Answer concisely in 2-3 sentences: ${val}` }] }]
+                        })
+                    });
+                    var fallbackData = await fallbackRes.json();
+                    if (fallbackData.candidates && fallbackData.candidates[0] && fallbackData.candidates[0].content) {
+                        replyText = fallbackData.candidates[0].content.parts[0].text;
+                    } else if (fallbackData.error) {
+                        replyText = '<b>Gemini API Error:</b> ' + (fallbackData.error.message || 'Invalid API key or quota exceeded.');
+                    } else if (directData.error) {
+                        replyText = '<b>Gemini API Error:</b> ' + (directData.error.message || 'Invalid API key.');
+                    }
                 }
             } catch (err) {
                 console.warn('Direct Gemini API call failed:', err);
