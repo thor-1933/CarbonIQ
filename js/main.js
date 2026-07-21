@@ -156,6 +156,7 @@
         
         return price;
     }
+    window.getPriceInDisplayCurrency = getPriceInDisplayCurrency;
 
     function getPriceInUSD(price, currency) {
         if (currency === 'USD') return price;
@@ -763,6 +764,7 @@
         chatOpen.v = !chatOpen.v;
         document.getElementById('chatPanel').classList.toggle('open', chatOpen.v);
     }
+    window.toggleChat = toggleChat;
 
     var BOTS = {
         friday: function() {
@@ -796,32 +798,50 @@
         return div;
     }
 
-    function sendMsg() {
+    async function sendMsg() {
         var inp = document.getElementById('chatInput');
         var val = inp.value.trim();
         if (!val) return;
         appendMsg(val, 'user');
         inp.value = '';
+
         var typDiv = document.createElement('div');
         typDiv.className = 'msg bot';
         typDiv.innerHTML = '<div class="typing-dot"><span></span><span></span><span></span></div>';
         document.getElementById('chatBody').appendChild(typDiv);
         document.getElementById('chatBody').scrollTop = 9999;
-        setTimeout(function() {
-            typDiv.remove();
-            var reply = getReply(val);
-            var i = 0;
-            var div = appendMsg('', 'bot');
-            var iv = setInterval(function() {
-                div.innerHTML = reply.substring(0, i += 4);
-                document.getElementById('chatBody').scrollTop = 9999;
-                if (i >= reply.length) clearInterval(iv);
-            }, 14);
-        }, 700);
+
+        var replyText = '';
+        try {
+            var res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: val })
+            });
+            var data = await res.json();
+            if (data && data.reply && !data.fallback) {
+                replyText = data.reply;
+            } else {
+                replyText = getReply(val);
+            }
+        } catch (e) {
+            replyText = getReply(val);
+        }
+
+        typDiv.remove();
+        var i = 0;
+        var div = appendMsg('', 'bot');
+        var iv = setInterval(function() {
+            div.innerHTML = replyText.substring(0, i += 4);
+            document.getElementById('chatBody').scrollTop = 9999;
+            if (i >= replyText.length) clearInterval(iv);
+        }, 14);
     }
+    window.sendMsg = sendMsg;
 
     function quickSend(t) { document.getElementById('chatInput').value = t;
         sendMsg(); }
+    window.quickSend = quickSend;
 
     // ─── CARBON PAGE INIT ──────────────────────────────────────────────
     var _carbonSystems = [
